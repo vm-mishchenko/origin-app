@@ -17,8 +17,5 @@ import {PageService} from './page.service';
 })
 export class PageModule {
     constructor(private pageService: PageService) {
-        this.pageService.pages$.subscribe((pages) => {
-            console.log(`pages`, pages);
-        });
     }
 }

@@ -9,3 +9,9 @@ export interface IBodyPage {
     id: string;
     body: IWallDefinition;
 }
+
+export interface IRelationPage {
+    id: string;
+    parentPageId: string;
+    childrenPageId: string[];
+}
