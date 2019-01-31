@@ -13,6 +13,7 @@
   "dependencies": {
     "@angular/animations": "~7.1.0",
     "@angular/common": "~7.1.0",
+    "@angular/cdk": "~7.1.0",
     "@angular/compiler": "~7.1.0",
     "@angular/core": "~7.1.0",
     "@angular/forms": "~7.1.0",
@@ -26,7 +27,13 @@
     "pouchdb": "^7.0.0",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
-    "zone.js": "~0.8.26"
+    "zone.js": "~0.8.26",
+    "ngx-sticky-modal": "^0.0.3",
+    "ngx-wall": "1.1.16",
+    "bootstrap": "4.1.2",
+    "codemirror": "5.39.2",
+    "open-iconic": "1.1.1",
+    "@ng-bootstrap/ng-bootstrap": "4.0.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.11.0",

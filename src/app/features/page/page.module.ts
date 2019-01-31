@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
+import {WallModule} from 'ngx-wall';
 import {PersistentStorageModule} from '../../infrastructure/persistent-storage';
 import {PageService} from './page.service';
 
@@ -7,6 +8,7 @@ import {PageService} from './page.service';
     declarations: [],
     imports: [
         CommonModule,
+        WallModule,
         PersistentStorageModule
     ],
     providers: [

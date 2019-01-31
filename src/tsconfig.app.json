@@ -2,10 +2,47 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/app",
-    "types": []
+    "module": "es2015",
+    "types": [],
+    "paths": {
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ],
+      "@ng-bootstrap/*": [
+        "./node_modules/@ng-bootstrap/*"
+      ],
+      "rxjs": [
+        "./node_modules/rxjs"
+      ],
+      "tslib": [
+        "./node_modules/tslib"
+      ],
+      "rxjs/*": [
+        "./node_modules/rxjs/*"
+      ],
+      "codemirror": [
+        "./node_modules/codemirror"
+      ],
+      "codemirror/*": [
+        "./node_modules/codemirror/*"
+      ],
+      "bootstrap": [
+        "./node_modules/bootstrap"
+      ],
+      "open-iconic": [
+        "./node_modules/open-iconic"
+      ],
+      "ngx-sticky-modal": [
+        "./node_modules/ngx-sticky-modal"
+      ],
+      "ngx-wall": [
+        "../ngx-wall/projects/ngx-wall/src/public_api.ts"
+      ]
+    }
   },
   "exclude": [
-    "test.ts",
+    "node_modules",
+    "src/test.ts",
     "**/*.spec.ts"
   ]
 }
