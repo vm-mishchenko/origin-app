@@ -1,4 +1,4 @@
-export interface IIndentityPage {
+export interface IIdentityPage {
     id: string;
     title: string;
 }

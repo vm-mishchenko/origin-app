@@ -21,7 +21,7 @@
     "@angular/pwa": "^0.12.2",
     "@angular/router": "~7.1.0",
     "@angular/service-worker": "~7.1.0",
-    "@datorama/akita": "1.24.2",
+    "@datorama/akita": "2.1.1",
     "core-js": "^2.5.4",
     "pouchdb": "^7.0.0",
     "rxjs": "~6.3.3",

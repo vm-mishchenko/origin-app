@@ -1,36 +1,35 @@
 import {Injectable} from '@angular/core';
-import * as PouchDB from 'pouchdb/dist/pouchdb';
-import {PageIdentityMemoryStore} from './page-identity-memory-store.service';
-import {PageIdentitiesQuery} from './page-identity-query.service';
-import {PagePersistentStorage} from './page-persistent-storage.service';
-import {PageStoreSyncStrategy} from './page-store-sync-strategy';
-import {StoreFactory} from './store.factory';
+import {HashMap} from '@datorama/akita';
+import {Observable} from 'rxjs';
+import {PersistentStorage, PersistentStorageFactory} from '../../infrastructure/persistent-storage';
+import {IIdentityPage} from './page.types';
 
 @Injectable()
 export class PageService {
-    pageStoreSyncStrategy: PageStoreSyncStrategy;
+    // todo: move to other service
+    pages$: Observable<HashMap<IIdentityPage>>;
 
-    constructor(private pagePersistentStorage: PagePersistentStorage,
-                private pageIdentitiesQuery: PageIdentitiesQuery,
-                private storeFactory: StoreFactory) {
-        this.pageIdentitiesQuery.select((store) => {
-            return store;
-        }).subscribe((store) => {
-            console.log(`new store: `, store);
+    private pageIdentityStorage: PersistentStorage<IIdentityPage>;
+
+    constructor(private persistentStorageFactory: PersistentStorageFactory) {
+        // initialize required storage
+        this.pageIdentityStorage = this.persistentStorageFactory.create({
+            name: 'page-identity'
         });
 
-        const persistentDb = new PouchDB('page-identity');
-        const memoryDb = new PageIdentityMemoryStore();
-
-        this.pageStoreSyncStrategy = new PageStoreSyncStrategy(persistentDb, memoryDb);
+        this.pages$ = this.pageIdentityStorage.entities$;
     }
 
     createPage(): Promise<any> {
-        console.log(`create page`);
-
-        return this.pageStoreSyncStrategy.create({
-            _id: String(Date.now()),
+        const pageIdentity = {
+            id: String(Date.now()),
             title: 'Default title'
-        });
+        };
+
+        return this.pageIdentityStorage.add(pageIdentity).then(() => pageIdentity);
+    }
+
+    removePage(id: string): Promise<any> {
+        return this.pageIdentityStorage.remove(id);
     }
 }

@@ -1,22 +1,22 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {PageIdentitiesQuery} from './page-identity-query.service';
+import {PersistentStorageModule} from '../../infrastructure/persistent-storage';
 import {PageService} from './page.service';
-import {StoreFactory} from './store.factory';
 
 @NgModule({
     declarations: [],
     imports: [
-        CommonModule
+        CommonModule,
+        PersistentStorageModule
     ],
     providers: [
         PageService,
-        PageIdentitiesQuery,
-        StoreFactory
     ]
 })
 export class PageModule {
     constructor(private pageService: PageService) {
-        this.pageService.createPage();
+        this.pageService.pages$.subscribe((pages) => {
+            console.log(`pages`, pages);
+        });
     }
 }
