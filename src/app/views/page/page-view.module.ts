@@ -1,5 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
+import {MatButtonModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
 import {PageUiModule} from '../../features/page-ui';
 import {PageModule} from '../../features/page/page.module';
@@ -34,6 +35,8 @@ const routes: Routes = [
         CommonModule,
         PageModule,
         PageUiModule,
+        MatSidenavModule,
+        MatButtonModule,
         RouterModule.forChild(routes)
     ]
 })

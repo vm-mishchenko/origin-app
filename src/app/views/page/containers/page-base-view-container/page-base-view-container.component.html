@@ -1,8 +1,13 @@
-<p>
-    page-base-view-container works!
-</p>
+<mat-sidenav-container class="page-base-view-container">
+    <mat-sidenav #sidenav [mode]="mobileQuery.matches ? 'over' : 'side'">
+        <app-page-tree-flat-container></app-page-tree-flat-container>
+    </mat-sidenav>
 
-<app-page-tree-flat-container></app-page-tree-flat-container>
-<!--<app-page-tree-container></app-page-tree-container>-->
+    <mat-sidenav-content>
+        <p>
+            <button mat-button (click)="sidenav.toggle()">Toggle</button>
+        </p>
 
-<router-outlet></router-outlet>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>
