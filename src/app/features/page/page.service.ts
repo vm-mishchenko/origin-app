@@ -10,6 +10,7 @@ export class PageService {
     // todo: move to other service
     pageIdentity$: Observable<HashMap<IIdentityPage>>;
     pageRelation$: Observable<HashMap<IRelationPage>>;
+    pageBody$: Observable<HashMap<IBodyPage>>;
 
     private pageIdentityStorage: PersistentStorage<IIdentityPage>;
     private pageBodyStorage: PersistentStorage<IBodyPage>;
@@ -31,9 +32,7 @@ export class PageService {
         // todo: move to the separate query service
         this.pageIdentity$ = this.pageIdentityStorage.entities$;
         this.pageRelation$ = this.pageRelationStorage.entities$;
-
-        // this.initializePage();
-        this.loadRootPages();
+        this.pageBody$ = this.pageBodyStorage.entities$;
     }
 
     createPage(parentPageId: string = null): Promise<string> {
@@ -55,6 +54,7 @@ export class PageService {
             childrenPageId: []
         };
 
+        /* If parent exists we should update parent relations as well */
         const updateParentPageRelation = new Promise((resolve, reject) => {
             if (parentPageId) {
                 this.pageRelationStorage.load(parentPageId).then(() => {
@@ -81,7 +81,16 @@ export class PageService {
     }
 
     removePage(id: string): Promise<any> {
-        return this.pageIdentityStorage.remove(id);
+        /*
+        * 1. delete all child storage
+        * 2. if there is parent, delete childId from it's relation
+        * */
+
+        return Promise.all([
+            this.pageIdentityStorage.remove(id),
+            this.pageBodyStorage.remove(id),
+            this.pageRelationStorage.remove(id),
+        ]);
     }
 
     loadRootPages(): Promise<any> {
@@ -105,27 +114,6 @@ export class PageService {
                     this.pageRelationStorage.load(childPageId),
                 ]);
             }));
-        });
-    }
-
-    private initializePage() {
-        Promise.all([
-            this.pageIdentityStorage.removeAll(),
-            this.pageRelationStorage.removeAll(),
-            this.pageBodyStorage.removeAll()
-        ]).then(() => {
-            Promise.all([
-                this.createPage().then((id) => {
-                    this.createPage(id).then((childId) => {
-                        this.createPage(childId);
-                    });
-                }),
-                this.createPage().then((id) => {
-                    this.createPage(id);
-                })
-            ]).then(() => {
-                console.log(`done`);
-            });
         });
     }
 }

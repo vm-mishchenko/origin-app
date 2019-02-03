@@ -63,6 +63,11 @@ export class PageTreeFlatContainerComponent {
         });
     }
 
+    removePage(id: string) {
+        this.pageTreeFlatSelection.removeSelectedPageId(id);
+        this.pageService.removePage(id);
+    }
+
     reRenderTree() {
         this.dataSource.data = new PageTreeFlat(
             this.pageRelations,

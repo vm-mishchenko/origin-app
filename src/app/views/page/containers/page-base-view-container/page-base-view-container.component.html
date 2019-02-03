@@ -1,6 +1,8 @@
 <mat-sidenav-container class="page-base-view-container">
-    <mat-sidenav #sidenav [mode]="mobileQuery.matches ? 'over' : 'side'">
+    <mat-sidenav #sidenav opened [mode]="mobileQuery.matches ? 'over' : 'side'">
         <app-page-tree-flat-container></app-page-tree-flat-container>
+
+        <button (click)="addPage()">Add page</button>
     </mat-sidenav>
 
     <mat-sidenav-content>
@@ -11,3 +13,4 @@
         <router-outlet></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>
+
