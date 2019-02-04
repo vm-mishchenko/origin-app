@@ -10,18 +10,6 @@ class TestScope {
     initialize() {
         this.service = TestBed.get(PageService);
     }
-
-    cleanUp(): Promise<any> {
-        return Promise.resolve();
-        // return new Promise((resolve, reject) => {
-        //     this.service.pageIdentity$.subscribe((pageIdentities) => {
-        //         Promise.all(
-        //             Object.values(pageIdentities)
-        //                 .map((pageIdentity) => this.service.removePage(pageIdentity.id)))
-        //             .then(resolve, reject);
-        //     });
-        // });
-    }
 }
 
 class MockPouchDb {
@@ -55,10 +43,7 @@ describe('PageService', () => {
         testScope.initialize();
     });
 
-    afterEach((done) => {
-        console.log(`clean up`);
-
-        testScope.cleanUp().then(done);
+    afterEach(() => {
         testScope = null;
     });
 
@@ -109,20 +94,6 @@ describe('PageService', () => {
 
                 flushMicrotasks();
                 expect(pageRelation).toBeDefined();
-            });
-        }));
-
-        it('should create page relation', fakeAsync(() => {
-            let pageRelation: IRelationPage = null;
-
-            testScope.service.createPage().then((id) => {
-                testScope.service.pageRelation$.subscribe((pages) => {
-                    pageRelation = pages[id];
-                });
-
-                flushMicrotasks();
-                expect(pageRelation).toBeDefined();
-
                 expect(pageRelation.parentPageId).toBe(null);
                 expect(pageRelation.childrenPageId.length).toBe(0);
             });
@@ -169,7 +140,6 @@ describe('PageService', () => {
 
             testScope.service.createPage(parentPageId).then((childPageId_) => childPageId = childPageId_);
             tick();
-            tick();
 
             testScope.service.pageRelation$.subscribe((pages) => {
                 parentPageRelation = pages[parentPageId];
@@ -179,5 +149,11 @@ describe('PageService', () => {
             expect(parentPageRelation.childrenPageId.length).toBe(1);
             expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
         }));
+    });
+
+    describe('Delete page', () => {
+        it('should delete page idenity', () => {
+
+        });
     });
 });
