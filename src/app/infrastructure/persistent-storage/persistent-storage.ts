@@ -59,14 +59,12 @@ export class PersistentStorage<M extends IPersistedStorageRecord> {
     add(record: M): Promise<any> {
         this.memoryStore.add(record);
 
-        this.pouchdbStorage.put({
+        return this.pouchdbStorage.put({
             _id: record.id,
 
             // todo: find the way to fix it
             ...(record as object)
         });
-
-        return Promise.resolve();
     }
 
     update(id: string, newEntity: any): Promise<any> {

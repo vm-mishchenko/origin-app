@@ -1,4 +1,4 @@
-import {async, fakeAsync, flushMicrotasks, TestBed} from '@angular/core/testing';
+import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
 import {PageModule} from './page.module';
 import {PageService} from './page.service';
@@ -8,30 +8,46 @@ class TestScope {
     service: PageService;
 
     initialize() {
-        const pouchDbStorageFactory: PouchdbStorageFactory = TestBed.get(PouchdbStorageFactory);
-
-        // add test prefix for easier identifying test databases
-        pouchDbStorageFactory.setDatabaseNamePrefix('test');
-
         this.service = TestBed.get(PageService);
     }
 
     cleanUp(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.service.pageIdentity$.subscribe((pageIdentities) => {
-                Promise.all(Object.values(pageIdentities).map((pageIdentity) => {
-                    return this.service.removePage(pageIdentity.id);
-                })).then(resolve, reject);
-            });
-        });
+        return Promise.resolve();
+        // return new Promise((resolve, reject) => {
+        //     this.service.pageIdentity$.subscribe((pageIdentities) => {
+        //         Promise.all(
+        //             Object.values(pageIdentities)
+        //                 .map((pageIdentity) => this.service.removePage(pageIdentity.id)))
+        //             .then(resolve, reject);
+        //     });
+        // });
+    }
+}
+
+class MockPouchDb {
+    put() {
+        return Promise.resolve();
+    }
+
+    get() {
+        return Promise.resolve({});
     }
 }
 
 describe('PageService', () => {
+    const mockPouchDb = new MockPouchDb();
     let testScope: TestScope;
 
     beforeEach(() => TestBed.configureTestingModule({
-        imports: [PageModule]
+        imports: [PageModule],
+        providers: [
+            {
+                provide: PouchdbStorageFactory,
+                useValue: {
+                    createPouchDB: () => mockPouchDb
+                }
+            }
+        ]
     }));
 
     beforeEach(() => {
@@ -40,6 +56,8 @@ describe('PageService', () => {
     });
 
     afterEach((done) => {
+        console.log(`clean up`);
+
         testScope.cleanUp().then(done);
         testScope = null;
     });
@@ -143,17 +161,23 @@ describe('PageService', () => {
         it('should update parent relation', fakeAsync(() => {
             let parentPageRelation: IRelationPage = null;
 
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.service.pageRelation$.subscribe((pages) => {
-                        parentPageRelation = pages[parentPageId];
-                    });
+            let childPageId: string;
+            let parentPageId: string;
 
-                    flushMicrotasks();
-                    expect(parentPageRelation.childrenPageId.length).toBe(1);
-                    expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
-                });
+            testScope.service.createPage().then((parentPageId_) => parentPageId = parentPageId_);
+            tick();
+
+            testScope.service.createPage(parentPageId).then((childPageId_) => childPageId = childPageId_);
+            tick();
+            tick();
+
+            testScope.service.pageRelation$.subscribe((pages) => {
+                parentPageRelation = pages[parentPageId];
             });
+
+            flushMicrotasks();
+            expect(parentPageRelation.childrenPageId.length).toBe(1);
+            expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
         }));
     });
 });

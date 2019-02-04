@@ -17,6 +17,6 @@ import {PageService} from './page.service';
 })
 export class PageModule {
     constructor(private pageService: PageService) {
-        this.pageService.loadRootPages();
+        // this.pageService.loadRootPages();
     }
 }

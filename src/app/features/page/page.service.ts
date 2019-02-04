@@ -36,7 +36,7 @@ export class PageService {
     }
 
     createPage(parentPageId: string = null): Promise<string> {
-        const id = String(Date.now());
+        const id = `${Date.now()}-${Math.random()}`;
 
         const pageIdentity = {
             id,
@@ -57,7 +57,7 @@ export class PageService {
         /* If parent exists we should update parent relations as well */
         const updateParentPageRelation = new Promise((resolve, reject) => {
             if (parentPageId) {
-                this.pageRelationStorage.load(parentPageId).then(() => {
+                this.pageRelationStorage.get(parentPageId).then(() => {
                     const relationEntries = this.pageRelationStorage.getMemoryEntries();
 
                     this.pageRelationStorage.update(parentPageId, {

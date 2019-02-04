@@ -20,6 +20,7 @@ export class PageBaseViewContainerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.pageService.loadRootPages();
     }
 
     ngOnDestroy(): void {
