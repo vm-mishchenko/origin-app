@@ -81,12 +81,12 @@ export class PageService {
     }
 
     removePage(id: string): Promise<any> {
-        /*
-        * 1. delete all child storage
-        * 2. if there is parent, delete childId from it's relation
-        * */
+        const removeChildPages = this.pageRelationStorage.get(id).then((pageRelation) => {
+            return pageRelation.childrenPageId.map((childrenPageId) => this.removePage(childrenPageId));
+        });
 
         return Promise.all([
+            removeChildPages,
             this.pageIdentityStorage.remove(id),
             this.pageBodyStorage.remove(id),
             this.pageRelationStorage.remove(id),

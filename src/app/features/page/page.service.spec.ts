@@ -20,6 +20,10 @@ class MockPouchDb {
     get() {
         return Promise.resolve({});
     }
+
+    remove() {
+        return Promise.resolve();
+    }
 }
 
 describe('PageService', () => {
@@ -152,8 +156,88 @@ describe('PageService', () => {
     });
 
     describe('Delete page', () => {
-        it('should delete page idenity', () => {
+        it('should delete page identity, body, relation', async(() => {
+            let pageIdentity;
+            let pageBody;
+            let pageRelation;
 
-        });
+            testScope.service.createPage().then((pageId) => {
+                testScope.service.removePage(pageId).then(() => {
+                    testScope.service.pageIdentity$.subscribe((pages) => {
+                        pageIdentity = pages[pageId];
+                    });
+
+                    testScope.service.pageBody$.subscribe((pages) => {
+                        pageBody = pages[pageId];
+                    });
+
+                    testScope.service.pageRelation$.subscribe((pages) => {
+                        pageRelation = pages[pageId];
+                    });
+
+                    expect(pageIdentity).not.toBeDefined();
+                    expect(pageBody).not.toBeDefined();
+                    expect(pageRelation).not.toBeDefined();
+                });
+            });
+        }));
+
+        it('should delete child page identity, body, relation', async(() => {
+            let childPageIdentity;
+            let childPageBody;
+            let childPageRelation;
+
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    testScope.service.removePage(parentPageId).then(() => {
+                        testScope.service.pageIdentity$.subscribe((pages) => {
+                            childPageIdentity = pages[childPageId];
+                        });
+
+                        testScope.service.pageBody$.subscribe((pages) => {
+                            childPageBody = pages[childPageId];
+                        });
+
+                        testScope.service.pageRelation$.subscribe((pages) => {
+                            childPageRelation = pages[childPageId];
+                        });
+
+                        expect(childPageIdentity).not.toBeDefined();
+                        expect(childPageBody).not.toBeDefined();
+                        expect(childPageRelation).not.toBeDefined();
+                    });
+                });
+            });
+        }));
+
+        it('should delete all sub child page identity, body, relation', async(() => {
+            let subChildPageIdentity;
+            let subChildPageBody;
+            let subChildPageRelation;
+
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    testScope.service.createPage(childPageId).then((subChildPageId) => {
+                        testScope.service.removePage(parentPageId).then(() => {
+                            testScope.service.pageIdentity$.subscribe((pages) => {
+                                subChildPageIdentity = pages[subChildPageId];
+                            });
+
+                            testScope.service.pageBody$.subscribe((pages) => {
+                                subChildPageBody = pages[subChildPageId];
+                            });
+
+                            testScope.service.pageRelation$.subscribe((pages) => {
+                                subChildPageRelation = pages[subChildPageId];
+                            });
+
+                            expect(subChildPageIdentity).not.toBeDefined();
+                            expect(subChildPageBody).not.toBeDefined();
+                            expect(subChildPageRelation).not.toBeDefined();
+                        });
+                    });
+                });
+            });
+        }));
     });
 });
