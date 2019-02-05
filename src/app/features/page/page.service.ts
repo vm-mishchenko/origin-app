@@ -3,6 +3,7 @@ import {HashMap} from '@datorama/akita';
 import {WallModelFactory} from 'ngx-wall';
 import {Observable} from 'rxjs';
 import {PersistentStorage, PersistentStorageFactory} from '../../infrastructure/persistent-storage';
+import {Guid} from '../../infrastructure/utils';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
 @Injectable()
@@ -17,7 +18,8 @@ export class PageService {
     private pageRelationStorage: PersistentStorage<IRelationPage>;
 
     constructor(private persistentStorageFactory: PersistentStorageFactory,
-                private wallModelFactory: WallModelFactory) {
+                private wallModelFactory: WallModelFactory,
+                private guid: Guid) {
         // initialize required storage
         this.pageIdentityStorage = this.persistentStorageFactory.create<IIdentityPage>({
             name: 'page-identity'
@@ -36,7 +38,7 @@ export class PageService {
     }
 
     createPage(parentPageId: string = null): Promise<string> {
-        const id = `${Date.now()}-${Math.random()}`;
+        const id = this.guid.generate();
 
         const pageIdentity = {
             id,
@@ -93,6 +95,35 @@ export class PageService {
         ]);
     }
 
+    loadIdentityPage(id: string): Promise<IIdentityPage> {
+        return this.pageIdentityStorage.load(id).catch(() => {
+            // todo: log internal error
+            throw new Error(`Identity page "${id}" does not exist`);
+        });
+    }
+
+    loadBodyPage(id: string): Promise<IBodyPage> {
+        return this.pageBodyStorage.load(id).catch(() => {
+            // todo: log internal error
+            throw new Error(`Body page "${id}" does not exist`);
+        });
+    }
+
+    loadRelationPage(id: string): Promise<IRelationPage> {
+        return this.pageRelationStorage.load(id).catch((e) => {
+            // todo: log internal error
+            throw new Error(`Relation page "${id}" does not exist`);
+        });
+    }
+
+    loadPage(id: string): Promise<any> {
+        return Promise.all([
+            this.pageIdentityStorage.load(id),
+            this.pageBodyStorage.load(id),
+            this.pageRelationStorage.load(id),
+        ]);
+    }
+
     loadRootPages(): Promise<any> {
         return this.pageRelationStorage.findAndLoad({
             selector: {
@@ -105,7 +136,7 @@ export class PageService {
         });
     }
 
-    // todo: temporary page
+    // todo: Refactor that code
     loadTreePageChildren(pageId: string) {
         this.pageRelationStorage.get(pageId).then((relation) => {
             return Promise.all(relation.childrenPageId.map((childPageId) => {

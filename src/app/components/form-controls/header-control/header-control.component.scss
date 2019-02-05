@@ -1,0 +1,17 @@
+@import "../../../../../../ngx-wall/projects/ngx-wall/src/lib/resources/scss/framework/core/variables";
+
+// @import "node_modules/ngx-wall/dist/scss/variables";
+
+:host {
+  [contenteditable] {
+    &:empty:before {
+      cursor: text;
+      color: $w-sub-text-color;
+      content: attr(placeholder);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

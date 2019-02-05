@@ -1,7 +1,7 @@
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" [trackBy]="trackByFn">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <button mat-icon-button disabled></button>
-        {{node.title}}-{{node.id}}
+        <a [routerLink]="['/page', node.id]">{{node.title}} ({{node.id}})</a>
 
         <button (click)="removePage(node.id)">Delete Page</button>
     </mat-tree-node>
@@ -13,7 +13,7 @@
                 {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
             </mat-icon>
         </button>
-        {{node.title}} ({{node.id}})
+        <a [routerLink]="['/page', node.id]">{{node.title}} ({{node.id}})</a>
 
         <button (click)="removePage(node.id)">Delete Page</button>
         <mat-progress-bar *ngIf="node.isLoading"

@@ -1,3 +1,10 @@
-<p>
-  page-editor-view-container works!
-</p>
+<h1>Page editor</h1>
+
+<div [formGroup]="pageForm">
+    <p>Id: {{(selectedPageIdentity$ | async)?.id}}</p>
+    <p>Title: {{(selectedPageIdentity$ | async)?.title}}</p>
+    <p>Body: {{(selectedPageBody$ | async)?.body | json}}</p>
+
+    <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
+                      placeholder="Untitled"></o-header-control>
+</div>

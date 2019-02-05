@@ -1,6 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {MatButtonModule, MatIconModule, MatProgressBarModule, MatTreeModule} from '@angular/material';
+import {RouterModule} from '@angular/router';
 import {PageModule} from '../page/page.module';
 import {PageTreeFlatContainerComponent} from './containers/page-tree-flat-container/page-tree-flat-container.component';
 
@@ -15,7 +16,8 @@ import {PageTreeFlatContainerComponent} from './containers/page-tree-flat-contai
         MatTreeModule,
         MatIconModule,
         MatProgressBarModule,
-        MatButtonModule
+        MatButtonModule,
+        RouterModule
     ]
 })
 export class PageUiModule {
