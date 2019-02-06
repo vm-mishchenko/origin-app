@@ -1,3 +1,4 @@
+import {OverlayModule} from '@angular/cdk/overlay';
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -16,7 +17,10 @@ import {NavigationModule} from './features/navigation';
         AppRoutingModule,
         ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
         BrowserAnimationsModule,
-        NavigationModule
+        NavigationModule,
+
+        // todo-hack: https://github.com/angular/material2/issues/10820
+        OverlayModule
     ],
     providers: [],
     bootstrap: [AppComponent]

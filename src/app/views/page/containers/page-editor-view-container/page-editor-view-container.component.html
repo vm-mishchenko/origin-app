@@ -1,10 +1,17 @@
-<h1>Page editor</h1>
-
-<div [formGroup]="pageForm">
-    <p>Id: {{(selectedPageIdentity$ | async)?.id}}</p>
-    <p>Title: {{(selectedPageIdentity$ | async)?.title}}</p>
-    <p>Body: {{(selectedPageBody$ | async)?.body | json}}</p>
-
+<div #container [formGroup]="pageForm" class="page-editor-view-container">
     <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
                       placeholder="Untitled"></o-header-control>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="
+            col-md-10 offset-md-1
+            col-lg-8 offset-lg-2
+            col-xl-8 offset-xl-2">
+                <div [pick-out-area]="{scrollableContainer: container}">
+                    <wall [model]="wallModel"></wall>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

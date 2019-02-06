@@ -33,7 +33,7 @@
         "./node_modules/open-iconic"
       ],
       "ngx-sticky-modal": [
-        "./node_modules/ngx-sticky-modal"
+        "../ngx-sticky-modal/projects/ngx-sticky-modal/src/public_api.ts"
       ],
       "ngx-wall": [
         "../ngx-wall/projects/ngx-wall/src/public_api.ts"

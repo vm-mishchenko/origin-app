@@ -1,6 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Injector, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
+import {CopyPlugin, IPickOutAreaConfig, IWallModel, SelectionPlugin, UndoRedoPlugin, WallModelFactory} from 'ngx-wall';
 import {combineLatest, Observable} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
@@ -19,14 +20,28 @@ export class PageEditorViewContainerComponent implements OnInit {
 
     // ui
     pageForm: FormGroup;
+    wallModel: IWallModel;
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
                 private pageService: PageService,
-                private formBuilder: FormBuilder) {
+                private formBuilder: FormBuilder,
+                private wallModelFactory: WallModelFactory,
+                private injector: Injector) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')
         });
+
+        // initialize wall model
+        this.wallModel = this.wallModelFactory.create({
+            plugins: [
+                new CopyPlugin(this.injector),
+                new UndoRedoPlugin(this.injector),
+                new SelectionPlugin(this.injector)
+            ]
+        });
+
+        this.wallModel.api.core.addBrickAtStart('text', {text: 'foo'});
     }
 
     ngOnInit() {

@@ -3,6 +3,20 @@ import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
+import {
+    CodeBrickModule,
+    DividerBrickModule,
+    HeaderBrickModule,
+    ImgBrickModule,
+    PickOutModule,
+    QuoteBrickModule,
+    RadarModule,
+    TextBrickModule,
+    TowModule,
+    VideoBrickModule,
+    WallModule,
+    WebBookmarkBrickModule
+} from 'ngx-wall';
 import {FormControlsModule} from '../../components/form-controls';
 import {NavigationModule} from '../../features/navigation';
 import {PageUiModule} from '../../features/page-ui';
@@ -43,7 +57,24 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         ReactiveFormsModule,
         FormControlsModule,
-        NavigationModule
+        NavigationModule,
+
+        // wall main module
+        WallModule,
+
+        // wall bricks
+        QuoteBrickModule,
+        TextBrickModule,
+        DividerBrickModule,
+        VideoBrickModule,
+        HeaderBrickModule,
+        ImgBrickModule,
+        CodeBrickModule,
+        WebBookmarkBrickModule,
+        PickOutModule,
+        TowModule,
+        RadarModule,
+        WebBookmarkBrickModule
     ]
 })
 export class PageViewModule {
