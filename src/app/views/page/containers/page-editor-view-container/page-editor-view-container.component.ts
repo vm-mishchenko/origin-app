@@ -3,6 +3,7 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
+import {NavigationService} from '../../../../features/navigation';
 import {PageService} from '../../../../features/page/page.service';
 import {IBodyPage, IIdentityPage} from '../../../../features/page/page.types';
 
@@ -20,7 +21,7 @@ export class PageEditorViewContainerComponent implements OnInit {
     pageForm: FormGroup;
 
     constructor(private route: ActivatedRoute,
-                private router: Router,
+                private navigationService: NavigationService,
                 private pageService: PageService,
                 private formBuilder: FormBuilder) {
         this.pageForm = this.formBuilder.group({
@@ -40,8 +41,7 @@ export class PageEditorViewContainerComponent implements OnInit {
                 this.pageService.loadIdentityPage(pageId),
                 this.pageService.loadBodyPage(pageId)
             ]).catch((e) => {
-                // todo: move to special App level module
-                this.router.navigate(['/page']);
+                this.navigationService.toPageHome();
             });
         });
 

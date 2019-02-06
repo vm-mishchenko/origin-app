@@ -4,6 +4,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
 import {FormControlsModule} from '../../components/form-controls';
+import {NavigationModule} from '../../features/navigation';
 import {PageUiModule} from '../../features/page-ui';
 import {PageModule} from '../../features/page/page.module';
 import {PageBaseViewContainerComponent} from './containers/page-base-view-container/page-base-view-container.component';
@@ -41,7 +42,8 @@ const routes: Routes = [
         MatButtonModule,
         RouterModule.forChild(routes),
         ReactiveFormsModule,
-        FormControlsModule
+        FormControlsModule,
+        NavigationModule
     ]
 })
 export class PageViewModule {
