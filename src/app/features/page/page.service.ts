@@ -120,6 +120,10 @@ export class PageService {
         return this.pageIdentityStorage.update(identityPage.id, identityPage);
     }
 
+    updatePageBody(bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
+        return this.pageBodyStorage.update(bodyPage.id, bodyPage);
+    }
+
     loadBodyPage(id: string): Promise<IBodyPage> {
         return this.pageBodyStorage.load(id).catch(() => {
             // todo: log internal error
