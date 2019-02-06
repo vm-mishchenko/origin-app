@@ -8,15 +8,18 @@ import {
     IWallModel,
     SelectionPlugin,
     SetPlanEvent,
+    TurnBrickIntoEvent,
     UNDO_REDO_API_NAME,
     UndoRedoPlugin,
     WallModelFactory
 } from 'ngx-wall';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {fromPromise} from 'rxjs/internal/observable/fromPromise';
+import {filter, first, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
+import {IPageBrickState} from '../../../../features/page-ui/bricks/page-brick/page-brick.types';
 import {PageService} from '../../../../features/page/page.service';
-import {IBodyPage, IIdentityPage} from '../../../../features/page/page.types';
+import {IIdentityPage} from '../../../../features/page/page.types';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -26,12 +29,12 @@ import {IBodyPage, IIdentityPage} from '../../../../features/page/page.types';
 export class PageEditorViewContainerComponent implements OnInit {
     selectedPageId$: Observable<string>;
     selectedPageIdentity$: Observable<IIdentityPage>;
-    selectedPageBody$: Observable<IBodyPage>;
 
     // ui
     pageForm: FormGroup;
     wallModel: IWallModel;
     bodyPage$: Observable<IWallDefinition> = new Subject<IWallDefinition>();
+    newBrickPageId$: Observable<string> = new Subject<string>();
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
@@ -83,18 +86,6 @@ export class PageEditorViewContainerComponent implements OnInit {
             shareReplay()
         );
 
-        // todo: consider move it to page service
-        // extracting entity by id
-        this.selectedPageBody$ = this.selectedPageId$.pipe(
-            switchMap((selectedPagedId) => {
-                return this.pageService.pageBody$.pipe(
-                    filter((pageBody) => Boolean(pageBody[selectedPagedId])),
-                    map((pageBody) => pageBody[selectedPagedId])
-                );
-            }),
-            shareReplay()
-        );
-
         // clean up subscription
         this.pageForm.valueChanges.pipe(
             withLatestFrom(this.selectedPageIdentity$),
@@ -116,16 +107,31 @@ export class PageEditorViewContainerComponent implements OnInit {
         });
 
         this.wallModel.api.core.subscribe((event) => {
+            if (event instanceof TurnBrickIntoEvent && event.newTag === 'page') {
+                (this.newBrickPageId$ as Subject<string>).next(event.brickId);
+            }
+
             if (!(event instanceof SetPlanEvent) && !(event instanceof BeforeChangeEvent)) {
                 (this.bodyPage$ as Subject<IWallDefinition>).next(this.wallModel.api.core.getPlan());
             }
         });
 
-        this.selectedPageBody$.subscribe((bodyPage) => {
-            this.wallModel.api[UNDO_REDO_API_NAME].clear();
-            this.wallModel.api.core.setPlan(bodyPage.body);
-        });
+        // body database -> editor
+        this.selectedPageId$.pipe(
+            switchMap((selectedPagedId) => {
+                return this.pageService.pageBody$.pipe(
+                    filter((pageBody) => Boolean(pageBody[selectedPagedId])),
+                    map((pageBody) => pageBody[selectedPagedId]),
+                    first()
+                );
+            }),
+            tap((bodyPage) => {
+                this.wallModel.api[UNDO_REDO_API_NAME].clear();
+                this.wallModel.api.core.setPlan(bodyPage.body);
+            })
+        ).subscribe();
 
+        // body editor -> database
         this.bodyPage$.pipe(
             withLatestFrom(this.selectedPageId$)
         ).subscribe(([bodyPage, selectedPageId]) => {
@@ -134,6 +140,28 @@ export class PageEditorViewContainerComponent implements OnInit {
                 body: bodyPage
             });
         });
+
+        this.newBrickPageId$.pipe(
+            withLatestFrom(this.selectedPageId$),
+            mergeMap(([newBrickPageId, selectedPageId]) => {
+                return fromPromise(this.pageService.createPage(selectedPageId)).pipe(
+                    map((newPageId) => [newBrickPageId, selectedPageId, newPageId])
+                );
+            }),
+            mergeMap(([newBrickPageId, selectedPageId, newPageId]) => {
+                return this.pageService.pageIdentity$.pipe(
+                    filter((pageIdentities) => Boolean(pageIdentities[newPageId])),
+                    map((pageIdentities) => pageIdentities[newPageId]),
+                    tap((newPageIdentity) => {
+                        const newPageBrickState: IPageBrickState = {
+                            pageId: newPageIdentity.id
+                        };
+
+                        this.wallModel.api.core.updateBrickState(newBrickPageId, newPageBrickState);
+                    })
+                );
+            })
+        ).subscribe();
     }
 
     onHeaderEnterHandler() {

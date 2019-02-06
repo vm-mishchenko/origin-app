@@ -35,20 +35,6 @@ export class PageService {
         this.pageIdentity$ = this.pageIdentityStorage.entities$;
         this.pageRelation$ = this.pageRelationStorage.entities$;
         this.pageBody$ = this.pageBodyStorage.entities$;
-
-        // test
-
-        // [
-        //     '1',
-        //     '2',
-        //     '3'
-        // ].forEach((title) => {
-        //     this.pageIdentityStorage.update('b40a4678-f0bb-55e4-6830-6374934b83c5', {
-        //         title
-        //     }).then(() => {
-        //         console.log(`${title} was applied`);
-        //     });
-        // });
     }
 
     createPage(parentPageId: string = null): Promise<string> {
