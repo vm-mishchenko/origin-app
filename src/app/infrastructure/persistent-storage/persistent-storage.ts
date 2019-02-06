@@ -1,10 +1,15 @@
 /* Facade around memory and pouchDB databases */
 import {EntityState, EntityStore, HashMap, Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
+import {debounceTime} from 'rxjs/internal/operators';
 import {IPersistedStorageRecord} from './persistent-storage-factory.service';
+
+const POUCH_DB_DEBOUNCE_TIME = 1000;
 
 export class PersistentStorage<M extends IPersistedStorageRecord> {
     entities$: Observable<HashMap<M>>;
+
+    pouchUpdateCache: any = {};
 
     constructor(protected pouchdbStorage: any,
                 protected memoryStore: EntityStore<EntityState<M>, M>,
@@ -67,15 +72,26 @@ export class PersistentStorage<M extends IPersistedStorageRecord> {
         });
     }
 
-    update(id: string, newEntity: any): Promise<any> {
-        return this.pouchdbStorage.get(id).then((rawEntity) => {
-            return this.pouchdbStorage.put({
-                ...rawEntity,
-                ...newEntity
-            }).then(() => {
-                this.memoryStore.update(id, newEntity);
+    update(id: string, newEntity: Partial<M>): Promise<Partial<M>> {
+        if (!this.pouchUpdateCache[id]) {
+            this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
+                debounceTime(POUCH_DB_DEBOUNCE_TIME)
+            ).subscribe((memoryEntity) => {
+                this.pouchdbStorage.upsert(id, (entity) => {
+                    this.pouchUpdateCache[id].unsubscribe();
+                    this.pouchUpdateCache[id] = null;
+
+                    return {
+                        ...entity,
+                        ...(memoryEntity as object) // todo: find the way to fix it
+                    };
+                });
             });
-        });
+        }
+
+        this.memoryStore.update(id, newEntity);
+
+        return Promise.resolve(newEntity);
     }
 
     remove(id: string): Promise<any> {

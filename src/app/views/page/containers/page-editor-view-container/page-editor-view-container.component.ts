@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import {filter, map, withLatestFrom} from 'rxjs/operators';
 import {PageService} from '../../../../features/page/page.service';
 import {IBodyPage, IIdentityPage} from '../../../../features/page/page.types';
 
@@ -25,11 +25,6 @@ export class PageEditorViewContainerComponent implements OnInit {
                 private formBuilder: FormBuilder) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')
-        });
-
-        // clean up subscription
-        this.pageForm.valueChanges.subscribe((formValues) => {
-            console.log(formValues);
         });
     }
 
@@ -61,9 +56,26 @@ export class PageEditorViewContainerComponent implements OnInit {
         );
 
         // todo: clean up subscription
-        this.selectedPageIdentity$.subscribe((selectedPageIdentity) => {
+        this.selectedPageIdentity$.pipe(
+            filter((selectedPageIdentity) => selectedPageIdentity.title !== this.pageForm.get('title').value)
+        ).subscribe((selectedPageIdentity) => {
+            console.log(`update page form`);
+
             this.pageForm.patchValue({
-                title: selectedPageIdentity.id
+                title: selectedPageIdentity.title
+            });
+        });
+
+        // clean up subscription
+        this.pageForm.valueChanges.pipe(
+            withLatestFrom(this.selectedPageIdentity$),
+            filter(([formValues, selectedPageIdentity]) => selectedPageIdentity.title !== formValues.title)
+        ).subscribe(([formValues, selectedPageIdentity]) => {
+            this.pageService.updatePageIdentity({
+                id: selectedPageIdentity.id,
+                title: formValues.title
+            }).then(() => {
+                console.log(`Page Identity was updated`);
             });
         });
     }

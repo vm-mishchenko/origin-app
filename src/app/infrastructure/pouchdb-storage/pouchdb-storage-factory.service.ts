@@ -1,8 +1,10 @@
 import {Injectable} from '@angular/core';
 import PouchDB from 'pouchdb';
 import PouchFind from 'pouchdb-find';
+import PouchUpsert from 'pouchdb-upsert';
 
 PouchDB.plugin(PouchFind);
+PouchDB.plugin(PouchUpsert);
 
 /*
 * Allow
