@@ -1,5 +1,5 @@
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {HashMap} from '@datorama/akita';
 import {combineLatest} from 'rxjs';
 import {PageService} from '../../../page/page.service';
@@ -14,11 +14,11 @@ import {IPageTreeNode} from './page-tree-flat.types';
     templateUrl: './page-tree-flat-container.component.html',
     styleUrls: ['./page-tree-flat-container.component.scss']
 })
-export class PageTreeFlatContainerComponent {
+export class PageTreeFlatContainerComponent implements OnDestroy {
     private pageRelations: HashMap<IRelationPage>;
     private pageIdentities: HashMap<IIdentityPage>;
 
-    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRelations);
+    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageService.pageRelation$);
 
     treeControl: FlatTreeControl<IPageTreeNode>;
 
@@ -41,7 +41,6 @@ export class PageTreeFlatContainerComponent {
             this.pageIdentities = pageIdentities;
             this.pageRelations = pageRelations;
 
-            this.pageTreeFlatSelection.updatePageRelations(this.pageRelations);
             this.reRenderTree();
         });
 
@@ -77,6 +76,10 @@ export class PageTreeFlatContainerComponent {
     }
 
     trackByFn(i, node) {
-        return node.id;
+        return `${node.id}-${node.title}`;
+    }
+
+    ngOnDestroy() {
+        this.pageTreeFlatSelection.destructor();
     }
 }

@@ -1,10 +1,17 @@
 import {HashMap} from '@datorama/akita';
+import {Observable, Subscription} from 'rxjs';
 import {IRelationPage} from '../../../page/page.types';
 
 export class PageTreeFlatSelection {
     selectedIds: string[] = [];
+    pageRelations: HashMap<IRelationPage>;
 
-    constructor(private pageRelations: HashMap<IRelationPage>) {
+    pageRelationsSubscription: Subscription;
+
+    constructor(private pageRelations$: Observable<HashMap<IRelationPage>>) {
+        this.pageRelationsSubscription = this.pageRelations$.subscribe((pageRelations) => {
+            this.pageRelations = pageRelations;
+        });
     }
 
     addSelectedPageId(pageId: string) {
@@ -19,8 +26,8 @@ export class PageTreeFlatSelection {
             });
     }
 
-    updatePageRelations(pageRelations: HashMap<IRelationPage>) {
-        this.pageRelations = pageRelations;
+    destructor() {
+        this.pageRelationsSubscription.unsubscribe();
     }
 
     private getAllPageChildrenIds(pageId: string, result = []) {
