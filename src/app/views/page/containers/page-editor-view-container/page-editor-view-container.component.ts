@@ -39,7 +39,7 @@ export class PageEditorViewContainerComponent implements OnInit {
             Promise.all([
                 this.pageService.loadIdentityPage(pageId),
                 this.pageService.loadBodyPage(pageId)
-            ]).catch((e) =>     {
+            ]).catch((e) => {
                 // todo: move to special App level module
                 this.router.navigate(['/page']);
             });
@@ -49,8 +49,6 @@ export class PageEditorViewContainerComponent implements OnInit {
         // extracting entity by id
         this.selectedPageIdentity$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                console.log(`SWITCH MAP`);
-
                 return this.pageService.pageIdentity$.pipe(
                     filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
                     map((pageIdentity) => pageIdentity[selectedPagedId])
@@ -62,15 +60,7 @@ export class PageEditorViewContainerComponent implements OnInit {
         // clean up subscription
         this.pageForm.valueChanges.pipe(
             withLatestFrom(this.selectedPageIdentity$),
-            filter(([formValues, selectedPageIdentity]) => {
-                if (Boolean(selectedPageIdentity.title !== formValues.title)) {
-                    return true;
-                } else {
-                    console.log(`VALUE ${selectedPageIdentity.title} THE SAME`);
-
-                    return false;
-                }
-            })
+            filter(([formValues, selectedPageIdentity]) => Boolean(selectedPageIdentity.title !== formValues.title))
         ).subscribe(([formValues, selectedPageIdentity]) => {
             this.pageService.updatePageIdentity({
                 id: selectedPageIdentity.id,
@@ -94,6 +84,5 @@ export class PageEditorViewContainerComponent implements OnInit {
     }
 
     onHeaderEnterHandler() {
-        console.log(`click was pressed`);
     }
 }

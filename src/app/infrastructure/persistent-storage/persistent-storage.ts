@@ -77,14 +77,14 @@ export class PersistentStorage<M extends IPersistedStorageRecord> {
             this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
                 debounceTime(POUCH_DB_DEBOUNCE_TIME)
             ).subscribe((memoryEntity) => {
-                this.pouchdbStorage.upsert(id, (entity) => {
+                this.pouchdbStorage.get(id).then((entity) => {
                     this.pouchUpdateCache[id].unsubscribe();
                     this.pouchUpdateCache[id] = null;
 
-                    return {
+                    return this.pouchdbStorage.put({
                         ...entity,
-                        ...(memoryEntity as object) // todo: find the way to fix it
-                    };
+                        ...(memoryEntity as object)  // todo: find the way to fix it
+                    });
                 });
             });
         }
