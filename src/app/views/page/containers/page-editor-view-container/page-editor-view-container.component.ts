@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable} from 'rxjs';
-import {filter, map, withLatestFrom} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
 import {PageService} from '../../../../features/page/page.service';
 import {IBodyPage, IIdentityPage} from '../../../../features/page/page.types';
 
@@ -30,25 +30,53 @@ export class PageEditorViewContainerComponent implements OnInit {
 
     ngOnInit() {
         this.selectedPageId$ = this.route.params.pipe(
-            map((params) => params.id)
+            map((params) => params.id),
+            shareReplay()
         );
 
+        // todo: clean up subscription
         this.selectedPageId$.subscribe((pageId) => {
             Promise.all([
                 this.pageService.loadIdentityPage(pageId),
                 this.pageService.loadBodyPage(pageId)
-            ]).catch((e) => {
-                // move to special App level module
+            ]).catch((e) =>     {
+                // todo: move to special App level module
                 this.router.navigate(['/page']);
             });
         });
 
         // todo: consider move it to page service
         // extracting entity by id
-        this.selectedPageIdentity$ = combineLatest(this.pageService.pageIdentity$, this.selectedPageId$).pipe(
-            filter(([pageIdentities, selectedPageId]) => Boolean(pageIdentities[selectedPageId])),
-            map(([pageIdentities, selectedPageId]) => pageIdentities[selectedPageId])
+        this.selectedPageIdentity$ = this.selectedPageId$.pipe(
+            switchMap((selectedPagedId) => {
+                console.log(`SWITCH MAP`);
+
+                return this.pageService.pageIdentity$.pipe(
+                    filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
+                    map((pageIdentity) => pageIdentity[selectedPagedId])
+                );
+            }),
+            shareReplay()
         );
+
+        // clean up subscription
+        this.pageForm.valueChanges.pipe(
+            withLatestFrom(this.selectedPageIdentity$),
+            filter(([formValues, selectedPageIdentity]) => {
+                if (Boolean(selectedPageIdentity.title !== formValues.title)) {
+                    return true;
+                } else {
+                    console.log(`VALUE ${selectedPageIdentity.title} THE SAME`);
+
+                    return false;
+                }
+            })
+        ).subscribe(([formValues, selectedPageIdentity]) => {
+            this.pageService.updatePageIdentity({
+                id: selectedPageIdentity.id,
+                title: formValues.title
+            });
+        });
 
         this.selectedPageBody$ = combineLatest(this.pageService.pageBody$, this.selectedPageId$).pipe(
             filter(([pageBodies, selectedPageId]) => Boolean(pageBodies[selectedPageId])),
@@ -59,23 +87,8 @@ export class PageEditorViewContainerComponent implements OnInit {
         this.selectedPageIdentity$.pipe(
             filter((selectedPageIdentity) => selectedPageIdentity.title !== this.pageForm.get('title').value)
         ).subscribe((selectedPageIdentity) => {
-            console.log(`update page form`);
-
             this.pageForm.patchValue({
                 title: selectedPageIdentity.title
-            });
-        });
-
-        // clean up subscription
-        this.pageForm.valueChanges.pipe(
-            withLatestFrom(this.selectedPageIdentity$),
-            filter(([formValues, selectedPageIdentity]) => selectedPageIdentity.title !== formValues.title)
-        ).subscribe(([formValues, selectedPageIdentity]) => {
-            this.pageService.updatePageIdentity({
-                id: selectedPageIdentity.id,
-                title: formValues.title
-            }).then(() => {
-                console.log(`Page Identity was updated`);
             });
         });
     }
