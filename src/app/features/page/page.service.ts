@@ -90,6 +90,7 @@ export class PageService {
     removePage(pageId: string): Promise<any> {
         return Promise.all([
             this.updateParentChildrenAfterRemove(pageId),
+            this.updateParentPageBody(pageId),
             this.removePageWithChildren(pageId),
         ]);
     }
@@ -173,6 +174,7 @@ export class PageService {
                                 ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
                             ]
                         }).then(() => {
+                            // todo: find out why do I need this then? Without it Typescript throw the error
                         });
                     });
                 } else {
@@ -193,6 +195,25 @@ export class PageService {
             this.pageRelationStorage.remove(removedPageId),
         ]).then(() => {
             (this.events$ as Subject<any>).next(new DeletePageEvent(removedPageId));
+        });
+    }
+
+    private updateParentPageBody(removedPageId: string): Promise<any> {
+        return this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+            return this.pageBodyStorage.get(pageRelation.parentPageId).then((parentBody) => {
+                const wallModel = this.wallModelFactory.create({plan: parentBody.body});
+
+                return wallModel.api.core.filterBricks((brick) => {
+                    return brick.tag === 'page' && brick.state.pageId === removedPageId;
+                }).forEach((pageBrick) => {
+                    wallModel.api.core.removeBrick(pageBrick.id);
+
+                    return this.updatePageBody({
+                        id: parentBody.id,
+                        body: wallModel.api.core.getPlan()
+                    });
+                });
+            });
         });
     }
 }
