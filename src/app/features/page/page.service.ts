@@ -200,6 +200,10 @@ export class PageService {
 
     private updateParentPageBody(removedPageId: string): Promise<any> {
         return this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+            if (!pageRelation.parentPageId) {
+                return Promise.resolve();
+            }
+
             return this.pageBodyStorage.get(pageRelation.parentPageId).then((parentBody) => {
                 const wallModel = this.wallModelFactory.create({plan: parentBody.body});
 
