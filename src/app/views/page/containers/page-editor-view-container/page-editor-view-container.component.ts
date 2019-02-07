@@ -13,7 +13,7 @@ import {
     UndoRedoPlugin,
     WallModelFactory
 } from 'ngx-wall';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {fromPromise} from 'rxjs/internal/observable/fromPromise';
 import {filter, first, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
@@ -54,8 +54,6 @@ export class PageEditorViewContainerComponent implements OnInit {
                 new SelectionPlugin(this.injector)
             ]
         });
-
-        this.wallModel.api.core.addBrickAtStart('text', {text: 'foo'});
     }
 
     ngOnInit() {
@@ -68,7 +66,8 @@ export class PageEditorViewContainerComponent implements OnInit {
         this.selectedPageId$.subscribe((pageId) => {
             Promise.all([
                 this.pageService.loadIdentityPage(pageId),
-                this.pageService.loadBodyPage(pageId)
+                this.pageService.loadBodyPage(pageId),
+                this.pageService.loadTreePageChildren(pageId)
             ]).catch((e) => {
                 this.navigationService.toPageHome();
             });

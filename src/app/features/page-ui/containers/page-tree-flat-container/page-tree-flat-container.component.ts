@@ -45,6 +45,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
         });
 
         this.treeControl.expansionModel.changed.subscribe((changed) => {
+            // page is expanded
             changed.added
                 .map(selectedPageTreeNode => selectedPageTreeNode.id)
                 .forEach((selectedPageId) => {
@@ -52,6 +53,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
                     this.pageTreeFlatSelection.addSelectedPageId(selectedPageId);
                 });
 
+            // page is collapsed
             changed.removed
                 .map((removedItem) => removedItem.id)
                 .forEach(removedPageId => {
