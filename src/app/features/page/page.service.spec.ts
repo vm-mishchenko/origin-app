@@ -1,4 +1,5 @@
 import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
+import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
 import {PageModule} from './page.module';
 import {PageService} from './page.service';
@@ -8,6 +9,9 @@ class TestScope {
     service: PageService;
 
     initialize() {
+        const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
+        persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
+
         this.service = TestBed.get(PageService);
     }
 }
@@ -26,7 +30,7 @@ class MockPouchDb {
     }
 }
 
-describe('PageService', () => {
+fdescribe('PageService', () => {
     const mockPouchDb = new MockPouchDb();
     let testScope: TestScope;
 
@@ -103,7 +107,7 @@ describe('PageService', () => {
             });
         }));
 
-        it('should create child page', fakeAsync(() => {
+        it('should create child page', async(() => {
             let pageIdentity: IIdentityPage = null;
 
             testScope.service.createPage().then((parentPageId) => {
@@ -112,13 +116,12 @@ describe('PageService', () => {
                         pageIdentity = pages[childPageId];
                     });
 
-                    flushMicrotasks();
                     expect(pageIdentity).toBeDefined();
                 });
             });
         }));
 
-        it('should create child page relation', fakeAsync(() => {
+        it('should create child page relation', async(() => {
             let childPageRelation: IRelationPage = null;
 
             testScope.service.createPage().then((parentPageId) => {
@@ -127,7 +130,6 @@ describe('PageService', () => {
                         childPageRelation = pages[childPageId];
                     });
 
-                    flushMicrotasks();
                     expect(childPageRelation.parentPageId).toBe(parentPageId);
                 });
             });

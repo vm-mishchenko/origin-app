@@ -4,6 +4,8 @@ import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
 import {PersistentStorage, PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {Guid} from '../../infrastructure/utils';
+import {CreatePageAction} from './action/create-page.action';
+import {RemovePageAction} from './action/remove-page.action';
 import {DeletePageEvent} from './page-events.type';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
@@ -43,56 +45,26 @@ export class PageService {
     }
 
     createPage(parentPageId: string = null): Promise<string> {
-        const newPageId = this.guid.generate();
-
-        const pageIdentity = {
-            id: newPageId,
-            title: 'Default title'
-        };
-
-        const pageBody = {
-            id: newPageId,
-            body: this.wallModelFactory.create().api.core.getPlan()
-        };
-
-        const pageRelation = {
-            id: newPageId,
-            parentPageId: parentPageId,
-            childrenPageId: []
-        };
-
-        /* If parent exists we should update parent relations as well */
-        const updateParentPageRelation = new Promise((resolve, reject) => {
-            if (parentPageId) {
-                this.pageRelationStorage.get(parentPageId).then(() => {
-                    const relationEntries = this.pageRelationStorage.getMemoryEntries();
-
-                    this.pageRelationStorage.update(parentPageId, {
-                        childrenPageId: [
-                            ...relationEntries[parentPageId].childrenPageId,
-                            newPageId
-                        ]
-                    }).then(resolve, reject);
-                });
-            } else {
-                resolve();
-            }
-        });
-
-        return Promise.all([
-            updateParentPageRelation,
-            this.pageIdentityStorage.add(pageIdentity),
-            this.pageBodyStorage.add(pageBody),
-            this.pageRelationStorage.add(pageRelation)
-        ]).then(() => newPageId);
+        return new CreatePageAction(
+            parentPageId,
+            this.pageIdentityStorage,
+            this.pageBodyStorage,
+            this.pageRelationStorage,
+            this.guid,
+            this.wallModelFactory
+        ).execute();
     }
 
     removePage(pageId: string): Promise<any> {
-        return Promise.all([
-            this.updateParentChildrenAfterRemove(pageId),
-            this.updateParentPageBody(pageId),
-            this.removePageWithChildren(pageId),
-        ]);
+        return new RemovePageAction(
+            pageId,
+            this.pageIdentityStorage,
+            this.pageBodyStorage,
+            this.pageRelationStorage,
+            this.wallModelFactory
+        ).execute().then(() => {
+            (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
+        });
     }
 
     loadIdentityPage(id: string): Promise<IIdentityPage> {
@@ -147,8 +119,6 @@ export class PageService {
     // todo: Refactor that code
     loadTreePageChildren(pageId: string) {
         this.pageRelationStorage.get(pageId).then((relation) => {
-            console.log(relation);
-
             return Promise.all(relation.childrenPageId.map((childPageId) => {
                 return Promise.all([
                     this.pageIdentityStorage.load(childPageId),
@@ -157,67 +127,6 @@ export class PageService {
             }));
         }).catch((e) => {
             // todo: login error, most likely child page was already deleted
-        });
-    }
-
-    private updateParentChildrenAfterRemove(removedPageId: string): Promise<any> {
-        return this.pageRelationStorage.get(removedPageId)
-            .then((removedPageRelation) => {
-                if (removedPageRelation.parentPageId) {
-                    return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
-                        // remove page from children
-                        const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
-
-                        return this.pageRelationStorage.update(parentPageRelation.id, {
-                            childrenPageId: [
-                                ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
-                                ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
-                            ]
-                        }).then(() => {
-                            // todo: find out why do I need this then? Without it Typescript throw the error
-                        });
-                    });
-                } else {
-                    return Promise.resolve();
-                }
-            });
-    }
-
-    private removePageWithChildren(removedPageId: string) {
-        const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-            return pageRelation.childrenPageId.map((childrenPageId) => this.removePageWithChildren(childrenPageId));
-        });
-
-        return Promise.all([
-            removeChildPages,
-            this.pageIdentityStorage.remove(removedPageId),
-            this.pageBodyStorage.remove(removedPageId),
-            this.pageRelationStorage.remove(removedPageId),
-        ]).then(() => {
-            (this.events$ as Subject<any>).next(new DeletePageEvent(removedPageId));
-        });
-    }
-
-    private updateParentPageBody(removedPageId: string): Promise<any> {
-        return this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-            if (!pageRelation.parentPageId) {
-                return Promise.resolve();
-            }
-
-            return this.pageBodyStorage.get(pageRelation.parentPageId).then((parentBody) => {
-                const wallModel = this.wallModelFactory.create({plan: parentBody.body});
-
-                return wallModel.api.core.filterBricks((brick) => {
-                    return brick.tag === 'page' && brick.state.pageId === removedPageId;
-                }).forEach((pageBrick) => {
-                    wallModel.api.core.removeBrick(pageBrick.id);
-
-                    return this.updatePageBody({
-                        id: parentBody.id,
-                        body: wallModel.api.core.getPlan()
-                    });
-                });
-            });
         });
     }
 }

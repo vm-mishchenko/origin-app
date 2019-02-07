@@ -2,18 +2,17 @@
 import {EntityState, EntityStore, HashMap, Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
 import {debounceTime} from 'rxjs/internal/operators';
-import {IPersistedStorageRecord} from './persistent-storage-factory.service';
+import {IPersistedStorageEntity, IPersistentStorageOptions} from './persistent-storage.types';
 
-const POUCH_DB_DEBOUNCE_TIME = 1000;
-
-export class PersistentStorage<M extends IPersistedStorageRecord> {
+export class PersistentStorage<M extends IPersistedStorageEntity> {
     entities$: Observable<HashMap<M>>;
 
     pouchUpdateCache: any = {};
 
     constructor(protected pouchdbStorage: any,
                 protected memoryStore: EntityStore<EntityState<M>, M>,
-                protected query: Query<EntityState<M>>) {
+                protected query: Query<EntityState<M>>,
+                private options: IPersistentStorageOptions) {
         this.entities$ = this.query.select((store) => store.entities);
     }
 
@@ -75,7 +74,7 @@ export class PersistentStorage<M extends IPersistedStorageRecord> {
     update(id: string, newEntity: Partial<M>): Promise<Partial<M>> {
         if (!this.pouchUpdateCache[id]) {
             this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
-                debounceTime(POUCH_DB_DEBOUNCE_TIME)
+                debounceTime(this.options.pouchDbSavingDebounceTime)
             ).subscribe((memoryEntity) => {
                 this.pouchdbStorage.get(id).then((entity) => {
                     this.pouchUpdateCache[id].unsubscribe();

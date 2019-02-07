@@ -1,0 +1,1 @@
+export let POUCH_DB_DEBOUNCE_TIME = 1000;

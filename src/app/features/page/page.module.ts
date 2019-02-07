@@ -14,11 +14,8 @@ import {PageService} from './page.service';
         UtilsModule
     ],
     providers: [
-        PageService,
+        PageService
     ]
 })
 export class PageModule {
-    constructor(private pageService: PageService) {
-        // this.pageService.loadRootPages();
-    }
 }
