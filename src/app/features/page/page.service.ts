@@ -88,18 +88,10 @@ export class PageService {
     }
 
     removePage(pageId: string): Promise<any> {
-        const removeChildPages = this.pageRelationStorage.get(pageId).then((pageRelation) => {
-            return pageRelation.childrenPageId.map((childrenPageId) => this.removePage(childrenPageId));
-        });
-
         return Promise.all([
-            removeChildPages,
-            this.pageIdentityStorage.remove(pageId),
-            this.pageBodyStorage.remove(pageId),
-            this.pageRelationStorage.remove(pageId),
-        ]).then(() => {
-            (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
-        });
+            this.updateParentChildrenAfterRemove(pageId),
+            this.removePageWithChildren(pageId),
+        ]);
     }
 
     loadIdentityPage(id: string): Promise<IIdentityPage> {
@@ -154,12 +146,53 @@ export class PageService {
     // todo: Refactor that code
     loadTreePageChildren(pageId: string) {
         this.pageRelationStorage.get(pageId).then((relation) => {
+            console.log(relation);
+
             return Promise.all(relation.childrenPageId.map((childPageId) => {
                 return Promise.all([
                     this.pageIdentityStorage.load(childPageId),
                     this.pageRelationStorage.load(childPageId),
                 ]);
             }));
+        }).catch((e) => {
+            // todo: login error, most likely child page was already deleted
+        });
+    }
+
+    private updateParentChildrenAfterRemove(removedPageId: string): Promise<any> {
+        return this.pageRelationStorage.get(removedPageId)
+            .then((removedPageRelation) => {
+                if (removedPageRelation.parentPageId) {
+                    return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
+                        // remove page from children
+                        const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
+
+                        return this.pageRelationStorage.update(parentPageRelation.id, {
+                            childrenPageId: [
+                                ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
+                                ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
+                            ]
+                        }).then(() => {
+                        });
+                    });
+                } else {
+                    return Promise.resolve();
+                }
+            });
+    }
+
+    private removePageWithChildren(removedPageId: string) {
+        const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+            return pageRelation.childrenPageId.map((childrenPageId) => this.removePageWithChildren(childrenPageId));
+        });
+
+        return Promise.all([
+            removeChildPages,
+            this.pageIdentityStorage.remove(removedPageId),
+            this.pageBodyStorage.remove(removedPageId),
+            this.pageRelationStorage.remove(removedPageId),
+        ]).then(() => {
+            (this.events$ as Subject<any>).next(new DeletePageEvent(removedPageId));
         });
     }
 }
