@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HashMap} from '@datorama/akita';
 import {WallModelFactory} from 'ngx-wall';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {PersistentStorage, PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {Guid} from '../../infrastructure/utils';
+import {DeletePageEvent} from './page-events.type';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
 @Injectable()
@@ -12,6 +13,10 @@ export class PageService {
     pageIdentity$: Observable<HashMap<IIdentityPage>>;
     pageRelation$: Observable<HashMap<IRelationPage>>;
     pageBody$: Observable<HashMap<IBodyPage>>;
+
+    // todo - integrate to application event stream
+    // todo - replace any type
+    events$: Observable<any> = new Subject<any>();
 
     private pageIdentityStorage: PersistentStorage<IIdentityPage>;
     private pageBodyStorage: PersistentStorage<IBodyPage>;
@@ -82,17 +87,19 @@ export class PageService {
         ]).then(() => id);
     }
 
-    removePage(id: string): Promise<any> {
-        const removeChildPages = this.pageRelationStorage.get(id).then((pageRelation) => {
+    removePage(pageId: string): Promise<any> {
+        const removeChildPages = this.pageRelationStorage.get(pageId).then((pageRelation) => {
             return pageRelation.childrenPageId.map((childrenPageId) => this.removePage(childrenPageId));
         });
 
         return Promise.all([
             removeChildPages,
-            this.pageIdentityStorage.remove(id),
-            this.pageBodyStorage.remove(id),
-            this.pageRelationStorage.remove(id),
-        ]);
+            this.pageIdentityStorage.remove(pageId),
+            this.pageBodyStorage.remove(pageId),
+            this.pageRelationStorage.remove(pageId),
+        ]).then(() => {
+            (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
+        });
     }
 
     loadIdentityPage(id: string): Promise<IIdentityPage> {

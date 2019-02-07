@@ -18,6 +18,7 @@ import {fromPromise} from 'rxjs/internal/observable/fromPromise';
 import {filter, first, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
 import {IPageBrickState} from '../../../../features/page-ui/bricks/page-brick/page-brick.types';
+import {DeletePageEvent} from '../../../../features/page/page-events.type';
 import {PageService} from '../../../../features/page/page.service';
 import {IIdentityPage} from '../../../../features/page/page.types';
 
@@ -61,6 +62,15 @@ export class PageEditorViewContainerComponent implements OnInit {
             map((params) => params.id),
             shareReplay()
         );
+
+        this.pageService.events$.pipe(
+            filter((e) => e instanceof DeletePageEvent),
+            map((e) => e.pageId),
+            withLatestFrom((this.selectedPageId$)),
+            filter(([deletedPageId, selectedPageId]) => deletedPageId === selectedPageId)
+        ).subscribe(() => {
+            this.navigationService.toPageHome();
+        });
 
         // todo: clean up subscription
         this.selectedPageId$.subscribe((pageId) => {
