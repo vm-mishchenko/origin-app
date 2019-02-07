@@ -153,11 +153,13 @@ export class PageEditorViewContainerComponent implements OnInit {
         this.newBrickPageId$.pipe(
             withLatestFrom(this.selectedPageId$),
             mergeMap(([newBrickPageId, selectedPageId]) => {
+                // create new page
                 return fromPromise(this.pageService.createPage(selectedPageId)).pipe(
                     map((newPageId) => [newBrickPageId, selectedPageId, newPageId])
                 );
             }),
             mergeMap(([newBrickPageId, selectedPageId, newPageId]) => {
+                // find page identity and update page brick
                 return this.pageService.pageIdentity$.pipe(
                     filter((pageIdentities) => Boolean(pageIdentities[newPageId])),
                     map((pageIdentities) => pageIdentities[newPageId]),
@@ -167,7 +169,8 @@ export class PageEditorViewContainerComponent implements OnInit {
                         };
 
                         this.wallModel.api.core.updateBrickState(newBrickPageId, newPageBrickState);
-                    })
+                    }),
+                    first()
                 );
             })
         ).subscribe();
