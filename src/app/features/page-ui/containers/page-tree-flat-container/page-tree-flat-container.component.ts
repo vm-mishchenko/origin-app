@@ -28,7 +28,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
 
     isExpandable = (node: IPageTreeNode) => node.expandable;
 
-    hasChild = (_: number, _nodeData: IPageTreeNode) => _nodeData.expandable;
+    hasChild = (_: number, node: IPageTreeNode) => node.expandable;
 
     constructor(private pageService: PageService) {
         this.treeControl = new FlatTreeControl<IPageTreeNode>(this.getLevel, this.isExpandable);
@@ -78,7 +78,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
     }
 
     trackByFn(i, node) {
-        return `${node.id}-${node.title}`;
+        return JSON.stringify(node);
     }
 
     ngOnDestroy() {

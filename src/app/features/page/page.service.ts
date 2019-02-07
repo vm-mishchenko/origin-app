@@ -43,20 +43,20 @@ export class PageService {
     }
 
     createPage(parentPageId: string = null): Promise<string> {
-        const id = this.guid.generate();
+        const newPageId = this.guid.generate();
 
         const pageIdentity = {
-            id,
+            id: newPageId,
             title: 'Default title'
         };
 
         const pageBody = {
-            id,
+            id: newPageId,
             body: this.wallModelFactory.create().api.core.getPlan()
         };
 
         const pageRelation = {
-            id,
+            id: newPageId,
             parentPageId: parentPageId,
             childrenPageId: []
         };
@@ -70,7 +70,7 @@ export class PageService {
                     this.pageRelationStorage.update(parentPageId, {
                         childrenPageId: [
                             ...relationEntries[parentPageId].childrenPageId,
-                            id
+                            newPageId
                         ]
                     }).then(resolve, reject);
                 });
@@ -84,7 +84,7 @@ export class PageService {
             this.pageIdentityStorage.add(pageIdentity),
             this.pageBodyStorage.add(pageBody),
             this.pageRelationStorage.add(pageRelation)
-        ]).then(() => id);
+        ]).then(() => newPageId);
     }
 
     removePage(pageId: string): Promise<any> {
