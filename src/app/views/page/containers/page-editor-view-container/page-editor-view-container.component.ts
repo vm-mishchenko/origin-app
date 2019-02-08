@@ -69,10 +69,16 @@ export class PageEditorViewContainerComponent implements OnInit {
             filter((e) => e instanceof DeletePageEvent),
             map((e) => e.pageId),
             withLatestFrom((this.selectedPageId$)),
-            filter(([deletedPageId, selectedPageId]) => deletedPageId === selectedPageId)
-        ).subscribe(() => {
-            this.navigationService.toPageHome();
-        });
+            tap(([deletedPageId, selectedPageId]) => {
+                // todo: consider more cases
+                // if deleted page is child of selected page
+                // if deleted page is deep child of selected page
+                // if deleted page is parent of selected page
+                // if deleted page is deep parent of selected page
+
+                this.navigationService.toPageHome();
+            })
+        ).subscribe();
 
         // todo: clean up subscription
         this.selectedPageId$.subscribe((pageId) => {
