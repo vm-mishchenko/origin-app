@@ -1,1 +1,6 @@
-<wall [model]="wallModel"></wall>
+<div #container class="page-editor">
+    <div [pick-out-area]="{scrollableContainer: container}">
+        <wall [model]="wallModel"></wall>
+    </div>
+</div>
+

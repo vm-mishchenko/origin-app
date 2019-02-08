@@ -1,4 +1,4 @@
-<div #container [formGroup]="pageForm" class="page-editor-view-container">
+<div [formGroup]="pageForm" class="page-editor-view-container">
     <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
                       placeholder="Untitled"></o-header-control>
 
@@ -8,11 +8,8 @@
             col-md-10 offset-md-1
             col-lg-8 offset-lg-2
             col-xl-8 offset-xl-2">
-                <app-page-editor></app-page-editor>
-
-                <div [pick-out-area]="{scrollableContainer: container}">
-                    <wall [model]="wallModel"></wall>
-                </div>
+                <app-page-editor [pageBrickIdProvider]="pageBrickIdProvider.bind(this)"
+                                 (pageBodyUpdated)="pageBodyUpdated($event)" [pageBody]="pageBody"></app-page-editor>
             </div>
         </div>
     </div>

@@ -21,7 +21,6 @@ import {FormControlsModule} from '../../components/form-controls';
 import {NavigationModule} from '../../features/navigation';
 import {PageUiModule} from '../../features/page-ui';
 import {PageModule} from '../../features/page/page.module';
-import {PageEditorComponentComponent} from './components/page-editor-component/page-editor-component.component';
 import {PageEditorComponent} from './components/page-editor/page-editor.component';
 import {PageBaseViewContainerComponent} from './containers/page-base-view-container/page-base-view-container.component';
 import {PageEditorViewContainerComponent} from './containers/page-editor-view-container/page-editor-view-container.component';
