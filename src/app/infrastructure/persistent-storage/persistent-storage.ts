@@ -31,16 +31,6 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         });
     }
 
-    loadAll(): Promise<any> {
-        return this.pouchdbStorage.allDocs({include_docs: true}).then((result) => {
-            const entities = result.rows.map((rowEntity) => this.extractEntityFromRawEntity(rowEntity.doc));
-
-            this.memoryStore.add(entities);
-
-            return entities;
-        });
-    }
-
     get(id: string): Promise<M> {
         if (this.query.getValue().entities[id]) {
             return Promise.resolve(this.query.getValue().entities[id]);
@@ -97,16 +87,6 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         this.memoryStore.remove(id);
 
         return this.pouchdbStorage.get(id).then((entry) => this.pouchdbStorage.remove(entry));
-    }
-
-    removeAll(): Promise<any> {
-        this.memoryStore.remove(() => true);
-
-        return this.pouchdbStorage.allDocs().then((result) => {
-            return Promise.all(result.rows.map((row) => {
-                return this.pouchdbStorage.remove(row.id, row.value.rev);
-            }));
-        });
     }
 
     private extractEntityFromRawEntity(rawEntity) {
