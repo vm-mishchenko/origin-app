@@ -99,7 +99,7 @@ describe('PageService', () => {
             let pageBody: IBodyPage = null;
 
             testScope.service.createPage().then((id) => {
-                testScope.service.pageIdentity$.subscribe((pages) => {
+                testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                     pageIdentity = pages[id];
                 });
 
@@ -123,7 +123,7 @@ describe('PageService', () => {
             let pageRelation: IRelationPage = null;
 
             testScope.service.createPage().then((id) => {
-                testScope.service.pageRelation$.subscribe((pages) => {
+                testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                     pageRelation = pages[id];
                 });
 
@@ -139,7 +139,7 @@ describe('PageService', () => {
 
             testScope.service.createPage().then((parentPageId) => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.service.pageIdentity$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                         pageIdentity = pages[childPageId];
                     });
 
@@ -153,7 +153,7 @@ describe('PageService', () => {
 
             testScope.service.createPage().then((parentPageId) => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.service.pageRelation$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                         childPageRelation = pages[childPageId];
                     });
 
@@ -174,7 +174,7 @@ describe('PageService', () => {
             testScope.service.createPage(parentPageId).then((childPageId_) => childPageId = childPageId_);
             tick();
 
-            testScope.service.pageRelation$.subscribe((pages) => {
+            testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                 parentPageRelation = pages[parentPageId];
             });
 
@@ -192,7 +192,7 @@ describe('PageService', () => {
 
             testScope.service.createPage().then((pageId) => {
                 testScope.service.removePage(pageId).then(() => {
-                    testScope.service.pageIdentity$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                         pageIdentity = pages[pageId];
                     });
 
@@ -200,7 +200,7 @@ describe('PageService', () => {
                         pageBody = pages[pageId];
                     });
 
-                    testScope.service.pageRelation$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                         pageRelation = pages[pageId];
                     });
 
@@ -219,7 +219,7 @@ describe('PageService', () => {
             testScope.service.createPage().then((parentPageId) => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
                     testScope.service.removePage(parentPageId).then(() => {
-                        testScope.service.pageIdentity$.subscribe((pages) => {
+                        testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                             childPageIdentity = pages[childPageId];
                         });
 
@@ -227,7 +227,7 @@ describe('PageService', () => {
                             childPageBody = pages[childPageId];
                         });
 
-                        testScope.service.pageRelation$.subscribe((pages) => {
+                        testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                             childPageRelation = pages[childPageId];
                         });
 
@@ -248,7 +248,7 @@ describe('PageService', () => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
                     testScope.service.createPage(childPageId).then((subChildPageId) => {
                         testScope.service.removePage(parentPageId).then(() => {
-                            testScope.service.pageIdentity$.subscribe((pages) => {
+                            testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                                 subChildPageIdentity = pages[subChildPageId];
                             });
 
@@ -256,7 +256,7 @@ describe('PageService', () => {
                                 subChildPageBody = pages[subChildPageId];
                             });
 
-                            testScope.service.pageRelation$.subscribe((pages) => {
+                            testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                                 subChildPageRelation = pages[subChildPageId];
                             });
 
@@ -274,14 +274,14 @@ describe('PageService', () => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
                     let parentPageRelation: IRelationPage;
 
-                    testScope.service.pageRelation$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                         parentPageRelation = pages[parentPageId];
                     });
 
                     expect(parentPageRelation.childrenPageId.includes(childPageId)).toBeTruthy();
 
                     testScope.service.removePage(childPageId).then(() => {
-                        testScope.service.pageRelation$.subscribe((pages) => {
+                        testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                             parentPageRelation = pages[parentPageId];
                         });
 

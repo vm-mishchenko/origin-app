@@ -30,13 +30,6 @@ export class PageRepositoryService {
         });
     }
 
-    loadRelationPage(id: string): Promise<IRelationPage> {
-        return this.pageStoragesService.pageRelationStorage.load(id).catch((e) => {
-            // todo: log internal error
-            throw new Error(`Relation page "${id}" does not exist`);
-        });
-    }
-
     loadRootPages(): Promise<any> {
         return this.pageStoragesService.pageRelationStorage.findAndLoad({
             selector: {

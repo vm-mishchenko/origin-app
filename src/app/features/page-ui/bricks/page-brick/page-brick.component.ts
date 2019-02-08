@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {IOnWallStateChange} from 'ngx-wall';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
 import {filter, map} from 'rxjs/internal/operators';
-import {PageService} from '../../../page/page.service';
+import {PageRepositoryService} from '../../../page';
 import {IPageBrickState} from './page-brick.types';
 
 @Component({
@@ -16,10 +16,10 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
     pageTitle$: Observable<string>;
     pageId$: Observable<string> = new BehaviorSubject<string>('');
 
-    constructor(private pageService: PageService) {
+    constructor(private pageRepositoryService: PageRepositoryService) {
         this.pageTitle$ = combineLatest(
             this.pageId$,
-            this.pageService.pageIdentity$,
+            this.pageRepositoryService.pageIdentity$,
         ).pipe(
             filter(([pageId]) => Boolean(pageId)),
             map(([pageId, pageIdentities]) => {

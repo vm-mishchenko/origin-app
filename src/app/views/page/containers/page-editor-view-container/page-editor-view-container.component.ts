@@ -43,7 +43,7 @@ export class PageEditorViewContainerComponent implements OnInit {
                 private pageService: PageService,
                 private formBuilder: FormBuilder,
                 private wallModelFactory: WallModelFactory,
-                private pageRepository: PageRepositoryService,
+                private pageRepositoryService: PageRepositoryService,
                 private injector: Injector) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')
@@ -83,9 +83,9 @@ export class PageEditorViewContainerComponent implements OnInit {
         // todo: clean up subscription
         this.selectedPageId$.subscribe((pageId) => {
             Promise.all([
-                this.pageRepository.loadIdentityPage(pageId),
-                this.pageRepository.loadBodyPage(pageId),
-                this.pageRepository.loadTreePageChildren(pageId)
+                this.pageRepositoryService.loadIdentityPage(pageId),
+                this.pageRepositoryService.loadBodyPage(pageId),
+                this.pageRepositoryService.loadTreePageChildren(pageId)
             ]).catch((e) => {
                 this.navigationService.toPageHome();
             });
@@ -95,7 +95,7 @@ export class PageEditorViewContainerComponent implements OnInit {
         // extracting entity by id
         this.selectedPageIdentity$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                return this.pageService.pageIdentity$.pipe(
+                return this.pageRepositoryService.pageIdentity$.pipe(
                     filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
                     map((pageIdentity) => pageIdentity[selectedPagedId])
                 );
@@ -136,7 +136,7 @@ export class PageEditorViewContainerComponent implements OnInit {
         // body database -> editor
         this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                return this.pageRepository.pageBody$.pipe(
+                return this.pageRepositoryService.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     map((pageBody) => pageBody[selectedPagedId]),
                     first()
@@ -168,7 +168,7 @@ export class PageEditorViewContainerComponent implements OnInit {
             }),
             mergeMap(([newBrickPageId, selectedPageId, newPageId]) => {
                 // find page identity and update page brick
-                return this.pageService.pageIdentity$.pipe(
+                return this.pageRepositoryService.pageIdentity$.pipe(
                     filter((pageIdentities) => Boolean(pageIdentities[newPageId])),
                     map((pageIdentities) => pageIdentities[newPageId]),
                     tap((newPageIdentity) => {

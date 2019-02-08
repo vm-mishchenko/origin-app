@@ -19,7 +19,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
     private pageRelations: HashMap<IRelationPage>;
     private pageIdentities: HashMap<IIdentityPage>;
 
-    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageService.pageRelation$);
+    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRepositoryService.pageRelation$);
 
     treeControl: FlatTreeControl<IPageTreeNode>;
 
@@ -36,8 +36,8 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
 
         // todo: unsubscribe after
         combineLatest(
-            this.pageService.pageIdentity$,
-            this.pageService.pageRelation$
+            this.pageRepositoryService.pageIdentity$,
+            this.pageRepositoryService.pageRelation$
         ).subscribe(([pageIdentities, pageRelations]) => {
             this.pageIdentities = pageIdentities;
             this.pageRelations = pageRelations;
