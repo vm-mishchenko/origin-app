@@ -25,6 +25,7 @@ import {PageEditorComponent} from './components/page-editor/page-editor.componen
 import {PageBaseViewContainerComponent} from './containers/page-base-view-container/page-base-view-container.component';
 import {PageEditorViewContainerComponent} from './containers/page-editor-view-container/page-editor-view-container.component';
 import { TitlePageEditorContainerComponent } from './containers/title-page-editor-container/title-page-editor-container.component';
+import { BodyPageEditorContainerComponent } from './containers/body-page-editor-container/body-page-editor-container.component';
 
 const routes: Routes = [
     {
@@ -50,7 +51,8 @@ const routes: Routes = [
         PageEditorViewContainerComponent,
         PageBaseViewContainerComponent,
         PageEditorComponent,
-        TitlePageEditorContainerComponent
+        TitlePageEditorContainerComponent,
+        BodyPageEditorContainerComponent
     ],
     imports: [
         CommonModule,

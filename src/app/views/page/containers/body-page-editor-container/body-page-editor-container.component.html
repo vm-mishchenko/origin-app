@@ -1,0 +1,2 @@
+<app-page-editor [pageBrickIdProvider]="pageBrickIdProvider.bind(this)"
+                 (pageBodyUpdated)="pageBodyUpdated($event)" [pageBody]="pageBody$ | async"></app-page-editor>

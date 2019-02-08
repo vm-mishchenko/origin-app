@@ -8,8 +8,7 @@
             col-md-10 offset-md-1
             col-lg-8 offset-lg-2
             col-xl-8 offset-xl-2">
-                <app-page-editor [pageBrickIdProvider]="pageBrickIdProvider.bind(this)"
-                                 (pageBodyUpdated)="pageBodyUpdated($event)" [pageBody]="pageBody"></app-page-editor>
+                <app-body-page-editor-container [selectedPageId$]="selectedPageId$"></app-body-page-editor-container>
             </div>
         </div>
     </div>
