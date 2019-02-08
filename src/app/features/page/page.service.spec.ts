@@ -1,6 +1,8 @@
 import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
+import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory} from 'ngx-wall';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
+import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PageModule} from './page.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
@@ -13,6 +15,28 @@ class TestScope {
         persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
 
         this.service = TestBed.get(PageService);
+
+        const brickRegistry = TestBed.get(BrickRegistry);
+        brickRegistry.register({
+            tag: 'page',
+            component: PageBrickComponent,
+            name: 'Page',
+            description: 'Embed a sub-page inside this page'
+        });
+    }
+
+    createWallModel(plan: IWallDefinition): IWallModel {
+        const wallModelFactory: WallModelFactory = TestBed.get(WallModelFactory);
+
+        return wallModelFactory.create({plan});
+    }
+
+    findPageBrick(wallDefinition: IWallDefinition, pageBrickId: string): IBrickSnapshot {
+        const wallModel = this.createWallModel(wallDefinition);
+
+        return wallModel.api.core.filterBricks((brick) => {
+            return brick.tag === 'page' && brick.state.pageId === pageBrickId;
+        })[0];
     }
 }
 
@@ -30,7 +54,7 @@ class MockPouchDb {
     }
 }
 
-fdescribe('PageService', () => {
+describe('PageService', () => {
     const mockPouchDb = new MockPouchDb();
     let testScope: TestScope;
 
@@ -237,6 +261,50 @@ fdescribe('PageService', () => {
                             expect(subChildPageBody).not.toBeDefined();
                             expect(subChildPageRelation).not.toBeDefined();
                         });
+                    });
+                });
+            });
+        }));
+
+        it('should update parent relation children', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    let parentPageRelation: IRelationPage;
+
+                    testScope.service.pageRelation$.subscribe((pages) => {
+                        parentPageRelation = pages[parentPageId];
+                    });
+
+                    expect(parentPageRelation.childrenPageId.includes(childPageId)).toBeTruthy();
+
+                    testScope.service.removePage(childPageId).then(() => {
+                        testScope.service.pageRelation$.subscribe((pages) => {
+                            parentPageRelation = pages[parentPageId];
+                        });
+
+                        expect(parentPageRelation.childrenPageId.length).toBe(0);
+                    });
+                });
+            });
+        }));
+
+        it('should update parent body', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    let parentPageBody: IBodyPage;
+
+                    testScope.service.pageBody$.subscribe((pages) => {
+                        parentPageBody = pages[parentPageId];
+                    });
+
+                    expect(testScope.findPageBrick(parentPageBody.body, childPageId)).toBeDefined();
+
+                    testScope.service.removePage(childPageId).then(() => {
+                        testScope.service.pageBody$.subscribe((pages) => {
+                            parentPageBody = pages[parentPageId];
+                        });
+
+                        expect(testScope.findPageBrick(parentPageBody.body, childPageId)).not.toBeDefined();
                     });
                 });
             });

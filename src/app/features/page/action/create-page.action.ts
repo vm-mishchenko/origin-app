@@ -51,7 +51,24 @@ export class CreatePageAction {
             }
         });
 
+        const updateParentPageBody = new Promise((resolve, reject) => {
+            if (this.parentPageId) {
+                this.pageBodyStorage.get(this.parentPageId).then((parentPageBody) => {
+                    const wallModel = this.wallModelFactory.create({plan: parentPageBody.body});
+
+                    wallModel.api.core.addBrickAtStart('page', {pageId: newPageId});
+
+                    this.pageBodyStorage.update(this.parentPageId, {
+                        body: wallModel.api.core.getPlan()
+                    }).then(resolve, reject);
+                });
+            } else {
+                resolve();
+            }
+        });
+
         return Promise.all([
+            updateParentPageBody,
             updateParentPageRelation,
             this.pageIdentityStorage.add(pageIdentity),
             this.pageBodyStorage.add(pageBody),

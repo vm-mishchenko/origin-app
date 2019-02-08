@@ -12,13 +12,13 @@ export class RemovePageAction {
 
     execute(): Promise<any> {
         return Promise.all([
-            this.updateParentChildrenAfterRemove(this.pageId),
+            this.updateParentRelationChildrenAfterRemove(this.pageId),
             this.updateParentPageBody(this.pageId),
             this.removePageWithChildren(this.pageId),
         ]);
     }
 
-    private updateParentChildrenAfterRemove(removedPageId: string): Promise<any> {
+    private updateParentRelationChildrenAfterRemove(removedPageId: string): Promise<any> {
         return this.pageRelationStorage.get(removedPageId)
             .then((removedPageRelation) => {
                 if (removedPageRelation.parentPageId) {
