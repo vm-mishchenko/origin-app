@@ -182,6 +182,20 @@ describe('PageService', () => {
             expect(parentPageRelation.childrenPageId.length).toBe(1);
             expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
         }));
+
+        it('should add page brick to parent body', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    let parentPageBody: IBodyPage;
+
+                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
+                        parentPageBody = pages[parentPageId];
+                    });
+
+                    expect(testScope.findPageBrick(parentPageBody.body, childPageId)).toBeDefined();
+                });
+            });
+        }));
     });
 
     describe('Delete page', () => {
