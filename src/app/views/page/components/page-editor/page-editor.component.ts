@@ -64,7 +64,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     ngOnInit() {
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes.pageBody && changes.pageBody.currentValue) {
             this.wallModel.api[UNDO_REDO_API_NAME].clear();
             this.wallModel.api.core.setPlan(changes.pageBody.currentValue);

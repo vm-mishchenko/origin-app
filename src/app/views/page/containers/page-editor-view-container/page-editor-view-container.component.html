@@ -1,6 +1,6 @@
-<div [formGroup]="pageForm" class="page-editor-view-container">
-    <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
-                      placeholder="Untitled"></o-header-control>
+<div class="page-editor-view-container">
+    <app-title-page-editor-container [selectedPageId]="selectedPageId$ | async">
+    </app-title-page-editor-container>
 
     <div class="container-fluid">
         <div class="row">

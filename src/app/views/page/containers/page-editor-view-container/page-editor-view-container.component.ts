@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {IWallDefinition, WallModelFactory} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
@@ -17,33 +16,21 @@ import {PageService} from '../../../../features/page/page.service';
 export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     selectedPageId: string;
     selectedPageId$: Observable<string>;
-    selectedPageIdentityTitle$: Observable<string>;
-
     subscriptions: Subscription[] = [];
-
-    // ui
-    pageForm: FormGroup;
-
-    // for child
     pageBody: IWallDefinition;
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
                 private pageService: PageService,
-                private formBuilder: FormBuilder,
                 private wallModelFactory: WallModelFactory,
                 private pageRepositoryService: PageRepositoryService) {
-        this.pageForm = this.formBuilder.group({
-            title: this.formBuilder.control('')
-        });
-    }
-
-    ngOnInit() {
         this.selectedPageId$ = this.route.params.pipe(
             map((params) => params.id),
             shareReplay()
         );
+    }
 
+    ngOnInit() {
         // navigation after selected page was deleted
         this.subscriptions.push(
             this.pageService.events$.pipe(
@@ -77,42 +64,6 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
             })
         );
 
-        // todo: consider move it to page service
-        // extracting entity by id
-        this.selectedPageIdentityTitle$ = this.selectedPageId$.pipe(
-            switchMap((selectedPagedId) => {
-                return this.pageRepositoryService.pageIdentity$.pipe(
-                    filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
-                    map((pageIdentity) => pageIdentity[selectedPagedId].title)
-                );
-            }),
-            shareReplay()
-        );
-
-        // page title editor -> database
-        this.subscriptions.push(
-            this.pageForm.valueChanges.pipe(
-                withLatestFrom(this.selectedPageIdentityTitle$),
-                filter(([formValues, selectedPageIdentityTitle]) => Boolean(selectedPageIdentityTitle !== formValues.title))
-            ).subscribe(([formValues]) => {
-                this.pageService.updatePageIdentity({
-                    id: this.selectedPageId,
-                    title: formValues.title
-                });
-            })
-        );
-
-        // page title database -> editor
-        this.subscriptions.push(
-            this.selectedPageIdentityTitle$.pipe(
-                filter((selectedPageIdentityTitle) => selectedPageIdentityTitle !== this.pageForm.get('title').value)
-            ).subscribe((selectedPageIdentityTitle) => {
-                this.pageForm.patchValue({
-                    title: selectedPageIdentityTitle
-                });
-            })
-        );
-
         // body database -> editor
         this.subscriptions.push(
             this.selectedPageId$.pipe(
@@ -128,9 +79,6 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
                 })
             ).subscribe()
         );
-    }
-
-    onHeaderEnterHandler() {
     }
 
     pageBodyUpdated(bodyPage: IWallDefinition) {
