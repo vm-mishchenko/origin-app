@@ -3,18 +3,21 @@ import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFac
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
+import {PageRepositoryService} from './page-repository.service';
 import {PageModule} from './page.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
 class TestScope {
     service: PageService;
+    pageRepositoryService: PageRepositoryService;
 
     initialize() {
         const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
         persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
 
         this.service = TestBed.get(PageService);
+        this.pageRepositoryService = TestBed.get(PageRepositoryService);
 
         const brickRegistry = TestBed.get(BrickRegistry);
         brickRegistry.register({
@@ -100,7 +103,7 @@ describe('PageService', () => {
                     pageIdentity = pages[id];
                 });
 
-                testScope.service.pageBody$.subscribe((pages) => {
+                testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                     pageBody = pages[id];
                 });
 
@@ -193,7 +196,7 @@ describe('PageService', () => {
                         pageIdentity = pages[pageId];
                     });
 
-                    testScope.service.pageBody$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                         pageBody = pages[pageId];
                     });
 
@@ -220,7 +223,7 @@ describe('PageService', () => {
                             childPageIdentity = pages[childPageId];
                         });
 
-                        testScope.service.pageBody$.subscribe((pages) => {
+                        testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                             childPageBody = pages[childPageId];
                         });
 
@@ -249,7 +252,7 @@ describe('PageService', () => {
                                 subChildPageIdentity = pages[subChildPageId];
                             });
 
-                            testScope.service.pageBody$.subscribe((pages) => {
+                            testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                                 subChildPageBody = pages[subChildPageId];
                             });
 
@@ -293,14 +296,14 @@ describe('PageService', () => {
                 testScope.service.createPage(parentPageId).then((childPageId) => {
                     let parentPageBody: IBodyPage;
 
-                    testScope.service.pageBody$.subscribe((pages) => {
+                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                         parentPageBody = pages[parentPageId];
                     });
 
                     expect(testScope.findPageBrick(parentPageBody.body, childPageId)).toBeDefined();
 
                     testScope.service.removePage(childPageId).then(() => {
-                        testScope.service.pageBody$.subscribe((pages) => {
+                        testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
                             parentPageBody = pages[parentPageId];
                         });
 

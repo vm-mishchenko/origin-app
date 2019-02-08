@@ -7,6 +7,7 @@ import {Guid} from '../../infrastructure/utils';
 import {CreatePageAction} from './action/create-page.action';
 import {RemovePageAction} from './action/remove-page.action';
 import {DeletePageEvent} from './page-events.type';
+import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
@@ -15,7 +16,6 @@ export class PageService {
     // todo: move to other service
     pageIdentity$: Observable<HashMap<IIdentityPage>>;
     pageRelation$: Observable<HashMap<IRelationPage>>;
-    pageBody$: Observable<HashMap<IBodyPage>>;
 
     // todo - integrate to application event stream
     // todo - replace any type
@@ -26,6 +26,7 @@ export class PageService {
     private pageRelationStorage: PersistentStorage<IRelationPage>;
 
     constructor(private pageStoragesService: PageStoragesService,
+                private pageRepositoryService: PageRepositoryService,
                 private wallModelFactory: WallModelFactory,
                 private guid: Guid) {
         // initialize required storage
@@ -34,9 +35,8 @@ export class PageService {
         this.pageRelationStorage = this.pageStoragesService.pageRelationStorage;
 
         // todo: move to the separate query service
-        this.pageIdentity$ = this.pageIdentityStorage.entities$;
-        this.pageRelation$ = this.pageRelationStorage.entities$;
-        this.pageBody$ = this.pageBodyStorage.entities$;
+        this.pageIdentity$ = this.pageRepositoryService.pageIdentity$;
+        this.pageRelation$ = this.pageRepositoryService.pageRelation$;
     }
 
     createPage(parentPageId: string = null): Promise<string> {

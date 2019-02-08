@@ -1,10 +1,19 @@
 import {Injectable} from '@angular/core';
+import {HashMap} from '@datorama/akita';
+import {Observable} from 'rxjs';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
 @Injectable()
 export class PageRepositoryService {
+    pageIdentity$: Observable<HashMap<IIdentityPage>>;
+    pageRelation$: Observable<HashMap<IRelationPage>>;
+    pageBody$: Observable<HashMap<IBodyPage>>;
+
     constructor(private pageStoragesService: PageStoragesService) {
+        this.pageIdentity$ = this.pageStoragesService.pageIdentityStorage.entities$;
+        this.pageRelation$ = this.pageStoragesService.pageRelationStorage.entities$;
+        this.pageBody$ = this.pageStoragesService.pageBodyStorage.entities$;
     }
 
     loadIdentityPage(id: string): Promise<IIdentityPage> {

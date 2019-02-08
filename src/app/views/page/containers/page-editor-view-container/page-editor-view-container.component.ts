@@ -136,7 +136,7 @@ export class PageEditorViewContainerComponent implements OnInit {
         // body database -> editor
         this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                return this.pageService.pageBody$.pipe(
+                return this.pageRepository.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     map((pageBody) => pageBody[selectedPagedId]),
                     first()
