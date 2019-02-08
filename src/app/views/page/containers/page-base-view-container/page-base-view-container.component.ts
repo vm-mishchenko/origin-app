@@ -1,7 +1,7 @@
 import {MediaMatcher} from '@angular/cdk/layout';
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {NavigationService} from '../../../../features/navigation';
-import {PageService} from '../../../../features/page/page.service';
+import {PageRepositoryService, PageService} from '../../../../features/page';
 
 @Component({
     selector: 'app-page-base-view-container',
@@ -15,6 +15,7 @@ export class PageBaseViewContainerComponent implements OnInit, OnDestroy {
 
     constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher,
                 private pageService: PageService,
+                private pageRepositoryService: PageRepositoryService,
                 private navigationService: NavigationService) {
         this.mobileQuery = media.matchMedia('(max-width: 600px)');
         this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -22,7 +23,7 @@ export class PageBaseViewContainerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.pageService.loadRootPages();
+        this.pageRepositoryService.loadRootPages();
     }
 
     ngOnDestroy(): void {

@@ -2,6 +2,7 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, OnDestroy} from '@angular/core';
 import {HashMap} from '@datorama/akita';
 import {combineLatest} from 'rxjs';
+import {PageRepositoryService} from '../../../page';
 import {PageService} from '../../../page/page.service';
 import {IIdentityPage, IRelationPage} from '../../../page/page.types';
 import {PageTreeFlatDataSource} from './page-tree-flat-data-source.class';
@@ -30,7 +31,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
 
     hasChild = (_: number, node: IPageTreeNode) => node.expandable;
 
-    constructor(private pageService: PageService) {
+    constructor(private pageService: PageService, private pageRepositoryService: PageRepositoryService) {
         this.treeControl = new FlatTreeControl<IPageTreeNode>(this.getLevel, this.isExpandable);
 
         // todo: unsubscribe after
@@ -49,7 +50,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
             changed.added
                 .map(selectedPageTreeNode => selectedPageTreeNode.id)
                 .forEach((selectedPageId) => {
-                    this.pageService.loadTreePageChildren(selectedPageId);
+                    this.pageRepositoryService.loadTreePageChildren(selectedPageId);
                     this.pageTreeFlatSelection.addSelectedPageId(selectedPageId);
                 });
 

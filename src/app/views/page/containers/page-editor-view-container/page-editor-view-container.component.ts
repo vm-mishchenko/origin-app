@@ -17,6 +17,7 @@ import {Observable, Subject} from 'rxjs';
 import {fromPromise} from 'rxjs/internal/observable/fromPromise';
 import {filter, first, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
+import {PageRepositoryService} from '../../../../features/page';
 import {IPageBrickState} from '../../../../features/page-ui/bricks/page-brick/page-brick.types';
 import {DeletePageEvent} from '../../../../features/page/page-events.type';
 import {PageService} from '../../../../features/page/page.service';
@@ -42,6 +43,7 @@ export class PageEditorViewContainerComponent implements OnInit {
                 private pageService: PageService,
                 private formBuilder: FormBuilder,
                 private wallModelFactory: WallModelFactory,
+                private pageRepository: PageRepositoryService,
                 private injector: Injector) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')
@@ -75,9 +77,9 @@ export class PageEditorViewContainerComponent implements OnInit {
         // todo: clean up subscription
         this.selectedPageId$.subscribe((pageId) => {
             Promise.all([
-                this.pageService.loadIdentityPage(pageId),
-                this.pageService.loadBodyPage(pageId),
-                this.pageService.loadTreePageChildren(pageId)
+                this.pageRepository.loadIdentityPage(pageId),
+                this.pageRepository.loadBodyPage(pageId),
+                this.pageRepository.loadTreePageChildren(pageId)
             ]).catch((e) => {
                 this.navigationService.toPageHome();
             });
