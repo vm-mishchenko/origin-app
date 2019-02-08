@@ -2,14 +2,12 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {ActivatedRoute} from '@angular/router';
 import {IWallDefinition, WallModelFactory} from 'ngx-wall';
-import {Observable, Subject, Subscription} from 'rxjs';
-import {fromPromise} from 'rxjs/internal/observable/fromPromise';
-import {filter, first, map, mergeMap, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {filter, first, map, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
 import {PageRepositoryService} from '../../../../features/page';
 import {DeletePageEvent} from '../../../../features/page/page-events.type';
 import {PageService} from '../../../../features/page/page.service';
-import {IIdentityPage} from '../../../../features/page/page.types';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -19,13 +17,12 @@ import {IIdentityPage} from '../../../../features/page/page.types';
 export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     selectedPageId: string;
     selectedPageId$: Observable<string>;
-    selectedPageIdentity$: Observable<IIdentityPage>;
+    selectedPageIdentityTitle$: Observable<string>;
 
     subscriptions: Subscription[] = [];
 
     // ui
     pageForm: FormGroup;
-    bodyPage$: Observable<IWallDefinition> = new Subject<IWallDefinition>();
 
     // for child
     pageBody: IWallDefinition;
@@ -47,6 +44,7 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
             shareReplay()
         );
 
+        // navigation after selected page was deleted
         this.subscriptions.push(
             this.pageService.events$.pipe(
                 filter((e) => e instanceof DeletePageEvent),
@@ -64,6 +62,7 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
             ).subscribe()
         );
 
+        // loading page after selected page was changed
         this.subscriptions.push(
             this.selectedPageId$.subscribe((pageId) => {
                 this.selectedPageId = pageId;
@@ -80,33 +79,36 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
 
         // todo: consider move it to page service
         // extracting entity by id
-        this.selectedPageIdentity$ = this.selectedPageId$.pipe(
+        this.selectedPageIdentityTitle$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
                 return this.pageRepositoryService.pageIdentity$.pipe(
                     filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
-                    map((pageIdentity) => pageIdentity[selectedPagedId])
+                    map((pageIdentity) => pageIdentity[selectedPagedId].title)
                 );
             }),
             shareReplay()
         );
 
-        // clean up subscription
-        this.pageForm.valueChanges.pipe(
-            withLatestFrom(this.selectedPageIdentity$),
-            filter(([formValues, selectedPageIdentity]) => Boolean(selectedPageIdentity.title !== formValues.title))
-        ).subscribe(([formValues, selectedPageIdentity]) => {
-            this.pageService.updatePageIdentity({
-                id: selectedPageIdentity.id,
-                title: formValues.title
-            });
-        });
-
+        // page title editor -> database
         this.subscriptions.push(
-            this.selectedPageIdentity$.pipe(
-                filter((selectedPageIdentity) => selectedPageIdentity.title !== this.pageForm.get('title').value)
-            ).subscribe((selectedPageIdentity) => {
+            this.pageForm.valueChanges.pipe(
+                withLatestFrom(this.selectedPageIdentityTitle$),
+                filter(([formValues, selectedPageIdentityTitle]) => Boolean(selectedPageIdentityTitle !== formValues.title))
+            ).subscribe(([formValues]) => {
+                this.pageService.updatePageIdentity({
+                    id: this.selectedPageId,
+                    title: formValues.title
+                });
+            })
+        );
+
+        // page title database -> editor
+        this.subscriptions.push(
+            this.selectedPageIdentityTitle$.pipe(
+                filter((selectedPageIdentityTitle) => selectedPageIdentityTitle !== this.pageForm.get('title').value)
+            ).subscribe((selectedPageIdentityTitle) => {
                 this.pageForm.patchValue({
-                    title: selectedPageIdentity.title
+                    title: selectedPageIdentityTitle
                 });
             })
         );
@@ -126,26 +128,17 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
                 })
             ).subscribe()
         );
-
-
-        // body editor -> database
-        this.subscriptions.push(
-            this.bodyPage$.pipe(
-                withLatestFrom(this.selectedPageId$)
-            ).subscribe(([bodyPage, selectedPageId]) => {
-                this.pageService.updatePageBody({
-                    id: selectedPageId,
-                    body: bodyPage
-                });
-            })
-        );
     }
 
     onHeaderEnterHandler() {
     }
 
     pageBodyUpdated(bodyPage: IWallDefinition) {
-        (this.bodyPage$ as Subject<IWallDefinition>).next(bodyPage);
+        // body editor -> database
+        this.pageService.updatePageBody({
+            id: this.selectedPageId,
+            body: bodyPage
+        });
     }
 
     pageBrickIdProvider(): Promise<string> {
