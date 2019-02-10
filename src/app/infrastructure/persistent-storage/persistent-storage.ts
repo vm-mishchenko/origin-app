@@ -62,25 +62,36 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
     }
 
     update(id: string, newEntity: Partial<M>): Promise<Partial<M>> {
-        if (!this.pouchUpdateCache[id]) {
-            this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
-                debounceTime(this.options.pouchDbSavingDebounceTime)
-            ).subscribe((memoryEntity) => {
-                this.pouchdbStorage.get(id).then((entity) => {
-                    this.pouchUpdateCache[id].unsubscribe();
-                    this.pouchUpdateCache[id] = null;
-
-                    return this.pouchdbStorage.put({
-                        ...entity,
-                        ...(memoryEntity as object)  // todo: find the way to fix it
-                    });
-                });
-            });
-        }
-
         this.memoryStore.update(id, newEntity);
 
-        return Promise.resolve(newEntity);
+        if (this.options.pouchDbSavingDebounceTime === 0) {
+            // that branch related to test code
+            return this.pouchdbStorage.get(id).then((entity) => {
+                return this.pouchdbStorage.put({
+                    ...entity,
+                    ...(newEntity as object)  // todo: find the way to fix it
+                });
+            });
+        } else {
+            // that branch related to production code
+            if (!this.pouchUpdateCache[id]) {
+                this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
+                    debounceTime(this.options.pouchDbSavingDebounceTime)
+                ).subscribe((memoryEntity) => {
+                    this.pouchdbStorage.get(id).then((entity) => {
+                        this.pouchUpdateCache[id].unsubscribe();
+                        this.pouchUpdateCache[id] = null;
+
+                        return this.pouchdbStorage.put({
+                            ...entity,
+                            ...(memoryEntity as object)  // todo: find the way to fix it
+                        });
+                    });
+                });
+            }
+
+            return Promise.resolve(newEntity);
+        }
     }
 
     remove(id: string): Promise<any> {

@@ -2,6 +2,7 @@ import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/te
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory} from 'ngx-wall';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
+import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PageRepositoryService} from './page-repository.service';
 import {PageModule} from './page.module';
@@ -21,7 +22,7 @@ class TestScope {
 
         const brickRegistry = TestBed.get(BrickRegistry);
         brickRegistry.register({
-            tag: 'page',
+            tag: PAGE_BRICK_TAG_NAME,
             component: PageBrickComponent,
             name: 'Page',
             description: 'Embed a sub-page inside this page'
@@ -34,12 +35,22 @@ class TestScope {
         return wallModelFactory.create({plan});
     }
 
-    findPageBrick(wallDefinition: IWallDefinition, pageBrickId: string): IBrickSnapshot {
+    findPageBrick(wallDefinition: IWallDefinition, pageId: string): IBrickSnapshot {
         const wallModel = this.createWallModel(wallDefinition);
 
         return wallModel.api.core.filterBricks((brick) => {
-            return brick.tag === 'page' && brick.state.pageId === pageBrickId;
+            return brick.tag === 'page' && brick.state.pageId === pageId;
         })[0];
+    }
+
+    hasPageEntities(pageId): Promise<boolean> {
+        return Promise.all([
+            this.pageRepositoryService.hasIdentityPage(pageId),
+            this.pageRepositoryService.hasRelationPage(pageId),
+            this.pageRepositoryService.hasBodyPage(pageId)
+        ]).then(([hasIdentityPage, hasRelationPage, hasBodyPage]) => {
+            return Boolean(hasIdentityPage && hasRelationPage && hasBodyPage);
+        });
     }
 }
 
@@ -198,7 +209,7 @@ describe('PageService', () => {
         }));
     });
 
-    describe('Delete page', () => {
+    describe('Remove page', () => {
         it('should delete page identity, body, relation', async(() => {
             let pageIdentity;
             let pageBody;
@@ -322,6 +333,135 @@ describe('PageService', () => {
                         });
 
                         expect(testScope.findPageBrick(parentPageBody.body, childPageId)).not.toBeDefined();
+                    });
+                });
+            });
+        }));
+    });
+
+    describe('Remove pages', () => {
+        it('should remove one page', fakeAsync(() => {
+            testScope.service.createPage().then((pageId) => {
+                let hasPageEntities;
+
+                testScope.hasPageEntities(pageId).then((hasPageEntities_) => hasPageEntities = hasPageEntities_);
+
+                flushMicrotasks();
+                expect(hasPageEntities).toBe(true);
+
+                testScope.service.removePages([pageId]).then(() => {
+                    spyOn(mockPouchDb, 'get').and.callFake(() => {
+                        return Promise.reject();
+                    });
+
+                    testScope.hasPageEntities(pageId).then((hasPageEntities_) => hasPageEntities = hasPageEntities_);
+
+                    flushMicrotasks();
+                    expect(hasPageEntities).toBe(false);
+                });
+            });
+        }));
+
+        it('should remove root pages', fakeAsync(() => {
+            Promise.all([
+                testScope.service.createPage(),
+                testScope.service.createPage()
+            ]).then(([pageId1, pageId2]) => {
+                let hasPageEntities1;
+                let hasPageEntities2;
+
+                testScope.hasPageEntities(pageId1).then((hasPageEntities_) => hasPageEntities1 = hasPageEntities_);
+                testScope.hasPageEntities(pageId2).then((hasPageEntities_) => hasPageEntities2 = hasPageEntities_);
+
+                flushMicrotasks();
+                expect(hasPageEntities1).toBe(true);
+                expect(hasPageEntities2).toBe(true);
+
+                testScope.service.removePages([pageId1, pageId2]).then(() => {
+                    spyOn(mockPouchDb, 'get').and.callFake(() => {
+                        return Promise.reject();
+                    });
+
+                    testScope.hasPageEntities(pageId1).then((hasPageEntities_) => hasPageEntities1 = hasPageEntities_);
+                    testScope.hasPageEntities(pageId2).then((hasPageEntities_) => hasPageEntities2 = hasPageEntities_);
+
+                    flushMicrotasks();
+                    expect(hasPageEntities1).toBe(false);
+                    expect(hasPageEntities2).toBe(false);
+                });
+            });
+        }));
+
+        it('should remove child pages which are not siblings not root pages', async(() => {
+            testScope.service.createPage().then((pageId1) => {
+                Promise.all([
+                    testScope.service.createPage(pageId1),
+                    testScope.service.createPage(pageId1),
+                ]).then(([pageId2, pageId3]) => {
+                    testScope.service.createPage(pageId3).then((pageId4) => {
+                        Promise.all([
+                            testScope.hasPageEntities(pageId2),
+                            testScope.hasPageEntities(pageId4)
+                        ]).then(([hasPageEntities2, hasPageEntities4]) => {
+                            expect(hasPageEntities2).toBe(true);
+                            expect(hasPageEntities4).toBe(true);
+
+                            testScope.service.removePages([pageId2, pageId4]).then(() => {
+                                spyOn(mockPouchDb, 'get').and.callFake(() => {
+                                    return Promise.reject();
+                                });
+
+                                Promise.all([
+                                    testScope.hasPageEntities(pageId2),
+                                    testScope.hasPageEntities(pageId4)
+                                ]).then(([hasPageEntities2_, hasPageEntities4_]) => {
+                                    expect(hasPageEntities2_).toBe(false);
+                                    expect(hasPageEntities4_).toBe(false);
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        it('should update parent body when removing child siblings pages', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                // have to create children in series cause parallel creation would lead to race condition
+                testScope.service.createPage(parentPageId).then((childPageId1) => {
+                    testScope.service.createPage(parentPageId).then((childPageId2) => {
+                        testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentBodyPage) => {
+                            expect(testScope.findPageBrick(parentBodyPage.body, childPageId1)).toBeDefined();
+                            expect(testScope.findPageBrick(parentBodyPage.body, childPageId2)).toBeDefined();
+
+                            testScope.service.removePages([childPageId1, childPageId2]).then(() => {
+                                testScope.pageRepositoryService.getBodyPage(parentPageId).then((updatedParentBodyPage) => {
+                                    expect(testScope.findPageBrick(updatedParentBodyPage.body, childPageId1)).not.toBeDefined();
+                                    expect(testScope.findPageBrick(updatedParentBodyPage.body, childPageId2)).not.toBeDefined();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        it('should update parent relation when removing child siblings pages', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                // have to create children in series cause parallel creation would lead to race condition
+                testScope.service.createPage(parentPageId).then((childPageId1) => {
+                    testScope.service.createPage(parentPageId).then((childPageId2) => {
+                        testScope.pageRepositoryService.getRelationPage(parentPageId).then((parentRelationPage) => {
+                            expect(parentRelationPage.childrenPageId.includes(childPageId1)).toBe(true);
+                            expect(parentRelationPage.childrenPageId.includes(childPageId2)).toBe(true);
+
+                            testScope.service.removePages([childPageId1, childPageId2]).then(() => {
+                                testScope.pageRepositoryService.getRelationPage(parentPageId).then((updatedParentRelationPage) => {
+                                    expect(updatedParentRelationPage.childrenPageId.includes(childPageId1)).toBe(false);
+                                    expect(updatedParentRelationPage.childrenPageId.includes(childPageId2)).toBe(false);
+                                });
+                            });
+                        });
                     });
                 });
             });

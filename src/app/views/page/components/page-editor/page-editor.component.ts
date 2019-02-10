@@ -12,6 +12,7 @@ import {
     WallModelFactory
 } from 'ngx-wall';
 import {Subscription} from 'rxjs';
+import {PAGE_BRICK_TAG_NAME} from '../../../../features/page-ui/page-ui.constant';
 import {IPageBrickState} from '../../../../features/page-ui/bricks/page-brick/page-brick.types';
 
 @Component({
@@ -48,7 +49,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
                     this.pageBodyUpdated.emit(this.wallModel.api.core.getPlan());
                 }
 
-                if (event instanceof TurnBrickIntoEvent && event.newTag === 'page') {
+                if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {
                     this.pageBrickIdProvider(event.brickId).then((newPageIdentityId) => {
                         const newPageBrickState: IPageBrickState = {
                             pageId: newPageIdentityId

@@ -16,6 +16,30 @@ export class PageRepositoryService {
         this.pageBody$ = this.pageStoragesService.pageBodyStorage.entities$;
     }
 
+    getIdentityPage(id: string): Promise<IIdentityPage> {
+        return this.pageStoragesService.pageIdentityStorage.get(id);
+    }
+
+    getBodyPage(id: string): Promise<IBodyPage> {
+        return this.pageStoragesService.pageBodyStorage.get(id);
+    }
+
+    getRelationPage(id: string): Promise<IRelationPage> {
+        return this.pageStoragesService.pageRelationStorage.get(id);
+    }
+
+    hasIdentityPage(id: string): Promise<boolean> {
+        return this.pageStoragesService.pageIdentityStorage.get(id).then(() => true, () => false);
+    }
+
+    hasBodyPage(id: string): Promise<boolean> {
+        return this.pageStoragesService.pageBodyStorage.get(id).then(() => true, () => false);
+    }
+
+    hasRelationPage(id: string): Promise<boolean> {
+        return this.pageStoragesService.pageRelationStorage.get(id).then(() => true, () => false);
+    }
+
     loadIdentityPage(id: string): Promise<IIdentityPage> {
         return this.pageStoragesService.pageIdentityStorage.load(id).catch(() => {
             // todo: log internal error

@@ -6,6 +6,7 @@ import {BrickRegistry, WallModule} from 'ngx-wall';
 import {PageModule} from '../page/page.module';
 import {PageTreeFlatContainerComponent} from './containers/page-tree-flat-container/page-tree-flat-container.component';
 import {PageBrickComponent} from './bricks/page-brick/page-brick.component';
+import {PAGE_BRICK_TAG_NAME} from './page-ui.constant';
 
 @NgModule({
     declarations: [
@@ -30,7 +31,7 @@ import {PageBrickComponent} from './bricks/page-brick/page-brick.component';
 export class PageUiModule {
     constructor(private brickRegistry: BrickRegistry) {
         this.brickRegistry.register({
-            tag: 'page',
+            tag: PAGE_BRICK_TAG_NAME,
             component: PageBrickComponent,
             name: 'Page',
             description: 'Embed a sub-page inside this page'

@@ -1,8 +1,9 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {IWallDefinition} from 'ngx-wall';
+import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {filter, first, map, switchMap} from 'rxjs/internal/operators';
 import {PageRepositoryService, PageService} from '../../../../features/page';
+import {PAGE_BRICK_TAG_NAME} from '../../../../features/page-ui/page-ui.constant';
 
 @Component({
     selector: 'app-body-page-editor-container',
@@ -50,6 +51,15 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
 
     pageBrickIdProvider(): Promise<string> {
         return this.pageService.createPage(this.selectedPageId);
+    }
+
+    wallEvents(event: any) {
+        if (event instanceof RemoveBricksEvent) {
+            const pageIds = event.bricks.filter((brick) => brick.tag === PAGE_BRICK_TAG_NAME)
+                .map((brick) => brick.state.pageId);
+
+            this.pageService.removePages(pageIds);
+        }
     }
 
     ngOnDestroy() {

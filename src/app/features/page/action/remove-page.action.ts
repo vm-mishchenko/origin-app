@@ -1,5 +1,6 @@
 import {WallModelFactory} from 'ngx-wall';
 import {PersistentStorage} from '../../../infrastructure/persistent-storage';
+import {PAGE_BRICK_TAG_NAME} from '../../page-ui/page-ui.constant';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
 
 export class RemovePageAction {
@@ -41,7 +42,7 @@ export class RemovePageAction {
             });
     }
 
-    private removePageWithChildren(removedPageId: string) {
+    private removePageWithChildren(removedPageId: string): Promise<any> {
         const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
             return pageRelation.childrenPageId.map((childrenPageId) => this.removePageWithChildren(childrenPageId));
         });
@@ -63,14 +64,15 @@ export class RemovePageAction {
             return this.pageBodyStorage.get(pageRelation.parentPageId).then((parentBody) => {
                 const wallModel = this.wallModelFactory.create({plan: parentBody.body});
 
-                return wallModel.api.core.filterBricks((brick) => {
-                    return brick.tag === 'page' && brick.state.pageId === removedPageId;
-                }).forEach((pageBrick) => {
-                    wallModel.api.core.removeBrick(pageBrick.id);
-
-                    this.pageBodyStorage.update(parentBody.id, {
-                        body: wallModel.api.core.getPlan()
+                wallModel.api.core
+                    .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === removedPageId)
+                    .forEach((pageBrick) => {
+                        wallModel.api.core.removeBrick(pageBrick.id);
                     });
+
+                return this.pageBodyStorage.update(parentBody.id, {
+                    body: wallModel.api.core.getPlan()
+                }).then(() => {
                 });
             });
         });
