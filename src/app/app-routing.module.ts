@@ -12,6 +12,10 @@ const routes: Routes = [
             {
                 path: 'page',
                 loadChildren: './views/page/page-view.module#PageViewModule'
+            },
+            {
+                path: 'settings',
+                loadChildren: './views/settings/settings-view.module#SettingsViewModule'
             }
         ]
     },
