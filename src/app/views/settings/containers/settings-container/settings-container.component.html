@@ -1,3 +1,13 @@
-<p>
-  settings-container works!
-</p>
+<h1>Settings</h1>
+
+<h2>Sync databases</h2>
+
+<div [formGroup]="pageForm" class="example-container">
+    <mat-form-field>
+        <input matInput placeholder="Input" formControlName="url">
+    </mat-form-field>
+</div>
+
+<pre>
+    {{pageForm.valueChanges | async | json}}
+</pre>
