@@ -14,24 +14,13 @@
         <div class="col-9">
             <h3>Remote Databases</h3>
 
-            <!--todo: move to separate control-->
-            <div class="editable-input-control">
-                <button *ngIf="!editUrl" mat-stroked-button (click)="editUrl = !editUrl">Edit</button>
-                <button *ngIf="editUrl" mat-stroked-button (click)="editUrl = !editUrl; updateRemoteDbUrl()">Save
-                </button>
-
-                <span *ngIf="!editUrl">{{pouchdbStorageSettings.remoteDbUrl || "No Remote Url"}}</span>
-
-                <div *ngIf="editUrl" [formGroup]="pageForm" class="editable-input-container">
-                    <mat-form-field>
-                        <input matInput placeholder="Remote DB Url" formControlName="url">
-                    </mat-form-field>
-                </div>
+            <div [formGroup]="pageForm">
+                <o-editable-text formControlName="url"></o-editable-text>
             </div>
 
             <hr>
 
-            <button *ngIf="!editUrl" mat-raised-button
+            <button mat-raised-button
                     [disabled]="!pouchdbStorageSettings.remoteDbUrl || !pouchdbStorageSettings.localDbNames.length"
                     title="{{pouchdbStorageSettings.remoteDbUrl}}"
                     (click)="sync()">Sync

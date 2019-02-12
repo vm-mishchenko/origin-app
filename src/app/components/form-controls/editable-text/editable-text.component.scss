@@ -1,0 +1,23 @@
+.editable-text {
+  display: flex;
+  align-items: center;
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .editable-container {
+    flex-grow: 1;
+
+
+    .mat-form-field {
+      display: block;
+    }
+  }
+
+  button {
+    margin-right: 10px;
+  }
+}

@@ -1,7 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Subscription} from 'rxjs';
-import {filter} from 'rxjs/internal/operators';
 import {PouchdbStorageSettings} from '../../../pouchdb-storage/pouchdb-storage-settings.service';
 import {PouchdbStorageSync} from '../../../pouchdb-storage/pouchdb-storage-sync.service';
 
@@ -24,12 +23,11 @@ export class PouchdbSettingsContainerComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-    }
-
-    updateRemoteDbUrl() {
-        if (this.pageForm.get('url').value) {
-            this.pouchdbStorageSettings.setRemoteDbUrl(this.pageForm.get('url').value);
-        }
+        this.subscriptions.push(
+            this.pageForm.valueChanges.subscribe((newFormValues) => {
+                this.pouchdbStorageSettings.setRemoteDbUrl(newFormValues.url);
+            })
+        );
     }
 
     sync() {
