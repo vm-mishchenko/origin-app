@@ -1,18 +1,14 @@
 <mat-sidenav-container class="settings-view-container">
     <mat-sidenav #sidenav opened [mode]="'side'">
-        <mat-card>
-            <p>Settings</p>
-            <mat-nav-list>
-                <a mat-list-item [routerLink]="['./database']">Database</a>
-            </mat-nav-list>
-        </mat-card>
+        <mat-nav-list>
+            <a mat-list-item [routerLink]="['./database']">Database</a>
+        </mat-nav-list>
 
-        <mat-card>
-            <p>Global</p>
-            <mat-nav-list>
-                <a mat-list-item [routerLink]="['/page']">Page</a>
-            </mat-nav-list>
-        </mat-card>
+        <hr>
+
+        <mat-nav-list>
+            <a mat-list-item [routerLink]="['/page']">Page</a>
+        </mat-nav-list>
     </mat-sidenav>
 
     <mat-sidenav-content>

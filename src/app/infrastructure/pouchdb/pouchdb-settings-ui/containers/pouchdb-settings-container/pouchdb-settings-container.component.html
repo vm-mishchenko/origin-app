@@ -1,19 +1,41 @@
-<h1>Settings</h1>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3">
+            <h3>Local Databases</h3>
+            <ul *ngIf="pouchdbStorageSettings.localDbNames.length">
+                <li *ngFor="let localDbName of pouchdbStorageSettings.localDbNames">
+                    {{localDbName}}
+                </li>
+            </ul>
 
-<h2>Sync databases</h2>
+            <p *ngIf="!pouchdbStorageSettings.localDbNames.length">No registered local dbs</p>
+        </div>
 
-<h3>Local Databases</h3>
-<ul>
-  <li *ngFor="let localDbName of pouchdbStorageSettings.localDbNames">
-    {{localDbName}}
-  </li>
-</ul>
+        <div class="col-9">
+            <h3>Remote Databases</h3>
 
-<h3>Remote Databases</h3>
-<div [formGroup]="pageForm" class="example-container">
-  <mat-form-field>
-    <input matInput placeholder="Input" formControlName="url">
-  </mat-form-field>
+            <!--todo: move to separate control-->
+            <div class="editable-input-control">
+                <button *ngIf="!editUrl" mat-stroked-button (click)="editUrl = !editUrl">Edit</button>
+                <button *ngIf="editUrl" mat-stroked-button (click)="editUrl = !editUrl; updateRemoteDbUrl()">Save
+                </button>
+
+                <span *ngIf="!editUrl">{{pouchdbStorageSettings.remoteDbUrl || "No Remote Url"}}</span>
+
+                <div *ngIf="editUrl" [formGroup]="pageForm" class="editable-input-container">
+                    <mat-form-field>
+                        <input matInput placeholder="Remote DB Url" formControlName="url">
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <hr>
+
+            <button *ngIf="!editUrl" mat-raised-button
+                    [disabled]="!pouchdbStorageSettings.remoteDbUrl || !pouchdbStorageSettings.localDbNames.length"
+                    title="{{pouchdbStorageSettings.remoteDbUrl}}"
+                    (click)="sync()">Sync
+            </button>
+        </div>
+    </div>
 </div>
-{{pouchdbStorageSettings.remoteDbUrl}}
-<button (click)="sync()">Sync to {{pouchdbStorageSettings.remoteDbUrl}}</button>

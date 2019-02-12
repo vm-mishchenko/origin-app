@@ -23,10 +23,8 @@ export class PouchdbStorageFactory {
     createPouchDB(options: IPouchDbCreateOptions) {
         const database = new PouchDB(options.name);
 
-        console.log(`createPouchDB`);
-        this.pouchdbStorageSettings.addLocalDbName(options.name);
+        this.pouchdbStorageSettings.registerLocalDbName(options.name);
 
-        // todo: save info about this DB so it could be deleted in a future
         return database;
     }
 }

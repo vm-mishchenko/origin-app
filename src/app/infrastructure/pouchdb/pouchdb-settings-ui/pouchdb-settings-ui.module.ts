@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
-import {MatFormFieldModule, MatInputModule} from '@angular/material';
+import {MatButtonModule, MatFormFieldModule, MatInputModule} from '@angular/material';
 import {PouchdbStorageModule} from '../pouchdb-storage/pouchdb-storage.module';
 import {PouchdbSettingsContainerComponent} from './containers/pouchdb-settings-container/pouchdb-settings-container.component';
 
@@ -16,6 +16,7 @@ import {PouchdbSettingsContainerComponent} from './containers/pouchdb-settings-c
         // material
         MatInputModule,
         MatFormFieldModule,
+        MatButtonModule
     ]
 })
 export class PouchdbSettingsUiModule {

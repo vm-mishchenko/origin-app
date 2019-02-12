@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Subscription} from 'rxjs';
 import {filter} from 'rxjs/internal/operators';
@@ -10,7 +10,7 @@ import {PouchdbStorageSync} from '../../../pouchdb-storage/pouchdb-storage-sync.
     templateUrl: './pouchdb-settings-container.component.html',
     styleUrls: ['./pouchdb-settings-container.component.scss']
 })
-export class PouchdbSettingsContainerComponent implements OnInit {
+export class PouchdbSettingsContainerComponent implements OnInit, OnDestroy {
     pageForm: FormGroup;
 
     private subscriptions: Subscription[] = [];
@@ -19,21 +19,26 @@ export class PouchdbSettingsContainerComponent implements OnInit {
                 public pouchdbStorageSettings: PouchdbStorageSettings,
                 private pouchdbStorageSync: PouchdbStorageSync) {
         this.pageForm = this.formBuilder.group({
-            url: this.formBuilder.control('')
+            url: this.formBuilder.control(this.pouchdbStorageSettings.remoteDbUrl)
         });
     }
 
     ngOnInit() {
-        this.subscriptions.push(
-            this.pageForm.valueChanges.pipe(
-                filter(newFormValue => Boolean(newFormValue.url))
-            ).subscribe((newFormValue) => {
-                this.pouchdbStorageSettings.setRemoteDbUrl(newFormValue.url);
-            })
-        );
+    }
+
+    updateRemoteDbUrl() {
+        if (this.pageForm.get('url').value) {
+            this.pouchdbStorageSettings.setRemoteDbUrl(this.pageForm.get('url').value);
+        }
     }
 
     sync() {
         this.pouchdbStorageSync.sync();
+    }
+
+    ngOnDestroy() {
+        this.subscriptions.forEach((subscription) => {
+            subscription.unsubscribe();
+        });
     }
 }
