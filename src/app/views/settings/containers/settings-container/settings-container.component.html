@@ -1,19 +1,25 @@
-<h1>Settings</h1>
+<mat-sidenav-container class="settings-view-container">
+    <mat-sidenav #sidenav opened [mode]="'side'">
+        <mat-card>
+            <p>Settings</p>
+            <mat-nav-list>
+                <a mat-list-item [routerLink]="['./database']">Database</a>
+            </mat-nav-list>
+        </mat-card>
 
-<h2>Sync databases</h2>
+        <mat-card>
+            <p>Global</p>
+            <mat-nav-list>
+                <a mat-list-item [routerLink]="['/page']">Page</a>
+            </mat-nav-list>
+        </mat-card>
+    </mat-sidenav>
 
-<h3>Local Databases</h3>
-<ul>
-    <li *ngFor="let localDbName of pouchdbStorageSettings.localDbNames">
-        {{localDbName}}
-    </li>
-</ul>
+    <mat-sidenav-content>
+        <p>
+            <button mat-button (click)="sidenav.toggle()">Toggle</button>
+        </p>
 
-<h3>Remote Databases</h3>
-<div [formGroup]="pageForm" class="example-container">
-    <mat-form-field>
-        <input matInput placeholder="Input" formControlName="url">
-    </mat-form-field>
-</div>
-{{pouchdbStorageSettings.remoteDbUrl}}
-<button (click)="sync()">Sync to {{pouchdbStorageSettings.remoteDbUrl}}</button>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>

@@ -3,6 +3,13 @@
         <app-page-tree-flat-container></app-page-tree-flat-container>
 
         <button (click)="addPage()">Add page</button>
+
+        <mat-card>
+            <p>Global</p>
+            <mat-nav-list>
+                <a mat-list-item [routerLink]="['/settings']">Settings</a>
+            </mat-nav-list>
+        </mat-card>
     </mat-sidenav>
 
     <mat-sidenav-content>

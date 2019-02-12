@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule, MatSidenavModule} from '@angular/material';
+import {MatButtonModule, MatCardModule, MatListModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
 import {
     CodeBrickModule,
@@ -58,8 +58,6 @@ const routes: Routes = [
         CommonModule,
         PageModule,
         PageUiModule,
-        MatSidenavModule,
-        MatButtonModule,
         RouterModule.forChild(routes),
         ReactiveFormsModule,
         FormControlsModule,
@@ -80,7 +78,13 @@ const routes: Routes = [
         PickOutModule,
         TowModule,
         RadarModule,
-        WebBookmarkBrickModule
+        WebBookmarkBrickModule,
+
+        // material
+        MatListModule,
+        MatCardModule,
+        MatSidenavModule,
+        MatButtonModule,
     ]
 })
 export class PageViewModule {

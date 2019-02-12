@@ -1,0 +1,19 @@
+<h1>Settings</h1>
+
+<h2>Sync databases</h2>
+
+<h3>Local Databases</h3>
+<ul>
+  <li *ngFor="let localDbName of pouchdbStorageSettings.localDbNames">
+    {{localDbName}}
+  </li>
+</ul>
+
+<h3>Remote Databases</h3>
+<div [formGroup]="pageForm" class="example-container">
+  <mat-form-field>
+    <input matInput placeholder="Input" formControlName="url">
+  </mat-form-field>
+</div>
+{{pouchdbStorageSettings.remoteDbUrl}}
+<button (click)="sync()">Sync to {{pouchdbStorageSettings.remoteDbUrl}}</button>

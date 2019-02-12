@@ -1,8 +1,11 @@
-.example-container {
-  display: flex;
-  flex-direction: column;
+.settings-view-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-.example-container > * {
-  width: 50%;
+mat-sidenav {
+  width: 30%;
 }

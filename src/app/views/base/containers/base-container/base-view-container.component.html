@@ -1,6 +1,10 @@
-<a [routerLink]="['/page']">To page</a>
-<br>
-<br>
-<a [routerLink]="['/settings']">To settings</a>
+<mat-card>
+    <p>Global</p>
+    <mat-nav-list>
+        <a mat-list-item [routerLink]="['/page']">Page</a>
+        <a mat-list-item [routerLink]="['/settings']">Settings</a>
+    </mat-nav-list>
+</mat-card>
 
 <router-outlet></router-outlet>
+

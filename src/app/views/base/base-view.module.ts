@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {MatCardModule, MatListModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {BaseViewContainerComponent} from './containers/base-container/base-view-container.component';
 
@@ -7,7 +8,9 @@ import {BaseViewContainerComponent} from './containers/base-container/base-view-
     declarations: [BaseViewContainerComponent],
     imports: [
         CommonModule,
-        RouterModule
+        RouterModule,
+        MatListModule,
+        MatCardModule,
     ]
 })
 export class BaseViewModule {
