@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {PouchdbStorageModule} from '../pouchdb-storage';
+import {PouchdbStorageModule} from '../pouchdb/pouchdb-storage';
 import {PersistentStorageFactory} from './persistent-storage-factory.service';
 
 @NgModule({

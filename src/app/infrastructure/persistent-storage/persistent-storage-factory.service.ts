@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {EntityState, EntityStore, Query} from '@datorama/akita';
-import {PouchdbStorageFactory} from '../pouchdb-storage';
+import {PouchdbStorageFactory} from '../pouchdb/pouchdb-storage';
 import {PersistentStorage} from './persistent-storage';
 import {POUCH_DB_DEBOUNCE_TIME} from './persistent-storage.constant';
 import {IPersistedStorageCreateOptions, IPersistedStorageEntity, IPersistedStorageFactoryOptions} from './persistent-storage.types';

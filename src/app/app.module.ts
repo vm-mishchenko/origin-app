@@ -7,7 +7,7 @@ import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {NavigationModule} from './features/navigation';
-import {PouchdbStorageModule} from './infrastructure/pouchdb-storage';
+import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
 
 @NgModule({
     declarations: [

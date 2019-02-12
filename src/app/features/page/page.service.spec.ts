@@ -1,7 +1,7 @@
 import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory} from 'ngx-wall';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
-import {PouchdbStorageFactory} from '../../infrastructure/pouchdb-storage';
+import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
 import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PageRepositoryService} from './page-repository.service';
