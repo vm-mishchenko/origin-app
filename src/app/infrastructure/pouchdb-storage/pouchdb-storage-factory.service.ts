@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import PouchDB from 'pouchdb';
 import PouchFind from 'pouchdb-find';
+import {PouchdbStorageSettings} from './pouchdb-storage-settings.service';
 
 PouchDB.plugin(PouchFind);
 
@@ -16,11 +17,14 @@ export interface IPouchDbCreateOptions {
 
 @Injectable()
 export class PouchdbStorageFactory {
-    constructor() {
+    constructor(private pouchdbStorageSettings: PouchdbStorageSettings) {
     }
 
     createPouchDB(options: IPouchDbCreateOptions) {
         const database = new PouchDB(options.name);
+
+        console.log(`createPouchDB`);
+        this.pouchdbStorageSettings.addLocalDbName(options.name);
 
         // todo: save info about this DB so it could be deleted in a future
         return database;

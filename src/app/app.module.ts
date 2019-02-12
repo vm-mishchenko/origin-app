@@ -7,6 +7,7 @@ import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {NavigationModule} from './features/navigation';
+import {PouchdbStorageModule} from './infrastructure/pouchdb-storage';
 
 @NgModule({
     declarations: [
@@ -18,6 +19,7 @@ import {NavigationModule} from './features/navigation';
         ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
         BrowserAnimationsModule,
         NavigationModule,
+        PouchdbStorageModule.forRoot(),
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule
