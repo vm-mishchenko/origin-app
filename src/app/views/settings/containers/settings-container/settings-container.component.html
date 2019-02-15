@@ -16,6 +16,19 @@
             <button mat-button (click)="sidenav.toggle()">Toggle</button>
         </p>
 
+        <p>
+            <button mat-button *ngIf="!(googleSignService.user$ | async)" (click)="googleSignService.signIn()">Sign in
+            </button>
+        </p>
+
+        <div *ngIf="googleSignService.user$ | async">
+            <button mat-button (click)="googleSignService.signOut()">Sign out</button>
+
+            <pre>{{(googleSignService.user$ | async)?.displayName}}</pre>
+        </div>
+
+        <hr>
+
         <router-outlet></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>

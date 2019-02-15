@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "../out-tsc/app",
     "module": "es2015",
-    "types": [],
+    "types": [
+      "gapi",
+      "gapi.auth2"
+    ],
     "paths": {
       "@angular/*": [
         "./node_modules/@angular/*"

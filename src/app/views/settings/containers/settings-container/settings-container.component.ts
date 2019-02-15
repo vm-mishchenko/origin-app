@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {GoogleSignService} from '../../../../features/google-sign/google-sign.service';
 
 // todo: toggle automatically
 @Component({
@@ -7,6 +8,9 @@ import {Component, OnInit} from '@angular/core';
     styleUrls: ['./settings-container.component.scss']
 })
 export class SettingsContainerComponent implements OnInit {
+    constructor(public googleSignService: GoogleSignService) {
+    }
+
     ngOnInit() {
     }
 }
