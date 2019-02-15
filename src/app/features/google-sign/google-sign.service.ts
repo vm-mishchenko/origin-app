@@ -3,7 +3,7 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import * as firebase from 'firebase';
 import {googleSeed} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
-
+declare var gapi;
 @Injectable()
 export class GoogleSignService {
     user$: any;

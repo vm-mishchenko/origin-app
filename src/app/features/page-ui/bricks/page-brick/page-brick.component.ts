@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IOnWallStateChange} from 'ngx-wall';
 import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import {filter, map} from 'rxjs/internal/operators';
+import {filter, map} from 'rxjs/operators';
 import {PageRepositoryService} from '../../../page';
 import {IPageBrickState} from './page-brick.types';
 

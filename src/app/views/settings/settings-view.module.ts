@@ -15,11 +15,7 @@ const routes: Routes = [
             {
                 path: 'database',
                 component: PouchdbSettingsContainerComponent
-            },
-            {
-                path: 'online-account',
-                component: PouchdbSettingsContainerComponent
-            },
+            }
         ]
     },
     {

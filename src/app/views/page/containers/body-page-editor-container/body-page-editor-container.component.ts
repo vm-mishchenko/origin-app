@@ -1,7 +1,7 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
-import {filter, first, map, switchMap} from 'rxjs/internal/operators';
+import {filter, first, map, switchMap} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../../features/page';
 import {PAGE_BRICK_TAG_NAME} from '../../../../features/page-ui/page-ui.constant';
 

@@ -1,7 +1,7 @@
 /* Facade around memory and pouchDB databases */
 import {EntityState, EntityStore, HashMap, Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
-import {debounceTime} from 'rxjs/internal/operators';
+import {debounceTime} from 'rxjs/operators';
 import {IPersistedStorageEntity, IPersistentStorageOptions} from './persistent-storage.types';
 
 export class PersistentStorage<M extends IPersistedStorageEntity> {

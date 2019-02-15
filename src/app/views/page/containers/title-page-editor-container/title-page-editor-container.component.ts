@@ -1,7 +1,7 @@
 import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
-import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/internal/operators';
+import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../../features/page';
 
 @Component({

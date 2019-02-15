@@ -1,6 +1,6 @@
 import {CollectionViewer} from '@angular/cdk/collections';
 import {BehaviorSubject, merge, Observable} from 'rxjs';
-import {map} from 'rxjs/internal/operators';
+import {map} from 'rxjs/operators';
 import {IPageTreeNode} from './page-tree-flat.types';
 
 export class PageTreeFlatDataSource {
