@@ -1,12 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
-import {Observable, Subscription} from 'rxjs';
-import {filter, map, shareReplay, tap, withLatestFrom} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
 import {NavigationService} from '../../../../features/navigation';
-import {PageRepositoryService} from '../../../../features/page';
+import {PageRepositoryService, PageService} from '../../../../features/page';
 import {DeletePageEvent} from '../../../../features/page/page-events.type';
-import {PageService} from '../../../../features/page/page.service';
+import {OriginPageService} from '../../../../origin/modules/origin-page';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -14,17 +14,20 @@ import {PageService} from '../../../../features/page/page.service';
     styleUrls: ['./page-editor-view-container.component.scss']
 })
 export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
-    selectedPageId$: Observable<string>;
     subscriptions: Subscription[] = [];
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
                 private pageService: PageService,
                 private wallModelFactory: WallModelFactory,
-                private pageRepositoryService: PageRepositoryService) {
-        this.selectedPageId$ = this.route.params.pipe(
-            map((params) => params.id),
-            shareReplay()
+                private pageRepositoryService: PageRepositoryService,
+                private originPageService: OriginPageService) {
+        this.subscriptions.push(
+            this.route.params.pipe(
+                map((params) => params.id)
+            ).subscribe((pageId) => {
+                this.originPageService.setSelectedPageId(pageId);
+            })
         );
     }
 
@@ -34,7 +37,7 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
             this.pageService.events$.pipe(
                 filter((e) => e instanceof DeletePageEvent),
                 map((e) => e.pageId),
-                withLatestFrom((this.selectedPageId$)),
+                withLatestFrom((this.originPageService.selectedPageId$)),
                 tap(([deletedPageId, selectedPageId]) => {
                     // todo: consider more cases
                     // if deleted page is child of selected page
@@ -49,7 +52,7 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
 
         // loading page after selected page was changed
         this.subscriptions.push(
-            this.selectedPageId$.subscribe((pageId) => {
+            this.originPageService.selectedPageId$.subscribe((pageId) => {
                 Promise.all([
                     this.pageRepositoryService.loadIdentityPage(pageId),
                     this.pageRepositoryService.loadBodyPage(pageId),
@@ -62,6 +65,8 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        this.originPageService.setSelectedPageId(null);
+
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });

@@ -1,17 +1,25 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {User} from 'firebase';
 import * as firebase from 'firebase';
+import {Observable} from 'rxjs';
+import {shareReplay} from 'rxjs/internal/operators';
 import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 
 @Injectable()
 export class GoogleSignService {
-    user$: any;
+    user: User;
+    user$: Observable<User | null>;
     private isGapiInitialize = false;
 
     constructor(private gapiService: GapiService,
                 private firebaseAuth: AngularFireAuth) {
-        this.user$ = this.firebaseAuth.user;
+        this.user$ = this.firebaseAuth.user.pipe(shareReplay());
+
+        this.user$.subscribe((user) => {
+            this.user = user;
+        });
     }
 
     signIn(): Promise<any> {
@@ -30,8 +38,37 @@ export class GoogleSignService {
         });
     }
 
-    isSignIn(): Promise<boolean> {
+    isSignInFirebase(): boolean {
+        return Boolean(this.user);
+    }
+
+    // expects that Gapi library was already initialized
+    isSignInGapiSync(): boolean {
+        return gapi.auth2.getAuthInstance().isSignedIn.get();
+    }
+
+    isSignInGapi(): Promise<boolean> {
         return this.initGapiClient().then(() => gapi.auth2.getAuthInstance().isSignedIn.get());
+    }
+
+    // todo: maybe move to separate service to not expose that method publicly
+    initGapiClient(): Promise<any> {
+        if (this.isGapiInitialize) {
+            return Promise.resolve();
+        }
+
+        return this.gapiService.loadGapi()
+            .then(() => this.gapiService.loadLibraries('client:auth2'))
+            .then(() => {
+                return this.gapiService.initGapi({
+                    apiKey: environment.google.apiKey,
+                    clientId: environment.google.clientId,
+                    discoveryDocs: [],
+                    scope: 'profile'
+                }).then(() => {
+                    this.isGapiInitialize = true;
+                });
+            });
     }
 
     private signInUser(): Promise<any> {
@@ -53,24 +90,5 @@ export class GoogleSignService {
             this.firebaseAuth.auth.signOut(),
             gapi.auth2.getAuthInstance().signOut()
         ]);
-    }
-
-    private initGapiClient(): Promise<any> {
-        if (this.isGapiInitialize) {
-            return Promise.resolve();
-        }
-
-        return this.gapiService.loadGapi()
-            .then(() => this.gapiService.loadLibraries('client:auth2'))
-            .then(() => {
-                return this.gapiService.initGapi({
-                    apiKey: environment.google.apiKey,
-                    clientId: environment.google.clientId,
-                    discoveryDocs: [],
-                    scope: 'profile'
-                }).then(() => {
-                    this.isGapiInitialize = true;
-                });
-            });
     }
 }

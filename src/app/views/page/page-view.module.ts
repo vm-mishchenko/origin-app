@@ -21,6 +21,7 @@ import {FormControlsModule} from '../../components/form-controls';
 import {NavigationModule} from '../../features/navigation';
 import {PageModule} from '../../features/page';
 import {PageUiModule} from '../../features/page-ui';
+import {OriginPageModule} from '../../origin/modules/origin-page';
 import {PageEditorComponent} from './components/page-editor/page-editor.component';
 import {BodyPageEditorContainerComponent} from './containers/body-page-editor-container/body-page-editor-container.component';
 import {PageBaseViewContainerComponent} from './containers/page-base-view-container/page-base-view-container.component';
@@ -62,6 +63,9 @@ const routes: Routes = [
         ReactiveFormsModule,
         FormControlsModule,
         NavigationModule,
+
+        // Origin
+        OriginPageModule,
 
         // wall main module
         WallModule,

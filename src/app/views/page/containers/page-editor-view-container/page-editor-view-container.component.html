@@ -1,5 +1,5 @@
 <div class="page-editor-view-container">
-    <app-title-page-editor-container [selectedPageId]="selectedPageId$ | async">
+    <app-title-page-editor-container [selectedPageId]="originPageService.selectedPageId$ | async">
     </app-title-page-editor-container>
 
     <div class="container-fluid">
@@ -8,7 +8,8 @@
             col-md-10 offset-md-1
             col-lg-8 offset-lg-2
             col-xl-8 offset-xl-2">
-                <app-body-page-editor-container [selectedPageId$]="selectedPageId$"></app-body-page-editor-container>
+                <app-body-page-editor-container
+                        [selectedPageId$]="originPageService.selectedPageId$"></app-body-page-editor-container>
             </div>
         </div>
     </div>

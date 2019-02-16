@@ -22,11 +22,7 @@ import {PageService} from './page.service';
         PageService,
         PageRepositoryService,
         PageStoragesService,
-        PageFileUploaderService,
-        {
-            provide: WALL_FILE_UPLOADER,
-            useClass: PageFileUploaderService
-        }
+        PageFileUploaderService
     ]
 })
 export class PageModule {

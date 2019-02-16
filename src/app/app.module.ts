@@ -9,6 +9,7 @@ import {FirebaseOptionsToken} from '@angular/fire';
 import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
+import {GoogleSignModule} from './features/google-sign/google-sign.module';
 import {NavigationModule} from './features/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
 
@@ -23,6 +24,7 @@ import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
         BrowserAnimationsModule,
         NavigationModule,
         PouchdbStorageModule.forRoot(),
+        GoogleSignModule.forRoot(),
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule,

@@ -3,9 +3,9 @@ import {NgModule} from '@angular/core';
 import {MatButtonModule, MatIconModule, MatProgressBarModule, MatTreeModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {BrickRegistry, WallModule} from 'ngx-wall';
-import {PageModule} from '../page/page.module';
-import {PageTreeFlatContainerComponent} from './containers/page-tree-flat-container/page-tree-flat-container.component';
+import {PageModule} from '../page';
 import {PageBrickComponent} from './bricks/page-brick/page-brick.component';
+import {PageTreeFlatContainerComponent} from './containers/page-tree-flat-container/page-tree-flat-container.component';
 import {PAGE_BRICK_TAG_NAME} from './page-ui.constant';
 
 @NgModule({
