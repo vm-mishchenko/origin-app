@@ -7,7 +7,7 @@ import {RemoveSiblingsPageAction} from './remove-siblings-page.action';
 /**
  * There is sophisticated strategy for removing list of page id.
  *
- * First step: filter all pages which are children of 3other removed pages.
+ * First step: filter all pages which are children of other removed pages.
  * For example pageIds is a list of [A, B] page ids. If B is a child of A
  * we should call remove method only for A page. All children will be removed automatically.
  * Without such filtering there is might be a race condition, where page A was already removed
@@ -16,8 +16,9 @@ import {RemoveSiblingsPageAction} from './remove-siblings-page.action';
  * Second step: siblings pages should be removed in one update operation. Removing them separately might
  * lead to race condition.
  *
- * First approach is less likely at least for current UI implementation.
- * So currently is implemented only Second constraint.
+ * First step is less likely at least for current UI implementation. In UI hard simultaneously remove
+ * pages from different position in the tree.
+ * So currently only Second constraint is implemented.
  * */
 export class RemovePagesAction {
     constructor(private pageIds: string[],

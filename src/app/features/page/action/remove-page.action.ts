@@ -11,6 +11,20 @@ export class RemovePageAction {
                 private wallModelFactory: WallModelFactory) {
     }
 
+
+    /*
+    * remove page entities
+    * remove page files
+    * remove child entities
+    * remove child files
+    *
+    * Removing files is critical operation. Unsuccessful operation may leave
+    * dead files in the storage which will take place and will not be shown in UI.
+    *
+    * 1. Find all children bodies
+    * 2. Store all reference to file in persistent storage
+    * 3. Iterate over files and delete them
+    * */
     execute(): Promise<any> {
         return Promise.all([
             this.updateParentRelationChildrenAfterRemove(this.pageId),

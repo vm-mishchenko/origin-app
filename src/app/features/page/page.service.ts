@@ -34,8 +34,6 @@ export class PageService {
     }
 
     removePage(pageId: string): Promise<any> {
-        // todo: deal with parallel page removing
-        // it works incorrectly :(
         return new RemovePageAction(
             pageId,
             this.pageStorages.pageIdentityStorage,
