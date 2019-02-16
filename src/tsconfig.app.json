@@ -4,8 +4,8 @@
     "outDir": "../out-tsc/app",
     "module": "es2015",
     "types": [
-      /*"gapi",
-      "gapi.auth2"*/
+      "gapi",
+      "gapi.auth2"
     ],
     "paths": {
       "@angular/*": [

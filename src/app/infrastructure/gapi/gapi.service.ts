@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 
-declare var gapi;
 const GAPI_URL = 'https://apis.google.com/js/api.js';
 
 @Injectable()
