@@ -12,8 +12,8 @@ import {
     WallModelFactory
 } from 'ngx-wall';
 import {Subscription} from 'rxjs';
-import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
 import {IPageBrickState} from '../../../../../features/page-ui/bricks/page-brick/page-brick.types';
+import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
 
 @Component({
     selector: 'app-page-editor',

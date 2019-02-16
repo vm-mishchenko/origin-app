@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {WALL_FILE_UPLOADER, WallModule} from 'ngx-wall';
+import {WallModule} from 'ngx-wall';
 import {FirebaseFileUploaderModule} from '../../infrastructure/firebase-file-uploader/firebase-file-uploader.module';
 import {PersistentStorageModule} from '../../infrastructure/persistent-storage';
 import {UtilsModule} from '../../infrastructure/utils';

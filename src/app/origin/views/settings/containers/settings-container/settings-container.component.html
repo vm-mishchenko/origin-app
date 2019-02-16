@@ -1,28 +1,28 @@
 <mat-sidenav-container class="settings-view-container">
-    <mat-sidenav #sidenav opened [mode]="'side'">
+    <mat-sidenav #sidenav [mode]="'side'" opened>
         <mat-nav-list>
-            <a mat-list-item [routerLink]="['./database']">Database</a>
+            <a [routerLink]="['./database']" mat-list-item>Database</a>
         </mat-nav-list>
 
         <hr>
 
         <mat-nav-list>
-            <a mat-list-item [routerLink]="['/page']">Page</a>
+            <a [routerLink]="['/page']" mat-list-item>Page</a>
         </mat-nav-list>
     </mat-sidenav>
 
     <mat-sidenav-content>
         <p>
-            <button mat-button (click)="sidenav.toggle()">Toggle</button>
+            <button (click)="sidenav.toggle()" mat-button>Toggle</button>
         </p>
 
         <p>
-            <button mat-button *ngIf="!(googleSignService.user$ | async)" (click)="googleSignService.signIn()">Sign in
+            <button (click)="googleSignService.signIn()" *ngIf="!(googleSignService.user$ | async)" mat-button>Sign in
             </button>
         </p>
 
         <div *ngIf="googleSignService.user$ | async">
-            <button mat-button (click)="googleSignService.signOut()">Sign out</button>
+            <button (click)="googleSignService.signOut()" mat-button>Sign out</button>
 
             <pre>{{(googleSignService.user$ | async)?.displayName}}</pre>
         </div>

@@ -10,14 +10,14 @@ import {GoogleSignService} from './google-sign.service';
     ]
 })
 export class GoogleSignModule {
+    constructor(private googleSignService: GoogleSignService) {
+        this.googleSignService.initGapiClient();
+    }
+
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: GoogleSignModule,
             providers: [GoogleSignService]
         };
-    }
-    
-    constructor(private googleSignService: GoogleSignService) {
-        this.googleSignService.initGapiClient();
     }
 }

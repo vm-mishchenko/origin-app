@@ -20,10 +20,10 @@
 
             <hr>
 
-            <button mat-raised-button
+            <button (click)="sync()"
                     [disabled]="!pouchdbStorageSettings.remoteDbUrl || !pouchdbStorageSettings.localDbNames.length"
-                    title="{{pouchdbStorageSettings.remoteDbUrl}}"
-                    (click)="sync()">Sync
+                    mat-raised-button
+                    title="{{pouchdbStorageSettings.remoteDbUrl}}">Sync
             </button>
         </div>
     </div>

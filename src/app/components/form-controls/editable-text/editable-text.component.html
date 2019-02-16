@@ -1,13 +1,13 @@
 <div class="editable-text">
-    <button *ngIf="!editUrl" mat-stroked-button (click)="editUrl = !editUrl">Edit</button>
-    <button *ngIf="editUrl" mat-stroked-button (click)="editUrl = !editUrl">Cancel</button>
-    <button *ngIf="editUrl" mat-stroked-button (click)="editUrl = !editUrl; updateValue()">Save</button>
+    <button (click)="editUrl = !editUrl" *ngIf="!editUrl" mat-stroked-button>Edit</button>
+    <button (click)="editUrl = !editUrl" *ngIf="editUrl" mat-stroked-button>Cancel</button>
+    <button (click)="editUrl = !editUrl; updateValue()" *ngIf="editUrl" mat-stroked-button>Save</button>
 
-    <span title="{{value}}" *ngIf="!editUrl">{{value || "No Remote Url"}}</span>
+    <span *ngIf="!editUrl" title="{{value}}">{{value || "No Remote Url"}}</span>
 
     <div *ngIf="editUrl" class="editable-container">
         <mat-form-field>
-            <input #inputElement matInput placeholder="Remote DB Url" [ngModel]="value">
+            <input #inputElement [ngModel]="value" matInput placeholder="Remote DB Url">
         </mat-form-field>
     </div>
 </div>

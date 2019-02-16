@@ -1,5 +1,5 @@
-import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {NgModule} from '@angular/core';
 import {WALL_FILE_UPLOADER} from 'ngx-wall';
 import {GoogleSignModule} from '../../../features/google-sign/google-sign.module';
 import {PageModule} from '../../../features/page';

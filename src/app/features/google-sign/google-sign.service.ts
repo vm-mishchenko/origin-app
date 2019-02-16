@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {User} from 'firebase';
 import * as firebase from 'firebase';
+import {User} from 'firebase';
 import {Observable} from 'rxjs';
-import {shareReplay} from 'rxjs/internal/operators';
+import {shareReplay} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 

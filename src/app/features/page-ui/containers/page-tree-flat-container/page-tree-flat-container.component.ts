@@ -15,20 +15,11 @@ import {IPageTreeNode} from './page-tree-flat.types';
     styleUrls: ['./page-tree-flat-container.component.scss']
 })
 export class PageTreeFlatContainerComponent implements OnDestroy {
+    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRepositoryService.pageRelation$);
+    treeControl: FlatTreeControl<IPageTreeNode>;
+    dataSource: PageTreeFlatDataSource = new PageTreeFlatDataSource();
     private pageRelations: HashMap<IRelationPage>;
     private pageIdentities: HashMap<IIdentityPage>;
-
-    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRepositoryService.pageRelation$);
-
-    treeControl: FlatTreeControl<IPageTreeNode>;
-
-    dataSource: PageTreeFlatDataSource = new PageTreeFlatDataSource();
-
-    getLevel = (node: IPageTreeNode) => node.level;
-
-    isExpandable = (node: IPageTreeNode) => node.expandable;
-
-    hasChild = (_: number, node: IPageTreeNode) => node.expandable;
 
     constructor(private pageService: PageService, private pageRepositoryService: PageRepositoryService) {
         this.treeControl = new FlatTreeControl<IPageTreeNode>(this.getLevel, this.isExpandable);
@@ -63,6 +54,12 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
             this.reRenderTree();
         });
     }
+
+    getLevel = (node: IPageTreeNode) => node.level;
+
+    isExpandable = (node: IPageTreeNode) => node.expandable;
+
+    hasChild = (_: number, node: IPageTreeNode) => node.expandable;
 
     removePage(id: string) {
         this.pageTreeFlatSelection.removeSelectedPageId(id);
