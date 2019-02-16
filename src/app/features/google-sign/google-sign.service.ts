@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import * as firebase from 'firebase';
-import {googleSeed} from '../../../environments/environment';
+import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 
 @Injectable()
@@ -64,8 +64,8 @@ export class GoogleSignService {
             .then(() => this.gapiService.loadLibraries('client:auth2'))
             .then(() => {
                 return this.gapiService.initGapi({
-                    apiKey: googleSeed.apiKey,
-                    clientId: googleSeed.clientId,
+                    apiKey: environment.google.apiKey,
+                    clientId: environment.google.clientId,
                     discoveryDocs: [],
                     scope: 'profile'
                 }).then(() => {

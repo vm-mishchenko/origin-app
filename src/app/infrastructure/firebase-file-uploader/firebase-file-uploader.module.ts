@@ -1,13 +1,15 @@
-import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FileUploaderService} from 'ngx-wall';
+import {NgModule} from '@angular/core';
+import {AngularFireStorageModule} from '@angular/fire/storage';
 import {FirebaseFileUploaderService} from './firebase-file-uploader.service';
 
 @NgModule({
-    providers: [FirebaseFileUploaderService],
+    providers: [
+        FirebaseFileUploaderService
+    ],
     imports: [
         CommonModule,
-        FileUploaderService
+        AngularFireStorageModule
     ]
 })
 export class FirebaseFileUploaderModule {
