@@ -2,7 +2,7 @@ import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@an
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
-import {PageRepositoryService, PageService} from '../../../../features/page';
+import {PageRepositoryService, PageService} from '../../../../../features/page';
 
 @Component({
     selector: 'app-title-page-editor-container',

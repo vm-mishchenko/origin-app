@@ -3,10 +3,10 @@ import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
 import {Subscription} from 'rxjs';
 import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
-import {NavigationService} from '../../../../features/navigation';
-import {PageRepositoryService, PageService} from '../../../../features/page';
-import {DeletePageEvent} from '../../../../features/page/page-events.type';
-import {OriginPageService} from '../../../../origin/modules/origin-page';
+import {NavigationService} from '../../../../../features/navigation';
+import {PageRepositoryService, PageService} from '../../../../../features/page';
+import {DeletePageEvent} from '../../../../../features/page/page-events.type';
+import {OriginPageService} from '../../../../modules/origin-page';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -21,7 +21,7 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
                 private pageService: PageService,
                 private wallModelFactory: WallModelFactory,
                 private pageRepositoryService: PageRepositoryService,
-                private originPageService: OriginPageService) {
+                public originPageService: OriginPageService) {
         this.subscriptions.push(
             this.route.params.pipe(
                 map((params) => params.id)

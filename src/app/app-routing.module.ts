@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {BaseViewContainerComponent, BaseViewModule} from './views/base';
+import {BaseViewContainerComponent, BaseViewModule} from './origin/views/base';
 
 const routes: Routes = [
     {
@@ -11,11 +11,11 @@ const routes: Routes = [
         children: [
             {
                 path: 'page',
-                loadChildren: './views/page/page-view.module#PageViewModule'
+                loadChildren: './origin/views/page/page-view.module#PageViewModule'
             },
             {
                 path: 'settings',
-                loadChildren: './views/settings/settings-view.module#SettingsViewModule'
+                loadChildren: './origin/views/settings/settings-view.module#SettingsViewModule'
             }
         ]
     },

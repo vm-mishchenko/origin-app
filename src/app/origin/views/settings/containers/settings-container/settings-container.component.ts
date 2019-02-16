@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {GoogleSignService} from '../../../../features/google-sign/google-sign.service';
+import {GoogleSignService} from '../../../../../features/google-sign/google-sign.service';
 
 // todo: toggle automatically
 @Component({
