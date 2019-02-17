@@ -3,6 +3,8 @@ import {PersistentStorage} from '../../../infrastructure/persistent-storage';
 import {PAGE_BRICK_TAG_NAME} from '../../page-ui/page-ui.constant';
 import {PageFileUploaderService} from '../page-file-uploader.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
+import {RemovePageEntitiesAction} from './remove-page-entities.action';
+import {RemovePageFilesAction} from './remove-page-files.action';
 
 export class RemovePageAction {
     constructor(private pageId: string,
@@ -12,7 +14,6 @@ export class RemovePageAction {
                 private wallModelFactory: WallModelFactory,
                 private pageFileUploaderService: PageFileUploaderService) {
     }
-
 
     /*
     * remove page entities
@@ -29,51 +30,46 @@ export class RemovePageAction {
     * */
     execute(): Promise<any> {
         return Promise.all([
-            this.updateParentRelationChildrenAfterRemove(this.pageId),
+            this.updateParentRelation(this.pageId),
             this.updateParentPageBody(this.pageId),
-            this.removePageWithChildren(this.pageId),
+            this.removePageTreeFiles(this.pageId)
+                .then(() => this.removePageTreeEntities(this.pageId))
         ]);
     }
 
-    private updateParentRelationChildrenAfterRemove(removedPageId: string): Promise<any> {
-        return this.pageRelationStorage.get(removedPageId)
-            .then((removedPageRelation) => {
-                if (!removedPageRelation.parentPageId) {
-                    return Promise.resolve();
-                }
+    private removePageTreeEntities(removedPageId: string): Promise<any> {
+        return this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+            const childRemovePromises = pageRelation.childrenPageId
+                .map((childrenPageId) => this.removePageTreeEntities(childrenPageId));
 
-                return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
-                    // remove page from children
-                    const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
-
-                    return this.pageRelationStorage.update(parentPageRelation.id, {
-                        childrenPageId: [
-                            ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
-                            ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
-                        ]
-                    }).then(() => {
-                        // todo: find out why do I need this then? Without it Typescript throw the error
-                    });
-                });
-            });
+            return Promise.all(childRemovePromises);
+        }).then(() => {
+            return (new RemovePageEntitiesAction(
+                removedPageId,
+                this.pageIdentityStorage,
+                this.pageBodyStorage,
+                this.pageRelationStorage
+            )).execute();
+        });
     }
 
-    private removePageWithChildren(removedPageId: string): Promise<any> {
-        return this.removePageFiles(removedPageId).then(() => {
-            const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-                const childRemovePromises = pageRelation.childrenPageId
-                    .map((childrenPageId) => this.removePageWithChildren(childrenPageId));
+    private removePageTreeFiles(rootPageId: string): Promise<any> {
+        const removePageFilesAction = new RemovePageFilesAction(
+            rootPageId,
+            this.pageBodyStorage,
+            this.wallModelFactory,
+            this.pageFileUploaderService);
 
-                return Promise.all(childRemovePromises);
+        return removePageFilesAction
+            .execute()
+            .then(() => {
+                return this.pageRelationStorage.get(rootPageId).then((pageRelation) => {
+                    const childRemovePromises = pageRelation.childrenPageId
+                        .map((childrenPageId) => this.removePageTreeFiles(childrenPageId));
+
+                    return Promise.all(childRemovePromises);
+                });
             });
-
-            return Promise.all([
-                removeChildPages,
-                this.pageIdentityStorage.remove(removedPageId),
-                this.pageBodyStorage.remove(removedPageId),
-                this.pageRelationStorage.remove(removedPageId),
-            ]);
-        });
     }
 
     private updateParentPageBody(removedPageId: string): Promise<any> {
@@ -99,21 +95,26 @@ export class RemovePageAction {
         });
     }
 
-    private removePageFiles(removedPageId: string): Promise<any> {
-        return this.pageBodyStorage.get(removedPageId).then((pageBody) => {
-            const wallModel = this.wallModelFactory.create({
-                plan: pageBody.body
+    private updateParentRelation(removedPageId: string): Promise<any> {
+        return this.pageRelationStorage.get(removedPageId)
+            .then((removedPageRelation) => {
+                if (!removedPageRelation.parentPageId) {
+                    return Promise.resolve();
+                }
+
+                return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
+                    // remove page from children
+                    const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
+
+                    return this.pageRelationStorage.update(parentPageRelation.id, {
+                        childrenPageId: [
+                            ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
+                            ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
+                        ]
+                    }).then(() => {
+                        // todo: find out why do I need this then? Without it Typescript throw the error
+                    });
+                });
             });
-
-            const pageResources = wallModel.api.core.getBrickIds().reduce((result, brickId) => {
-                result = result.concat(wallModel.api.core.getBrickResourcePaths(brickId));
-
-                return result;
-            }, []);
-
-            return Promise.all(
-                pageResources.map((filePath) => this.pageFileUploaderService.remove(filePath))
-            );
-        });
     }
 }

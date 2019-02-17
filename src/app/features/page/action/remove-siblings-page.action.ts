@@ -3,6 +3,8 @@ import {PersistentStorage} from '../../../infrastructure/persistent-storage';
 import {PAGE_BRICK_TAG_NAME} from '../../page-ui/page-ui.constant';
 import {PageFileUploaderService} from '../page-file-uploader.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
+import {RemovePageEntitiesAction} from './remove-page-entities.action';
+import {RemovePageFilesAction} from './remove-page-files.action';
 
 export class RemoveSiblingsPageAction {
     constructor(private pageIds: string[],
@@ -15,13 +17,55 @@ export class RemoveSiblingsPageAction {
 
     execute(): Promise<any> {
         return Promise.all([
-            this.updateParentRelationChildrenAfterRemove(),
+            this.updateParentRelation(),
             this.updateParentPageBody(),
-            this.removePageWithChildren(this.pageIds),
+            this.removePageTreeFiles(this.pageIds).then(() =>
+                this.removePageTreeEntities(this.pageIds))
         ]);
     }
 
-    private updateParentRelationChildrenAfterRemove(): Promise<any> {
+    /*
+    * First remove deeper child page entities
+    * Last remove top level page entities
+    * */
+    private removePageTreeEntities(pageIds: string[]): Promise<any> {
+        const removePromises = pageIds.map((removedPageId) => {
+            return this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+                return this.removePageTreeEntities(pageRelation.childrenPageId);
+            }).then(() => {
+                return (new RemovePageEntitiesAction(
+                    removedPageId,
+                    this.pageIdentityStorage,
+                    this.pageBodyStorage,
+                    this.pageRelationStorage
+                )).execute();
+            });
+        });
+
+        return Promise.all(removePromises);
+    }
+
+    private removePageTreeFiles(pageIds: string[]): Promise<any> {
+        const removePromises = pageIds.map((pageId) => {
+            const removePageFilesAction = new RemovePageFilesAction(
+                pageId,
+                this.pageBodyStorage,
+                this.wallModelFactory,
+                this.pageFileUploaderService);
+
+            return removePageFilesAction
+                .execute()
+                .then(() => {
+                    return this.pageRelationStorage.get(pageId).then((pageRelation) => {
+                        return this.removePageTreeFiles(pageRelation.childrenPageId);
+                    });
+                });
+        });
+
+        return Promise.all(removePromises);
+    }
+
+    private updateParentRelation(): Promise<any> {
         return this.pageRelationStorage.get(this.pageIds[0])
             .then((removedPageRelation) => {
                 if (!removedPageRelation.parentPageId) {
@@ -45,25 +89,6 @@ export class RemoveSiblingsPageAction {
             });
     }
 
-    private removePageWithChildren(pageIds: string[]): Promise<any> {
-        return Promise.all(
-            pageIds.map((removedPageId) => {
-                return this.removePageFiles(removedPageId).then(() => {
-                    const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-                        return this.removePageWithChildren(pageRelation.childrenPageId);
-                    });
-
-                    return Promise.all([
-                        removeChildPages,
-                        this.pageIdentityStorage.remove(removedPageId),
-                        this.pageBodyStorage.remove(removedPageId),
-                        this.pageRelationStorage.remove(removedPageId),
-                    ]);
-                });
-            })
-        );
-    }
-
     private updateParentPageBody(): Promise<any> {
         return this.pageRelationStorage.get(this.pageIds[0]).then((removedPageRelation) => {
             if (!removedPageRelation.parentPageId) {
@@ -85,22 +110,5 @@ export class RemoveSiblingsPageAction {
             });
         });
     }
-
-    private removePageFiles(removedPageId: string): Promise<any> {
-        return this.pageBodyStorage.get(removedPageId).then((pageBody) => {
-            const wallModel = this.wallModelFactory.create({
-                plan: pageBody.body
-            });
-
-            const pageResources = wallModel.api.core.getBrickIds().reduce((result, brickId) => {
-                result = result.concat(wallModel.api.core.getBrickResourcePaths(brickId));
-
-                return result;
-            }, []);
-
-            return Promise.all(
-                pageResources.map((filePath) => this.pageFileUploaderService.remove(filePath))
-            );
-        });
-    }
 }
+
