@@ -32,7 +32,7 @@ export class RemovePagesAction {
 
     execute(): Promise<any> {
         return this.getPageIdsSiblingsList().then((pageIdSiblingList) => {
-            return pageIdSiblingList.map((pageIdSibling) => {
+            const removingPromises = pageIdSiblingList.map((pageIdSibling) => {
                 if (pageIdSibling.length === 1) {
                     return new RemovePageAction(
                         pageIdSibling[0],
@@ -55,6 +55,8 @@ export class RemovePagesAction {
 
                 throw new Error('Unexpected remove page action arguments');
             });
+
+            return Promise.all(removingPromises);
         });
     }
 

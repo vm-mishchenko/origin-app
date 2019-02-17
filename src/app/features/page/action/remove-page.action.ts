@@ -61,7 +61,10 @@ export class RemovePageAction {
     private removePageWithChildren(removedPageId: string): Promise<any> {
         return this.removePageFiles(removedPageId).then(() => {
             const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-                return pageRelation.childrenPageId.map((childrenPageId) => this.removePageWithChildren(childrenPageId));
+                const childRemovePromises = pageRelation.childrenPageId
+                    .map((childrenPageId) => this.removePageWithChildren(childrenPageId));
+
+                return Promise.all(childRemovePromises);
             });
 
             return Promise.all([

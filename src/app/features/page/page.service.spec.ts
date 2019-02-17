@@ -392,12 +392,6 @@ describe('PageService', () => {
 
         it('should remove page file resources', async(() => {
             testScope.service.createPage().then((pageId) => {
-                let pageBody: IBodyPage;
-
-                testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                    pageBody = pages[pageId];
-                });
-
                 const FAKE_FILE_PATH = 'https://fake/file.txt';
 
                 testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
@@ -406,6 +400,23 @@ describe('PageService', () => {
                     testScope.service.removePage(pageId).then(() => {
                         expect(removeFileSpy).toHaveBeenCalled();
                         expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                    });
+                });
+            });
+        }));
+
+        it('should remove child page file resources', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                    testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePage(parentPageId).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+                            expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                        });
                     });
                 });
             });
@@ -534,6 +545,66 @@ describe('PageService', () => {
                                     expect(updatedParentRelationPage.childrenPageId.includes(childPageId2)).toBe(false);
                                 });
                             });
+                        });
+                    });
+                });
+            });
+        }));
+
+        it('should remove page file resources', async(() => {
+            testScope.service.createPage().then((pageId) => {
+                const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                    const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                    testScope.service.removePages([pageId]).then(() => {
+                        expect(removeFileSpy).toHaveBeenCalled();
+                        expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                    });
+                });
+            });
+        }));
+
+        it('should remove child page file resources', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                    testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePages([parentPageId]).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+                            expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                        });
+                    });
+                });
+            });
+        }));
+
+        it('should remove file resources from siblings pages', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                Promise.all([
+                    testScope.service.createPage(parentPageId),
+                    testScope.service.createPage(parentPageId),
+                ]).then(([childPageId1, childPageId2]) => {
+                    const FAKE_FILE_PATH1 = 'https://fake/file1.txt';
+                    const FAKE_FILE_PATH2 = 'https://fake/file2.txt';
+
+                    Promise.all([
+                        testScope.addBrick(childPageId1, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH1}),
+                        testScope.addBrick(childPageId2, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH2}),
+                    ]).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePages([childPageId1, childPageId2]).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+
+                            const removedFileResources = removeFileSpy.calls.allArgs().map((arg) => arg[0]);
+
+                            expect(removedFileResources.includes(FAKE_FILE_PATH1)).toBe(true);
+                            expect(removedFileResources.includes(FAKE_FILE_PATH2)).toBe(true);
                         });
                     });
                 });
