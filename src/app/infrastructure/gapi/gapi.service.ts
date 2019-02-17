@@ -17,19 +17,20 @@ export class GapiService {
         return new Promise((resolve, reject) => {
             if (this.isGapiLoaded) {
                 resolve();
-            } else {
-                const node: HTMLScriptElement = document.createElement('script');
-                node.src = GAPI_URL;
-                node.type = 'text/javascript';
-                document.getElementsByTagName('head')[0].appendChild(node);
-
-                node.onload = () => {
-                    this.isGapiLoaded = true;
-                    resolve();
-                };
-
-                node.onerror = reject;
+                return;
             }
+
+            const node: HTMLScriptElement = document.createElement('script');
+            node.src = GAPI_URL;
+            node.type = 'text/javascript';
+            document.getElementsByTagName('head')[0].appendChild(node);
+
+            node.onload = () => {
+                this.isGapiLoaded = true;
+                resolve();
+            };
+
+            node.onerror = reject;
         });
     }
 

@@ -36,36 +36,38 @@ export class CreatePageAction {
 
         /* If parent exists we should update parent relations as well */
         const updateParentPageRelation = new Promise((resolve, reject) => {
-            if (this.parentPageId) {
-                this.pageRelationStorage.get(this.parentPageId).then(() => {
-                    const relationEntries = this.pageRelationStorage.getMemoryEntries();
-
-                    this.pageRelationStorage.update(this.parentPageId, {
-                        childrenPageId: [
-                            ...relationEntries[this.parentPageId].childrenPageId,
-                            newPageId
-                        ]
-                    }).then(resolve, reject);
-                });
-            } else {
+            if (!this.parentPageId) {
                 resolve();
+                return;
             }
+
+            this.pageRelationStorage.get(this.parentPageId).then(() => {
+                const relationEntries = this.pageRelationStorage.getMemoryEntries();
+
+                this.pageRelationStorage.update(this.parentPageId, {
+                    childrenPageId: [
+                        ...relationEntries[this.parentPageId].childrenPageId,
+                        newPageId
+                    ]
+                }).then(resolve, reject);
+            });
         });
 
         const updateParentPageBody = new Promise((resolve, reject) => {
-            if (this.parentPageId) {
-                this.pageBodyStorage.get(this.parentPageId).then((parentPageBody) => {
-                    const wallModel = this.wallModelFactory.create({plan: parentPageBody.body});
-
-                    wallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
-
-                    this.pageBodyStorage.update(this.parentPageId, {
-                        body: wallModel.api.core.getPlan()
-                    }).then(resolve, reject);
-                });
-            } else {
+            if (!this.parentPageId) {
                 resolve();
+                return;
             }
+
+            this.pageBodyStorage.get(this.parentPageId).then((parentPageBody) => {
+                const wallModel = this.wallModelFactory.create({plan: parentPageBody.body});
+
+                wallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
+
+                this.pageBodyStorage.update(this.parentPageId, {
+                    body: wallModel.api.core.getPlan()
+                }).then(resolve, reject);
+            });
         });
 
         return Promise.all([
