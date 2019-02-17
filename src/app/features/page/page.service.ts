@@ -6,6 +6,7 @@ import {CreatePageAction} from './action/create-page.action';
 import {RemovePageAction} from './action/remove-page.action';
 import {RemovePagesAction} from './action/remove-pages.action';
 import {DeletePageEvent} from './page-events.type';
+import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage} from './page.types';
@@ -19,6 +20,7 @@ export class PageService {
     constructor(private pageStorages: PageStoragesService,
                 private pageRepositoryService: PageRepositoryService,
                 private wallModelFactory: WallModelFactory,
+                private pageFileUploaderService: PageFileUploaderService,
                 private guid: Guid) {
     }
 
@@ -39,7 +41,8 @@ export class PageService {
             this.pageStorages.pageIdentityStorage,
             this.pageStorages.pageBodyStorage,
             this.pageStorages.pageRelationStorage,
-            this.wallModelFactory
+            this.wallModelFactory,
+            this.pageFileUploaderService
         ).execute().then(() => {
             (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
         });
@@ -52,7 +55,8 @@ export class PageService {
             this.pageStorages.pageIdentityStorage,
             this.pageStorages.pageBodyStorage,
             this.pageStorages.pageRelationStorage,
-            this.wallModelFactory
+            this.wallModelFactory,
+            this.pageFileUploaderService
         ).execute().then(() => {
             pageIds.forEach((pageId) => {
                 (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));

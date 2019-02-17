@@ -1,5 +1,6 @@
 import {WallModelFactory} from 'ngx-wall';
 import {PersistentStorage} from '../../../infrastructure/persistent-storage';
+import {PageFileUploaderService} from '../page-file-uploader.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
 import {RemovePageAction} from './remove-page.action';
 import {RemoveSiblingsPageAction} from './remove-siblings-page.action';
@@ -25,7 +26,8 @@ export class RemovePagesAction {
                 private pageIdentityStorage: PersistentStorage<IIdentityPage>,
                 private pageBodyStorage: PersistentStorage<IBodyPage>,
                 private pageRelationStorage: PersistentStorage<IRelationPage>,
-                private wallModelFactory: WallModelFactory) {
+                private wallModelFactory: WallModelFactory,
+                private pageFileUploaderService: PageFileUploaderService) {
     }
 
     execute(): Promise<any> {
@@ -37,7 +39,8 @@ export class RemovePagesAction {
                         this.pageIdentityStorage,
                         this.pageBodyStorage,
                         this.pageRelationStorage,
-                        this.wallModelFactory
+                        this.wallModelFactory,
+                        this.pageFileUploaderService
                     ).execute();
                 } else if (pageIdSibling.length > 1) {
                     return new RemoveSiblingsPageAction(
