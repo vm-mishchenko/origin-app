@@ -390,7 +390,7 @@ describe('PageService', () => {
             });
         }));
 
-        fit('should remove page file resources', async(() => {
+        it('should remove page file resources', async(() => {
             testScope.service.createPage().then((pageId) => {
                 let pageBody: IBodyPage;
 
