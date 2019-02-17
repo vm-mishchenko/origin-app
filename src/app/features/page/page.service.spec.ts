@@ -1,17 +1,43 @@
+import {Component} from '@angular/core';
 import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
+import {FirebaseOptionsToken} from '@angular/fire';
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory} from 'ngx-wall';
+import {environment} from '../../../environments/environment';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
+import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageModule} from './page.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
+@Component({
+    selector: 'fixture-brick',
+    template: ''
+})
+class FixtureComponent {
+}
+
+const FIXTURE_BRICK_SPECIFICATION = {
+    tag: 'fixture-brick',
+    component: FixtureComponent,
+    name: 'Fixture',
+    description: 'fixture component',
+    getBrickResourcePaths: (brickSnapshot) => {
+        if (brickSnapshot.state && brickSnapshot.state.path) {
+            return [brickSnapshot.state.path];
+        }
+
+        return [];
+    }
+};
+
 class TestScope {
     service: PageService;
     pageRepositoryService: PageRepositoryService;
+    pageFileUploaderService: PageFileUploaderService;
 
     initialize() {
         const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
@@ -19,14 +45,18 @@ class TestScope {
 
         this.service = TestBed.get(PageService);
         this.pageRepositoryService = TestBed.get(PageRepositoryService);
+        this.pageFileUploaderService = TestBed.get(PageFileUploaderService);
 
-        const brickRegistry = TestBed.get(BrickRegistry);
+        const brickRegistry: BrickRegistry = TestBed.get(BrickRegistry);
+
         brickRegistry.register({
             tag: PAGE_BRICK_TAG_NAME,
             component: PageBrickComponent,
             name: 'Page',
             description: 'Embed a sub-page inside this page'
         });
+
+        brickRegistry.register(FIXTURE_BRICK_SPECIFICATION);
     }
 
     createWallModel(plan: IWallDefinition): IWallModel {
@@ -52,6 +82,23 @@ class TestScope {
             return Boolean(hasIdentityPage && hasRelationPage && hasBodyPage);
         });
     }
+
+    addBrick(pageId: string, tag: string, state = {}): Promise<IBrickSnapshot> {
+        let pageBody: IBodyPage;
+
+        this.pageRepositoryService.pageBody$.subscribe((pages) => {
+            pageBody = pages[pageId];
+        });
+
+        const wallModel = this.createWallModel(pageBody.body);
+
+        const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
+
+        return this.service.updatePageBody({
+            ...pageBody,
+            body: wallModel.api.core.getPlan()
+        }).then(() => newBrick);
+    }
 }
 
 class MockPouchDb {
@@ -73,13 +120,18 @@ describe('PageService', () => {
     let testScope: TestScope;
 
     beforeEach(() => TestBed.configureTestingModule({
-        imports: [PageModule],
+        imports: [
+            PageModule
+        ],
         providers: [
             {
                 provide: PouchdbStorageFactory,
                 useValue: {
                     createPouchDB: () => mockPouchDb
                 }
+            },
+            {
+                provide: FirebaseOptionsToken, useValue: environment.FIREBASE_CONFIG
             }
         ]
     }));
@@ -333,6 +385,27 @@ describe('PageService', () => {
                         });
 
                         expect(testScope.findPageBrick(parentPageBody.body, childPageId)).not.toBeDefined();
+                    });
+                });
+            });
+        }));
+
+        fit('should remove page file resources', async(() => {
+            testScope.service.createPage().then((pageId) => {
+                let pageBody: IBodyPage;
+
+                testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
+                    pageBody = pages[pageId];
+                });
+
+                const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                    const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                    testScope.service.removePage(pageId).then(() => {
+                        expect(removeFileSpy).toHaveBeenCalled();
+                        expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
                     });
                 });
             });
