@@ -38,23 +38,23 @@ export class RemovePageAction {
     private updateParentRelationChildrenAfterRemove(removedPageId: string): Promise<any> {
         return this.pageRelationStorage.get(removedPageId)
             .then((removedPageRelation) => {
-                if (removedPageRelation.parentPageId) {
-                    return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
-                        // remove page from children
-                        const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
-
-                        return this.pageRelationStorage.update(parentPageRelation.id, {
-                            childrenPageId: [
-                                ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
-                                ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
-                            ]
-                        }).then(() => {
-                            // todo: find out why do I need this then? Without it Typescript throw the error
-                        });
-                    });
-                } else {
+                if (!removedPageRelation.parentPageId) {
                     return Promise.resolve();
                 }
+
+                return this.pageRelationStorage.get(removedPageRelation.parentPageId).then((parentPageRelation) => {
+                    // remove page from children
+                    const removedChildIndex = parentPageRelation.childrenPageId.indexOf(removedPageId);
+
+                    return this.pageRelationStorage.update(parentPageRelation.id, {
+                        childrenPageId: [
+                            ...parentPageRelation.childrenPageId.slice(0, removedChildIndex),
+                            ...parentPageRelation.childrenPageId.slice(removedChildIndex + 1)
+                        ]
+                    }).then(() => {
+                        // todo: find out why do I need this then? Without it Typescript throw the error
+                    });
+                });
             });
     }
 

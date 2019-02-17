@@ -1,6 +1,7 @@
 import {WallModelFactory} from 'ngx-wall';
 import {PersistentStorage} from '../../../infrastructure/persistent-storage';
 import {PAGE_BRICK_TAG_NAME} from '../../page-ui/page-ui.constant';
+import {PageFileUploaderService} from '../page-file-uploader.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
 
 export class RemoveSiblingsPageAction {
@@ -8,7 +9,8 @@ export class RemoveSiblingsPageAction {
                 private pageIdentityStorage: PersistentStorage<IIdentityPage>,
                 private pageBodyStorage: PersistentStorage<IBodyPage>,
                 private pageRelationStorage: PersistentStorage<IRelationPage>,
-                private wallModelFactory: WallModelFactory) {
+                private wallModelFactory: WallModelFactory,
+                private pageFileUploaderService: PageFileUploaderService) {
     }
 
     execute(): Promise<any> {
@@ -46,16 +48,18 @@ export class RemoveSiblingsPageAction {
     private removePageWithChildren(pageIds: string[]): Promise<any> {
         return Promise.all(
             pageIds.map((removedPageId) => {
-                const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
-                    return this.removePageWithChildren(pageRelation.childrenPageId);
-                });
+                return this.removePageFiles(removedPageId).then(() => {
+                    const removeChildPages = this.pageRelationStorage.get(removedPageId).then((pageRelation) => {
+                        return this.removePageWithChildren(pageRelation.childrenPageId);
+                    });
 
-                return Promise.all([
-                    removeChildPages,
-                    this.pageIdentityStorage.remove(removedPageId),
-                    this.pageBodyStorage.remove(removedPageId),
-                    this.pageRelationStorage.remove(removedPageId),
-                ]);
+                    return Promise.all([
+                        removeChildPages,
+                        this.pageIdentityStorage.remove(removedPageId),
+                        this.pageBodyStorage.remove(removedPageId),
+                        this.pageRelationStorage.remove(removedPageId),
+                    ]);
+                });
             })
         );
     }
@@ -79,6 +83,24 @@ export class RemoveSiblingsPageAction {
                     body: wallModel.api.core.getPlan()
                 });
             });
+        });
+    }
+
+    private removePageFiles(removedPageId: string): Promise<any> {
+        return this.pageBodyStorage.get(removedPageId).then((pageBody) => {
+            const wallModel = this.wallModelFactory.create({
+                plan: pageBody.body
+            });
+
+            const pageResources = wallModel.api.core.getBrickIds().reduce((result, brickId) => {
+                result = result.concat(wallModel.api.core.getBrickResourcePaths(brickId));
+
+                return result;
+            }, []);
+
+            return Promise.all(
+                pageResources.map((filePath) => this.pageFileUploaderService.remove(filePath))
+            );
         });
     }
 }

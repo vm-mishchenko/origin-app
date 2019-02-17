@@ -48,7 +48,8 @@ export class RemovePagesAction {
                         this.pageIdentityStorage,
                         this.pageBodyStorage,
                         this.pageRelationStorage,
-                        this.wallModelFactory
+                        this.wallModelFactory,
+                        this.pageFileUploaderService
                     ).execute();
                 }
 
