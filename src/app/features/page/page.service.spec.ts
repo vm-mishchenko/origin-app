@@ -5,7 +5,7 @@ import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFac
 import {environment} from '../../../environments/environment';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
-import {EntityStorePouchDbMock} from '../../infrastructure/pouchdb/pouchdb-storage/entity-store-pouchdb';
+import {EntityStorePouchDbMock} from '../../infrastructure/pouchdb/pouchdb-storage/test/entity-store-pouchdb-mock';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
