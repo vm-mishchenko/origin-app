@@ -5,6 +5,7 @@ import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFac
 import {environment} from '../../../environments/environment';
 import {PersistentStorageFactory} from '../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
+import {EntityStorePouchDbMock} from '../../infrastructure/pouchdb/pouchdb-storage/entity-store-pouchdb';
 import {PageBrickComponent} from '../page-ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
@@ -101,22 +102,8 @@ class TestScope {
     }
 }
 
-class MockPouchDb {
-    put() {
-        return Promise.resolve();
-    }
-
-    get() {
-        return Promise.resolve({});
-    }
-
-    remove() {
-        return Promise.resolve();
-    }
-}
-
 describe('PageService', () => {
-    const mockPouchDb = new MockPouchDb();
+    const mockPouchDb = new EntityStorePouchDbMock();
     let testScope: TestScope;
 
     beforeEach(() => TestBed.configureTestingModule({

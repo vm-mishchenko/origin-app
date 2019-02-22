@@ -1,5 +1,39 @@
 import {IPouchDb, IPouchdbRawExistingStorageEntity, IPouchdbRawNewStorageEntity, IPouchdbStorageEntity} from './pouchdb-storage.types';
 
+export class EntityStorePouchDbMock<M extends IPouchdbStorageEntity> implements IEntityStorePouchDb<M> {
+    get(id) {
+        return Promise.resolve();
+    }
+
+    find(options) {
+        return Promise.resolve([]);
+    }
+
+    add(entity) {
+        return Promise.resolve();
+    }
+
+    update(entity) {
+        return Promise.resolve();
+    }
+
+    remove(id) {
+        return Promise.resolve();
+    }
+}
+
+export interface IEntityStorePouchDb<M extends IPouchdbStorageEntity> {
+    get(id: string): Promise<any>;
+
+    find(options: string): Promise<M[]>;
+
+    add(options: string): Promise<any>;
+
+    update(entity: Partial<M>): Promise<any>;
+
+    remove(id: string): Promise<any>;
+}
+
 export class EntityStorePouchDb<M extends IPouchdbStorageEntity> {
     constructor(private pouchDb: IPouchDb, private entityName: string) {
     }
