@@ -11,6 +11,6 @@ export interface IPersistedStorageCreateOptions {
     pouchDbSavingDebounceTime?: number;
 }
 
-export interface IPersistedStorageEntity {
+export interface IPersistedStorageEntity extends Object {
     id: string;
 }

@@ -2,6 +2,7 @@
 import {EntityState, EntityStore, HashMap, Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
+import {EntityStorePouchDb} from '../pouchdb/pouchdb-storage';
 import {IPersistedStorageEntity, IPersistentStorageOptions} from './persistent-storage.types';
 
 export class PersistentStorage<M extends IPersistedStorageEntity> {
@@ -9,7 +10,7 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
 
     pouchUpdateCache: any = {};
 
-    constructor(protected pouchdbStorage: any,
+    constructor(protected pouchdbStorage: EntityStorePouchDb<M>,
                 protected memoryStore: EntityStore<EntityState<M>, M>,
                 protected query: Query<EntityState<M>>,
                 private options: IPersistentStorageOptions) {
@@ -40,9 +41,7 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
     }
 
     findAndLoad(options: any): Promise<M[]> {
-        return this.pouchdbStorage.find(options).then((result) => {
-            const entities = result.docs.map((rowEntity) => this.extractEntityFromRawEntity(rowEntity));
-
+        return this.pouchdbStorage.find(options).then((entities) => {
             this.memoryStore.add(entities);
 
             return entities;
@@ -53,51 +52,37 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
     add(record: M): Promise<any> {
         this.memoryStore.add(record);
 
-        return this.pouchdbStorage.put({
-            _id: record.id,
-
-            // todo: find the way to fix it
-            ...(record as object)
-        });
+        return this.pouchdbStorage.add(record);
     }
 
-    update(id: string, newEntity: Partial<M>): Promise<Partial<M>> {
-        this.memoryStore.update(id, newEntity);
+    update(id: string, updatedEntity: Partial<M>): Promise<Partial<M>> {
+        this.memoryStore.update(id, updatedEntity);
 
         if (this.options.pouchDbSavingDebounceTime === 0) {
-            // that branch related to test code
-            return this.pouchdbStorage.get(id).then((entity) => {
-                return this.pouchdbStorage.put({
-                    ...entity,
-                    ...(newEntity as object)  // todo: find the way to fix it
-                });
-            });
-        } else {
-            // that branch related to production code
-            if (!this.pouchUpdateCache[id]) {
-                this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id]).pipe(
+            // for test
+            return this.pouchdbStorage.update(updatedEntity);
+        }
+
+        // that branch related to production code
+        if (!this.pouchUpdateCache[id]) {
+            this.pouchUpdateCache[id] = this.query.select((store) => store.entities[id])
+                .pipe(
                     debounceTime(this.options.pouchDbSavingDebounceTime)
                 ).subscribe((memoryEntity) => {
-                    this.pouchdbStorage.get(id).then((entity) => {
-                        this.pouchUpdateCache[id].unsubscribe();
-                        this.pouchUpdateCache[id] = null;
+                    this.pouchUpdateCache[id].unsubscribe();
+                    this.pouchUpdateCache[id] = null;
 
-                        return this.pouchdbStorage.put({
-                            ...entity,
-                            ...(memoryEntity as object)  // todo: find the way to fix it
-                        });
-                    });
+                    return this.pouchdbStorage.update(memoryEntity);
                 });
-            }
-
-            return Promise.resolve(newEntity);
         }
+
+        return Promise.resolve(updatedEntity);
     }
 
     remove(id: string): Promise<any> {
         this.memoryStore.remove(id);
 
-        return this.pouchdbStorage.get(id).then((entry) => this.pouchdbStorage.remove(entry));
+        return this.pouchdbStorage.remove(id);
     }
 
     private extractEntityFromRawEntity(rawEntity) {

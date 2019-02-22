@@ -15,7 +15,7 @@ export class PersistentStorageFactory {
     }
 
     create<M extends IPersistedStorageEntity>(options: IPersistedStorageCreateOptions): PersistentStorage<M> {
-        const pouchdbStorage = this.pouchdbStorageFactory.createPouchDB({
+        const pouchdbStorage = this.pouchdbStorageFactory.createPouchDB<M>({
             name: options.name
         });
 
