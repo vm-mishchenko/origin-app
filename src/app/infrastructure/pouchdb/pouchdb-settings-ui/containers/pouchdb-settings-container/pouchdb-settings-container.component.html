@@ -1,30 +1,4 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-3">
-            <h3>Local Databases</h3>
-            <ul *ngIf="pouchdbStorageSettings.localDbNames.length">
-                <li *ngFor="let localDbName of pouchdbStorageSettings.localDbNames">
-                    {{localDbName}}
-                </li>
-            </ul>
-
-            <p *ngIf="!pouchdbStorageSettings.localDbNames.length">No registered local dbs</p>
-        </div>
-
-        <div class="col-9">
-            <h3>Remote Databases</h3>
-
-            <div [formGroup]="pageForm">
-                <o-editable-text formControlName="url"></o-editable-text>
-            </div>
-
-            <hr>
-
-            <button (click)="sync()"
-                    [disabled]="!pouchdbStorageSettings.remoteDbUrl || !pouchdbStorageSettings.localDbNames.length"
-                    mat-raised-button
-                    title="{{pouchdbStorageSettings.remoteDbUrl}}">Sync
-            </button>
-        </div>
     </div>
 </div>

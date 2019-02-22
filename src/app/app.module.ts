@@ -12,6 +12,7 @@ import {AppComponent} from './app.component';
 import {GoogleSignModule} from './features/google-sign/google-sign.module';
 import {NavigationModule} from './features/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
+import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/origin-pouch-db-sync.module';
 
 @NgModule({
     declarations: [
@@ -26,8 +27,13 @@ import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
         PouchdbStorageModule.forRoot(),
         GoogleSignModule.forRoot(),
 
+        // application level
+        OriginPouchDbSyncModule,
+
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule,
+
+        // todo: consider move to appropriate modules
         AngularFireAuthModule,
         AngularFireDatabaseModule
     ],

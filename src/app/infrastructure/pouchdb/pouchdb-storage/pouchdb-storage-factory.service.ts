@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import PouchDB from 'pouchdb';
 import PouchFind from 'pouchdb-find';
 import {EntityStorePouchDb} from './entity-store-pouchdb';
-import {PouchdbStorageSettings} from './pouchdb-storage-settings.service';
 import {IPouchDb, IPouchDbCreateOptions, IPouchdbStorageEntity} from './pouchdb-storage.types';
 
 PouchDB.plugin(PouchFind);
@@ -13,7 +12,7 @@ const POUCH_STORAGE_LOCAL_DB_NAME_KEY = 'pouchdb-storage:local-database-name';
 export class PouchdbStorageFactory {
     private database: IPouchDb;
 
-    constructor(private pouchdbStorageSettings: PouchdbStorageSettings) {
+    constructor() {
         this.initializeDatabase();
     }
 
@@ -23,6 +22,10 @@ export class PouchdbStorageFactory {
 
     createEntityStorePouchDb<M extends IPouchdbStorageEntity>(name): EntityStorePouchDb<M> {
         return new EntityStorePouchDb(this.database, name);
+    }
+
+    getDatabase(): any {
+        return this.database;
     }
 
     private initializeDatabase() {

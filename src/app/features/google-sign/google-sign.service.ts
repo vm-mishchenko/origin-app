@@ -23,6 +23,8 @@ export class GoogleSignService {
     }
 
     signIn(): Promise<any> {
+        console.log(`sign in`);
+
         return this.initGapiClient().then(() => {
             return gapi.auth2.getAuthInstance().isSignedIn.get() ?
                 Promise.resolve() :

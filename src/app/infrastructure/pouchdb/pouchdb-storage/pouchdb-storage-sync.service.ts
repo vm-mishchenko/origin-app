@@ -1,31 +1,20 @@
 import {Injectable} from '@angular/core';
 import PouchDB from 'pouchdb';
-import {PouchdbStorageSettings} from './pouchdb-storage-settings.service';
+import {PouchdbStorageFactory} from './pouchdb-storage-factory.service';
 
 @Injectable()
 export class PouchdbStorageSync {
-    constructor(private pouchdbStorageSettings: PouchdbStorageSettings) {
+    constructor(private pouchdbStorageFactory: PouchdbStorageFactory) {
     }
 
-    sync(): Promise<any> {
-        return Promise.all(
-            this.pouchdbStorageSettings.localDbNames.map((localDbName) => {
-                const localPouchDb = new PouchDB(localDbName);
-                const remotePouchDb = new PouchDB(`${this.pouchdbStorageSettings.remoteDbUrl}/${localDbName}`);
+    sync(removeDbUrl: string): Promise<any> {
+        const localPouchDb = this.pouchdbStorageFactory.getDatabase();
+        const remotePouchDb = new PouchDB(removeDbUrl);
 
-                return new Promise((resolve, reject) => {
-                    localPouchDb.sync(remotePouchDb)
-                        .on('complete', resolve)
-                        .on('error', (e) => {
-                            console.log(`err`, e);
-                            reject();
-                        });
-                });
-            })
-        ).then(() => {
-            alert('Done');
-        }).catch(() => {
-            alert('Fail');
+        return new Promise((resolve, reject) => {
+            localPouchDb.sync(remotePouchDb)
+                .on('complete', resolve)
+                .on('error', reject);
         });
     }
 }
