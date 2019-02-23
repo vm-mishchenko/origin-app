@@ -1,8 +1,6 @@
 import {OverlayModule} from '@angular/cdk/overlay';
 import {NgModule} from '@angular/core';
 import {FirebaseOptionsToken} from '@angular/fire';
-import {AngularFireAuthModule} from '@angular/fire/auth';
-import {AngularFireDatabaseModule} from '@angular/fire/database';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
@@ -31,11 +29,7 @@ import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/orig
         OriginPouchDbSyncModule,
 
         // todo-hack: https://github.com/angular/material2/issues/10820
-        OverlayModule,
-
-        // todo: consider move to appropriate modules
-        AngularFireAuthModule,
-        AngularFireDatabaseModule
+        OverlayModule
     ],
     providers: [
         {
