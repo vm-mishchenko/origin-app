@@ -1,11 +1,10 @@
-import {NgModule} from '@angular/core';
+import {ModuleWithProviders, NgModule} from '@angular/core';
 import {AngularFireDatabaseModule} from '@angular/fire/database';
 import {GoogleSignModule} from '../../../features/google-sign/google-sign.module';
 import {PouchdbStorageModule} from '../../../infrastructure/pouchdb/pouchdb-storage';
 import {OriginPouchDbSyncService} from './origin-pouch-db-sync.service';
 
 @NgModule({
-    providers: [OriginPouchDbSyncService],
     imports: [
         GoogleSignModule,
         // todo: abstract from where app receive configuration
@@ -14,6 +13,13 @@ import {OriginPouchDbSyncService} from './origin-pouch-db-sync.service';
     ]
 })
 export class OriginPouchDbSyncModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: OriginPouchDbSyncModule,
+            providers: [OriginPouchDbSyncService],
+        };
+    }
+
     // initialize originPouchDbSyncService service
     // todo: find the way to initialize necessary services in application level
     constructor(private originPouchDbSyncService: OriginPouchDbSyncService) {

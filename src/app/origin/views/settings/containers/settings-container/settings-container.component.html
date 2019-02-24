@@ -1,7 +1,7 @@
 <mat-sidenav-container class="settings-view-container">
     <mat-sidenav #sidenav [mode]="'side'" opened>
         <mat-nav-list>
-            <a [routerLink]="['./database']" mat-list-item>Database</a>
+            <a [routerLink]="['./']" mat-list-item>General</a>
         </mat-nav-list>
 
         <hr>
@@ -25,6 +25,10 @@
             <button (click)="googleSignService.signOut()" mat-button>Sign out</button>
 
             <pre>{{(googleSignService.user$ | async)?.displayName}}</pre>
+        </div>
+
+        <div *ngIf="googleSignService.user$ | async">
+            <button (click)="originPouchDbSyncService.syncPouchDb()" mat-button>Sync databases</button>
         </div>
 
         <hr>

@@ -26,7 +26,7 @@ import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/orig
         GoogleSignModule.forRoot(),
 
         // application level
-        OriginPouchDbSyncModule,
+        OriginPouchDbSyncModule.forRoot(),
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule
