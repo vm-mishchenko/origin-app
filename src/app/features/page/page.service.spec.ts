@@ -731,7 +731,7 @@ describe('PageService', () => {
     });
 
     describe('Move bricks', () => {
-        fit('should move non page bricks', async(() => {
+        it('should move non page bricks', async(() => {
             Promise.all([
                 testScope.service.createPage(),
                 testScope.service.createPage()
@@ -774,6 +774,97 @@ describe('PageService', () => {
                         });
                     });
                 });
+            });
+        }));
+
+        it('should move page and other bricks', async(() => {
+            Promise.all([
+                testScope.service.createPage(),
+                testScope.service.createPage()
+            ]).then(([sourcePageId, targetPageId]) => {
+                // add couple pages to source page
+                // there is limitation which does not allow to add pages in parallel, more read in create page comments
+                testScope.service.createPage(sourcePageId)
+                    .then((childPageId1) => {
+                        testScope.service.createPage(sourcePageId).then((childPageId2) => {
+                            testScope.pageRepositoryService.getBodyPage(sourcePageId).then((sourcePageBody) => {
+                                // add couple non page bricks to source page
+                                let sourcePageWallModel = testScope.createWallModel(sourcePageBody.body);
+
+                                const fixtureState1 = {fixture: 1};
+                                const fixtureState2 = {fixture: 2};
+                                const brickSnapshot1 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState1);
+                                const brickSnapshot2 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState2);
+                                const pageBrickId1 = testScope.findPageBrick(sourcePageBody.body, childPageId1).id;
+                                const pageBrickId2 = testScope.findPageBrick(sourcePageBody.body, childPageId2).id;
+
+                                testScope.service.updatePageBody({
+                                    id: sourcePageId,
+                                    body: sourcePageWallModel.api.core.getPlan()
+                                }).then(() => {
+                                    const movedBrickIds = [
+                                        pageBrickId1,
+                                        pageBrickId2,
+                                        brickSnapshot1.id,
+                                        brickSnapshot2.id,
+                                    ];
+
+                                    // test action
+                                    testScope.service.moveBricks(sourcePageId, movedBrickIds, targetPageId).then(() => {
+                                        Promise.all([
+                                            testScope.pageRepositoryService.getBodyPage(sourcePageId),
+                                            testScope.pageRepositoryService.getBodyPage(targetPageId),
+                                            testScope.pageRepositoryService.getRelationPage(targetPageId),
+                                            testScope.pageRepositoryService.getRelationPage(childPageId1),
+                                            testScope.pageRepositoryService.getRelationPage(childPageId2)
+                                        ]).then(([sourcePageBodyUpdated, targetPageBody, targetPageRelation, childPageRelation1, childPageRelation2]) => {
+                                            // test assertionss
+                                            sourcePageWallModel = testScope.createWallModel(sourcePageBodyUpdated.body);
+
+                                            // test assertion: non page bricks was removed from source page
+                                            expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
+                                            expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
+
+                                            // test assertion:page bricks was removed from source page
+                                            expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(pageBrickId1))).toBe(false);
+                                            expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(pageBrickId2))).toBe(false);
+
+                                            const targetPageWallModel = testScope.createWallModel(targetPageBody.body);
+                                            const targetBrickIds = targetPageWallModel.api.core.getBrickIds();
+
+                                            // bricks was added to target page
+                                            expect(targetBrickIds.length).toEqual(4);
+
+                                            const tagetBrickSnapshots = targetBrickIds
+                                                .map((targetBrickId) => targetPageWallModel.api.core.getBrickSnapshot(targetBrickId));
+
+                                            // fixture bricks was added to target body page
+                                            const fixtureBrickSnapshots = tagetBrickSnapshots
+                                                .filter((tagetBrickSnapshot) => tagetBrickSnapshot.tag === 'fixture-brick');
+                                            expect(fixtureBrickSnapshots.length).toEqual(2);
+
+                                            // page bricks was added to target body page
+                                            const pageBrickSnapshots = tagetBrickSnapshots
+                                                .filter((tagetBrickSnapshot) => tagetBrickSnapshot.tag === PAGE_BRICK_TAG_NAME);
+                                            expect(pageBrickSnapshots.length).toEqual(2);
+
+                                            // target relation contains moved pages
+                                            [
+                                                childPageId1,
+                                                childPageId2
+                                            ].forEach((childPageId) => {
+                                                expect(targetPageRelation.childrenPageId.includes(childPageId)).toBe(true);
+                                            });
+
+                                            // child parent id points to target page id
+                                            expect(childPageRelation1.parentPageId).toBe(targetPageId);
+                                            expect(childPageRelation2.parentPageId).toBe(targetPageId);
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
             });
         }));
     });

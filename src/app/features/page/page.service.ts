@@ -13,6 +13,10 @@ import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage} from './page.types';
 
+/**
+ * I cannot add couple pages in parallel :(
+ * There is the same problem as with removing several pages in one call
+ * */
 @Injectable()
 export class PageService {
     // todo - integrate to application event stream
@@ -71,11 +75,6 @@ export class PageService {
                     targetPageWallModel.api.core.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
                 });
 
-            // process page bricks
-            const movePagePromises = brickSnapshots
-                .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME)
-                .map((brickSnapshot) => this.movePage(brickSnapshot.state.pageId, targetPageId));
-
             return Promise.all([
                 this.updatePageBody({
                     id: sourcePageBody.id,
@@ -84,9 +83,16 @@ export class PageService {
                 this.updatePageBody({
                     id: targetPageBody.id,
                     body: targetPageWallModel.api.core.getPlan()
-                }),
-                ...movePagePromises
-            ]);
+                })
+            ]).then(() => {
+                const pageBrickSnapshots = brickSnapshots
+                    .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME);
+
+                // move page in series, parallel moving leads to race condition
+                return pageBrickSnapshots.reduce((result, pageBrickSnapshot) => {
+                    return result.then(() => this.movePage(pageBrickSnapshot.state.pageId, targetPageId));
+                }, Promise.resolve());
+            });
         });
     }
 
