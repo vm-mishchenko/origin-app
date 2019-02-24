@@ -102,11 +102,12 @@ export class PageService {
 
                             // update old parent relation
                             const movedPageChildIndex = oldPageRelationPage.childrenPageId.indexOf(movedPageId);
-                            oldPageRelationPage.childrenPageId.splice(movedPageChildIndex, 1);
-
                             promises.push(
                                 this.pageStorages.pageRelationStorage.update(oldPageRelationPage.id, {
-                                    childrenPageId: oldPageRelationPage.childrenPageId
+                                    childrenPageId: [
+                                        ...oldPageRelationPage.childrenPageId.slice(0, movedPageChildIndex),
+                                        ...oldPageRelationPage.childrenPageId.slice(movedPageChildIndex + 1),
+                                    ]
                                 })
                             );
 
