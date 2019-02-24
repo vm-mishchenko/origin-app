@@ -3,7 +3,7 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import * as firebase from 'firebase';
 import {User} from 'firebase';
 import {Observable} from 'rxjs';
-import {shareReplay} from 'rxjs/operators';
+import {filter, map, pairwise, shareReplay} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 
@@ -11,6 +11,8 @@ import {GapiService} from '../../infrastructure/gapi';
 export class GoogleSignService {
     user: User;
     user$: Observable<User | null>;
+    signIn$: Observable<User>;
+    signOut$: Observable<any>;
     private isGapiInitialize = false;
 
     constructor(private gapiService: GapiService,
@@ -20,6 +22,17 @@ export class GoogleSignService {
         this.user$.subscribe((user) => {
             this.user = user;
         });
+
+        this.signIn$ = this.user$.pipe(
+            pairwise(),
+            filter(([previous, current]) => !Boolean(previous) && Boolean(current)),
+            map(([previous, current]) => current)
+        );
+
+        this.signOut$ = this.user$.pipe(
+            pairwise(),
+            filter(([previous, current]) => Boolean(previous) && !Boolean(current))
+        );
     }
 
     signIn(): Promise<any> {

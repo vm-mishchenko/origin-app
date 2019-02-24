@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {filter, pairwise} from 'rxjs/internal/operators';
 import {GoogleSignService} from '../../../features/google-sign/google-sign.service';
 import {PageStoragesService} from '../../../features/page/page-storages.service';
 
@@ -12,12 +11,7 @@ export class OriginPageService {
 
     constructor(private googleSignService: GoogleSignService,
                 private pageStoragesService: PageStoragesService) {
-        this.googleSignService.user$.pipe(
-            pairwise(),
-            filter(([previous, current]) => {
-                return Boolean(previous) && !Boolean(current);
-            })
-        ).subscribe((user) => {
+        this.googleSignService.signOut$.subscribe(() => {
             // user log out
             this.pageStoragesService.reset();
         });

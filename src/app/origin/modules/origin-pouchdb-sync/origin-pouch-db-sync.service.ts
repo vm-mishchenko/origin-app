@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFireDatabase} from '@angular/fire/database';
-import {filter, first, map, pairwise} from 'rxjs/operators';
+import {filter, first} from 'rxjs/operators';
 import {GoogleSignService} from '../../../features/google-sign/google-sign.service';
 import {PouchdbStorageFactory} from '../../../infrastructure/pouchdb/pouchdb-storage';
 import {PouchdbStorageSync} from '../../../infrastructure/pouchdb/pouchdb-storage/pouchdb-storage-sync.service';
@@ -37,21 +37,12 @@ export class OriginPouchDbSyncService {
             this.initialPouchDbSync(user);
         });
 
-        this.googleSignService.user$.pipe(
-            pairwise(),
-            filter(([previous, current]) => !Boolean(previous) && Boolean(current)),
-            map(([previous, current]) => current)
-        ).subscribe((user) => {
+        this.googleSignService.signIn$.subscribe((user) => {
             // user was sign out but during current session logged in
             this.initialPouchDbSync(user);
         });
 
-        this.googleSignService.user$.pipe(
-            pairwise(),
-            filter(([previous, current]) => {
-                return Boolean(previous) && !Boolean(current);
-            })
-        ).subscribe(() => {
+        this.googleSignService.signOut$.subscribe(() => {
             // user log out
             this.pouchDbConfig = null;
             this.pouchdbStorageFactory.resetDatabase();
