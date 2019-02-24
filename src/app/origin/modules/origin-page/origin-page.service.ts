@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {GoogleSignService} from '../../../features/google-sign/google-sign.service';
+import {GoogleSignService} from '../../../features/google-sign';
 import {PageStoragesService} from '../../../features/page/page-storages.service';
 
 // store selected page id

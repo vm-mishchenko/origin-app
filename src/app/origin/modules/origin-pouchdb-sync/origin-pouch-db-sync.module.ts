@@ -1,6 +1,6 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {AngularFireDatabaseModule} from '@angular/fire/database';
-import {GoogleSignModule} from '../../../features/google-sign/google-sign.module';
+import {GoogleSignModule} from '../../../features/google-sign';
 import {PouchdbStorageModule} from '../../../infrastructure/pouchdb/pouchdb-storage';
 import {OriginPouchDbSyncService} from './origin-pouch-db-sync.service';
 

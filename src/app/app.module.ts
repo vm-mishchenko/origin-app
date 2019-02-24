@@ -7,7 +7,7 @@ import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {GoogleSignModule} from './features/google-sign/google-sign.module';
+import {GoogleSignModule} from './features/google-sign';
 import {NavigationModule} from './features/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
 import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/origin-pouch-db-sync.module';

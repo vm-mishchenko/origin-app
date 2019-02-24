@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {GoogleSignService} from '../../../../../features/google-sign/google-sign.service';
+import {GoogleSignService} from '../../../../../features/google-sign';
 import {OriginPouchDbSyncService} from '../../../../modules/origin-pouchdb-sync/origin-pouch-db-sync.service';
 
 // todo: toggle automatically
