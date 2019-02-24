@@ -20,4 +20,10 @@ export class PageStoragesService {
             name: 'page-relation'
         });
     }
+
+    reset() {
+        this.pageIdentityStorage.reset();
+        this.pageBodyStorage.reset();
+        this.pageRelationStorage.reset();
+    }
 }

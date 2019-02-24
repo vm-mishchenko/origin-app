@@ -12,12 +12,18 @@ const POUCH_STORAGE_LOCAL_DB_NAME_KEY = 'pouchdb-storage:local-database-name';
 export class PouchdbStorageFactory {
     private database: IPouchDb;
 
+    private entityStorePouchDbMap: Map<string, EntityStorePouchDb<IPouchdbStorageEntity>> = new Map();
+
     constructor() {
         this.initializeDatabase();
     }
 
     createPouchDB<M extends IPouchdbStorageEntity>(options: IPouchDbCreateOptions) {
-        return this.createEntityStorePouchDb<M>(options.name);
+        const entityStorePouchDb = this.createEntityStorePouchDb<M>(options.name);
+
+        this.entityStorePouchDbMap.set(options.name, entityStorePouchDb);
+
+        return entityStorePouchDb;
     }
 
     createEntityStorePouchDb<M extends IPouchdbStorageEntity>(name): EntityStorePouchDb<M> {
@@ -28,16 +34,28 @@ export class PouchdbStorageFactory {
         return this.database;
     }
 
+    resetDatabase() {
+        return (this.database as any).destroy().then(() => {
+            this.initializeDatabase();
+
+            this.entityStorePouchDbMap.forEach((entityStorePouchDb) => {
+                entityStorePouchDb.reInitializeDatabase(this.database);
+            });
+        });
+    }
+
     private initializeDatabase() {
         let localDbName = localStorage.getItem(POUCH_STORAGE_LOCAL_DB_NAME_KEY);
 
         if (!localDbName) {
-            console.log(`Initialize new pouch database`);
-
-            localDbName = String(Date.now());
+            localDbName = this.getLocalDbName();
             localStorage.setItem(POUCH_STORAGE_LOCAL_DB_NAME_KEY, localDbName);
         }
 
         this.database = new PouchDB(localDbName);
+    }
+
+    private getLocalDbName(): string {
+        return String(Date.now());
     }
 }

@@ -38,6 +38,10 @@ export class EntityStorePouchDb<M extends IPouchdbStorageEntity> implements IEnt
         return this.getRawEntity(id).then((rawEntity) => this.pouchDb.remove(rawEntity));
     }
 
+    reInitializeDatabase(newDatabase: IPouchDb) {
+        this.pouchDb = newDatabase;
+    }
+
     private getRawEntity(id: string): Promise<IPouchdbRawExistingStorageEntity> {
         return this.pouchDb.get(this.getRawPouchDbId(id));
     }

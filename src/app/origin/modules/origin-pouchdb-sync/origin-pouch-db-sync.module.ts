@@ -8,13 +8,14 @@ import {OriginPouchDbSyncService} from './origin-pouch-db-sync.service';
     providers: [OriginPouchDbSyncService],
     imports: [
         GoogleSignModule,
+        // todo: abstract from where app receive configuration
         AngularFireDatabaseModule,
         PouchdbStorageModule
     ]
 })
 export class OriginPouchDbSyncModule {
     // initialize originPouchDbSyncService service
-    // todo: find the way to do it in application level
+    // todo: find the way to initialize necessary services in application level
     constructor(private originPouchDbSyncService: OriginPouchDbSyncService) {
     }
 }

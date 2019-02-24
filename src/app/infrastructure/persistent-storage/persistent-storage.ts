@@ -85,6 +85,11 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         return this.pouchdbStorage.remove(id);
     }
 
+    reset() {
+        // remove only memory data
+        this.memoryStore.reset();
+    }
+
     private extractEntityFromRawEntity(rawEntity) {
         const {_id, _rev, ...entity} = rawEntity;
 
