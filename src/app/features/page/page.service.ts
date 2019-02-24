@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
 import {Guid} from '../../infrastructure/utils';
+import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {CreatePageAction} from './action/create-page.action';
 import {MovePageAction} from './action/move-page.action';
 import {RemovePageAction} from './action/remove-page.action';
@@ -44,6 +45,46 @@ export class PageService {
             this.pageRepositoryService,
             this.wallModelFactory
         )).execute();
+    }
+
+    moveBricks(sourcePageId: string, brickIds: string[], targetPageId: string): Promise<any> {
+        if (sourcePageId === targetPageId) {
+            return Promise.resolve();
+        }
+
+        return Promise.all([
+            this.pageRepositoryService.getBodyPage(sourcePageId),
+            this.pageRepositoryService.getBodyPage(targetPageId)
+        ]).then(([sourcePageBody, targetPageBody]) => {
+            const sourcePageWallModel = this.wallModelFactory.create({plan: sourcePageBody.body});
+            const targetPageWallModel = this.wallModelFactory.create({plan: targetPageBody.body});
+            const brickSnapshots = brickIds.map((brickId) => sourcePageWallModel.api.core.getBrickSnapshot(brickId));
+
+            // process non page bricks
+            brickSnapshots
+                .filter((brickSnapshot) => brickSnapshot.tag !== PAGE_BRICK_TAG_NAME)
+                .forEach((nonPageBrickSnapshot) => {
+                    sourcePageWallModel.api.core.removeBrick(nonPageBrickSnapshot.id);
+                    targetPageWallModel.api.core.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
+                });
+
+            // process page bricks
+            const movePagePromises = brickSnapshots
+                .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME)
+                .map((brickSnapshot) => this.movePage(brickSnapshot.state.pageId, targetPageId));
+
+            return Promise.all([
+                this.updatePageBody({
+                    id: sourcePageBody.id,
+                    body: sourcePageWallModel.api.core.getPlan()
+                }),
+                this.updatePageBody({
+                    id: targetPageBody.id,
+                    body: targetPageWallModel.api.core.getPlan()
+                }),
+                ...movePagePromises
+            ]);
+        });
     }
 
     removePage(pageId: string): Promise<any> {
