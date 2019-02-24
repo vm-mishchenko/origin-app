@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
 import {Guid} from '../../infrastructure/utils';
-import {PAGE_BRICK_TAG_NAME} from '../page-ui/page-ui.constant';
 import {CreatePageAction} from './action/create-page.action';
+import {MoveBricksAction} from './action/move-bricks.action';
 import {MovePageAction} from './action/move-page.action';
 import {RemovePageAction} from './action/remove-page.action';
 import {RemovePagesAction} from './action/remove-pages.action';
@@ -52,48 +52,14 @@ export class PageService {
     }
 
     moveBricks(sourcePageId: string, brickIds: string[], targetPageId: string): Promise<any> {
-        if (sourcePageId === targetPageId) {
-            return Promise.resolve();
-        }
-
-        return Promise.all([
-            this.pageRepositoryService.getBodyPage(sourcePageId),
-            this.pageRepositoryService.getBodyPage(targetPageId)
-        ]).then(([sourcePageBody, targetPageBody]) => {
-            const sourcePageWallModel = this.wallModelFactory.create({plan: sourcePageBody.body});
-            const targetPageWallModel = this.wallModelFactory.create({plan: targetPageBody.body});
-            const brickSnapshots = brickIds.map((brickId) => {
-                return sourcePageWallModel.api.core.getBrickSnapshot(brickId);
-            });
-
-            // process non page bricks
-            brickSnapshots
-                .filter((brickSnapshot) => brickSnapshot.tag !== PAGE_BRICK_TAG_NAME)
-                .reverse()
-                .forEach((nonPageBrickSnapshot) => {
-                    sourcePageWallModel.api.core.removeBrick(nonPageBrickSnapshot.id);
-                    targetPageWallModel.api.core.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
-                });
-
-            return Promise.all([
-                this.updatePageBody({
-                    id: sourcePageBody.id,
-                    body: sourcePageWallModel.api.core.getPlan()
-                }),
-                this.updatePageBody({
-                    id: targetPageBody.id,
-                    body: targetPageWallModel.api.core.getPlan()
-                })
-            ]).then(() => {
-                const pageBrickSnapshots = brickSnapshots
-                    .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME);
-
-                // move page in series, parallel moving leads to race condition
-                return pageBrickSnapshots.reduce((result, pageBrickSnapshot) => {
-                    return result.then(() => this.movePage(pageBrickSnapshot.state.pageId, targetPageId));
-                }, Promise.resolve());
-            });
-        });
+        return (new MoveBricksAction(
+            sourcePageId,
+            brickIds,
+            targetPageId,
+            this.pageRepositoryService,
+            this.wallModelFactory,
+            this.pageStorages
+        )).execute();
     }
 
     removePage(pageId: string): Promise<any> {
