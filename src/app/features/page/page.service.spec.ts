@@ -729,4 +729,52 @@ describe('PageService', () => {
             }));
         });
     });
+
+    describe('Move bricks', () => {
+        fit('should move non page bricks', async(() => {
+            Promise.all([
+                testScope.service.createPage(),
+                testScope.service.createPage()
+            ]).then(([sourcePageId, targetPageId]) => {
+                testScope.pageRepositoryService.getBodyPage(sourcePageId).then((sourcePageBody) => {
+                    let sourcePageWallModel = testScope.createWallModel(sourcePageBody.body);
+
+                    const fixtureState1 = {fixture: 1};
+                    const fixtureState2 = {fixture: 2};
+                    const brickSnapshot1 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState1);
+                    const brickSnapshot2 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState2);
+
+                    testScope.service.updatePageBody({
+                        id: sourcePageId,
+                        body: sourcePageWallModel.api.core.getPlan()
+                    }).then(() => {
+                        // test action
+                        testScope.service.moveBricks(sourcePageId, [brickSnapshot1.id, brickSnapshot2.id], targetPageId).then(() => {
+                            Promise.all([
+                                testScope.pageRepositoryService.getBodyPage(sourcePageId),
+                                testScope.pageRepositoryService.getBodyPage(targetPageId)
+                            ]).then(([sourcePageBodyUpdated, targetPageBody]) => {
+                                sourcePageWallModel = testScope.createWallModel(sourcePageBodyUpdated.body);
+
+                                // test assertion: bricks was removed from source page
+                                expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
+                                expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
+
+
+                                const targetPageWallModel = testScope.createWallModel(targetPageBody.body);
+                                const targetBrickIds = targetPageWallModel.api.core.getBrickIds();
+
+                                // bricks was added to target page
+                                expect(targetBrickIds.length).toEqual(2);
+
+                                // bricks was added in right order
+                                expect(targetPageWallModel.api.core.getBrickSnapshot(targetBrickIds[0]).state.fixture).toBe(fixtureState1.fixture);
+                                expect(targetPageWallModel.api.core.getBrickSnapshot(targetBrickIds[1]).state.fixture).toBe(fixtureState2.fixture);
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+    });
 });

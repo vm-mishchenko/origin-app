@@ -58,11 +58,14 @@ export class PageService {
         ]).then(([sourcePageBody, targetPageBody]) => {
             const sourcePageWallModel = this.wallModelFactory.create({plan: sourcePageBody.body});
             const targetPageWallModel = this.wallModelFactory.create({plan: targetPageBody.body});
-            const brickSnapshots = brickIds.map((brickId) => sourcePageWallModel.api.core.getBrickSnapshot(brickId));
+            const brickSnapshots = brickIds.map((brickId) => {
+                return sourcePageWallModel.api.core.getBrickSnapshot(brickId);
+            });
 
             // process non page bricks
             brickSnapshots
                 .filter((brickSnapshot) => brickSnapshot.tag !== PAGE_BRICK_TAG_NAME)
+                .reverse()
                 .forEach((nonPageBrickSnapshot) => {
                     sourcePageWallModel.api.core.removeBrick(nonPageBrickSnapshot.id);
                     targetPageWallModel.api.core.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
