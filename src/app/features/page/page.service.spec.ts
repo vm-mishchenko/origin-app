@@ -598,4 +598,70 @@ describe('PageService', () => {
             });
         }));
     });
+
+    describe('Move page', () => {
+        it('should handle correctly move page inside itself', async(() => {
+            testScope.service.createPage().then((pageId) => {
+                testScope.service.movePage(pageId, pageId).then(() => {
+                    testScope.pageRepositoryService.getRelationPage(pageId).then((pageRelation) => {
+                        expect(pageRelation.parentPageId).toBe(null);
+                    });
+                });
+            });
+        }));
+
+        it('should not move page to root if it already at root level', async(() => {
+            testScope.service.createPage().then((pageId) => {
+                testScope.service.movePage(pageId, null).then(() => {
+                    testScope.pageRepositoryService.getRelationPage(pageId).then((pageRelation) => {
+                        expect(pageRelation.parentPageId).toBe(null);
+                    });
+                });
+            });
+        }));
+
+        it('should not move page to target page if it already there', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    testScope.service.movePage(childPageId, parentPageId).then(() => {
+                        Promise.all([
+                            testScope.pageRepositoryService.getRelationPage(parentPageId),
+                            testScope.pageRepositoryService.getRelationPage(childPageId),
+                        ]).then(([parentPageRelation, childPageRelation]) => {
+                            expect(childPageRelation.parentPageId).toEqual(parentPageId);
+                            expect(parentPageRelation.childrenPageId.includes(childPageId)).toBe(true);
+                        });
+                    });
+                });
+            });
+        }));
+
+        describe('Target page', () => {
+            it('should update children id', async(() => {
+                Promise.all([
+                    testScope.service.createPage(),
+                    testScope.service.createPage()
+                ]).then(([parentPageId, childPageId]) => {
+                    testScope.service.movePage(childPageId, parentPageId).then(() => {
+                        testScope.pageRepositoryService.getRelationPage(parentPageId).then((parentPageRelation) => {
+                            expect(parentPageRelation.childrenPageId.includes(childPageId)).toBe(true);
+                        });
+                    });
+                });
+            }));
+
+            it('should update body', async(() => {
+                Promise.all([
+                    testScope.service.createPage(),
+                    testScope.service.createPage()
+                ]).then(([parentPageId, childPageId]) => {
+                    testScope.service.movePage(childPageId, parentPageId).then(() => {
+                        testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageBody) => {
+                            expect(Boolean(testScope.findPageBrick(parentPageBody.body, childPageId))).toBe(true);
+                        });
+                    });
+                });
+            }));
+        });
+    });
 });
