@@ -1,0 +1,14 @@
+a {
+  flex-grow: 1;
+  min-height: 48px;
+  align-items: center;
+  display: flex;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+mat-tree-node:hover {
+  background-color: white;
+}

@@ -2,7 +2,7 @@ import {HashMap} from '@datorama/akita';
 import {IIdentityPage, IRelationPage} from '../../../page/page.types';
 import {IPageTreeNode} from './page-tree-flat.types';
 
-const INITIAL_PAGE_LEVEL = 1;
+const INITIAL_PAGE_LEVEL = 0;
 
 export class PageTreeFlat {
     constructor(

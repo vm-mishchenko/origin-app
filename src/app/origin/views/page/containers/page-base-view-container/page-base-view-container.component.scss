@@ -6,6 +6,44 @@
   right: 0;
 }
 
+::ng-deep app-page-tree-flat-container {
+  .mat-tree {
+    background-color: #f2f2f2;
+  }
+}
+
 mat-sidenav {
-  width: 30%;
+  overflow-y: hidden;
+  background-color: #f2f2f2;
+
+  .mat-drawer-inner-container {
+    overflow-y: hidden;
+  }
+}
+
+::ng-deep mat-sidenav {
+  .mat-drawer-inner-container {
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+}
+
+app-page-tree-flat-container {
+  flex: auto;
+  overflow-y: auto;
+}
+
+.add-page {
+  height: 50px;
+  width: 100%;
+}
+
+mat-sidenav {
+  width: 300px;
+}
+
+mat-nav-list {
+  padding: 0;
 }

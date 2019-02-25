@@ -3,9 +3,9 @@
         <button disabled mat-icon-button></button>
         <a [routerLink]="['/page', node.id]">{{node.title}}</a>
 
-        <button (click)="removePage(node.id)" color="primary" mat-icon-button>
+        <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
             <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
-        </button>
+        </button>-->
     </mat-tree-node>
 
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
@@ -17,8 +17,9 @@
 
         <a [routerLink]="['/page', node.id]">{{node.title}}</a>
 
-        <button (click)="removePage(node.id)" color="primary" mat-icon-button>
+        <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
             <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
-        </button>
+        </button>-->
     </mat-tree-node>
 </mat-tree>
+

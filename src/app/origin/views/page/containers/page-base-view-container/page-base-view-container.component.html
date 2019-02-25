@@ -1,13 +1,17 @@
 <mat-sidenav-container class="page-base-view-container">
     <mat-sidenav #sidenav [mode]="mobileQuery.matches ? 'over' : 'side'" opened>
-        <app-page-tree-flat-container></app-page-tree-flat-container>
-
-        <button (click)="addPage()" mat-stroked-button>Add page</button>
-
-        <hr>
-
         <mat-nav-list>
             <a [routerLink]="['/settings']" mat-list-item>Settings</a>
+        </mat-nav-list>
+
+        <mat-divider></mat-divider>
+        <br>
+
+        <app-page-tree-flat-container></app-page-tree-flat-container>
+
+        <mat-nav-list>
+            <br>
+            <button class="add-page" (click)="addPage()" mat-button>Add page</button>
         </mat-nav-list>
     </mat-sidenav>
 
@@ -15,7 +19,6 @@
         <p>
             <button (click)="sidenav.toggle()" mat-button>Toggle</button>
         </p>
-
         <router-outlet></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>
