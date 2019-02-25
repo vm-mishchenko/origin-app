@@ -5,7 +5,8 @@
             col-md-10 offset-md-1
             col-lg-6 offset-lg-3
             col-xl-6 offset-xl-3">
-                <app-title-page-editor-container [selectedPageId]="originPageService.selectedPageId$ | async">
+                <app-title-page-editor-container (enter)="onHeaderEnterHandler()"
+                                                 [selectedPageId]="originPageService.selectedPageId$ | async">
                 </app-title-page-editor-container>
             </div>
         </div>

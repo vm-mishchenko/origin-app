@@ -1,9 +1,10 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {filter, first, map, switchMap} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../../../features/page';
 import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
+import {PageEditorComponent} from '../../components/page-editor/page-editor.component';
 
 @Component({
     selector: 'app-body-page-editor-container',
@@ -15,11 +16,15 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     @Input() scrollableContainer: HTMLElement;
     pageBody$: Observable<IWallDefinition>;
 
+
+    @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
+
     private selectedPageId: string;
     private subscriptions: Subscription[] = [];
 
     constructor(private pageRepositoryService: PageRepositoryService,
                 private pageService: PageService) {
+
     }
 
     ngOnInit() {
@@ -68,4 +73,11 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
             subscription.unsubscribe();
         });
     }
+
+    // public API
+
+    focusOnPageEditor() {
+        this.pageEditorComponent.focusOnPageEditor();
+    }
+
 }

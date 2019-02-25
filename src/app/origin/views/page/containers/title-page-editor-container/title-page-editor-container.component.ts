@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
@@ -11,6 +11,7 @@ import {PageRepositoryService, PageService} from '../../../../../features/page';
 })
 export class TitlePageEditorContainerComponent implements OnInit, OnChanges, OnDestroy {
     @Input() selectedPageId: string;
+    @Output() enter: EventEmitter<any> = new EventEmitter();
 
     selectedPageId$: Observable<string> = new BehaviorSubject<string>('');
     selectedPageIdentityTitle$: Observable<string>;
@@ -69,6 +70,7 @@ export class TitlePageEditorContainerComponent implements OnInit, OnChanges, OnD
     }
 
     onHeaderEnterHandler() {
+        this.enter.emit();
     }
 
     ngOnDestroy() {

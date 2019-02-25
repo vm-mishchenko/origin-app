@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
 import {Subscription} from 'rxjs';
@@ -7,6 +7,7 @@ import {NavigationService} from '../../../../../features/navigation';
 import {PageRepositoryService, PageService} from '../../../../../features/page';
 import {DeletePageEvent} from '../../../../../features/page/page-events.type';
 import {OriginPageService} from '../../../../modules/origin-page';
+import {BodyPageEditorContainerComponent} from '../body-page-editor-container/body-page-editor-container.component';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -15,6 +16,8 @@ import {OriginPageService} from '../../../../modules/origin-page';
 })
 export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
+
+    @ViewChild(BodyPageEditorContainerComponent) bodyPageEditorContainer: BodyPageEditorContainerComponent;
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
@@ -62,6 +65,10 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
                 });
             })
         );
+    }
+
+    onHeaderEnterHandler() {
+        this.bodyPageEditorContainer.focusOnPageEditor();
     }
 
     ngOnDestroy() {

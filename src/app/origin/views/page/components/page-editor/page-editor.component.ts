@@ -4,6 +4,7 @@ import {
     CopyPlugin,
     IWallDefinition,
     IWallModel,
+    IWallUiApi,
     SelectionPlugin,
     SetPlanEvent,
     TurnBrickIntoEvent,
@@ -64,6 +65,30 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
+    }
+
+    // public API
+    // focus on first empty text brick
+    focusOnPageEditor() {
+        let firstEmptyTextBrickId;
+
+        const brickIds = this.wallModel.api.core.getBrickIds();
+
+        if (brickIds.length) {
+            const firstBrickSnapshot = this.wallModel.api.core.getBrickSnapshot(brickIds[0]);
+
+            if (firstBrickSnapshot.tag === 'text' && !Boolean(firstBrickSnapshot.state.text)) {
+                firstEmptyTextBrickId = firstBrickSnapshot.id;
+            }
+        }
+
+        if (!firstEmptyTextBrickId) {
+            firstEmptyTextBrickId = this.wallModel.api.core.addBrickAtStart('text').id;
+        }
+
+        setTimeout(() => {
+            (this.wallModel.api.ui as IWallUiApi).focusOnBrickId(firstEmptyTextBrickId);
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
