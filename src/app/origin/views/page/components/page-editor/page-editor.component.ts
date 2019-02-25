@@ -23,6 +23,7 @@ import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.const
 export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() pageBody: IWallDefinition;
     @Input() pageBrickIdProvider: (pageBrickId: string) => Promise<string>;
+    @Input() scrollableContainer: HTMLElement;
 
     @Output() wallEvents: EventEmitter<any> = new EventEmitter();
     @Output() pageBodyUpdated: EventEmitter<IWallDefinition> = new EventEmitter();

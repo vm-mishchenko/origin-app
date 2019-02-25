@@ -1,14 +1,24 @@
-<div class="page-editor-view-container">
-    <app-title-page-editor-container [selectedPageId]="originPageService.selectedPageId$ | async">
-    </app-title-page-editor-container>
-
+<div class="page-editor-view-container" #container>
     <div class="container-fluid">
         <div class="row">
             <div class="
             col-md-10 offset-md-1
-            col-lg-8 offset-lg-2
-            col-xl-8 offset-xl-2">
+            col-lg-6 offset-lg-3
+            col-xl-6 offset-xl-3">
+                <app-title-page-editor-container [selectedPageId]="originPageService.selectedPageId$ | async">
+                </app-title-page-editor-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid" [pick-out-area]="{scrollableContainer: container}">
+        <div class="row">
+            <div class="
+            col-md-10 offset-md-1
+            col-lg-6 offset-lg-3
+            col-xl-6 offset-xl-3">
                 <app-body-page-editor-container
+                        [scrollableContainer]="container"
                         [selectedPageId$]="originPageService.selectedPageId$"></app-body-page-editor-container>
             </div>
         </div>

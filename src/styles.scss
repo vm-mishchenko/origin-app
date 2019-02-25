@@ -12,3 +12,8 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+.pick-out-area,
+.tow-placeholder {
+  z-index: 2;
+}

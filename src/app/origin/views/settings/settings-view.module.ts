@@ -10,10 +10,6 @@ const routes: Routes = [
     {
         path: '',
         component: SettingsContainerComponent
-    },
-    {
-        path: '*',
-        redirectTo: '',
     }
 ];
 

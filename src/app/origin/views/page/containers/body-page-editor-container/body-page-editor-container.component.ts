@@ -12,6 +12,7 @@ import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.const
 })
 export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     @Input() selectedPageId$: Observable<string>;
+    @Input() scrollableContainer: HTMLElement;
     pageBody$: Observable<IWallDefinition>;
 
     private selectedPageId: string;

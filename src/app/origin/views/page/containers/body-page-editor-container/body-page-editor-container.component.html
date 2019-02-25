@@ -1,3 +1,5 @@
 <app-page-editor (pageBodyUpdated)="pageBodyUpdated($event)"
                  (wallEvents)="wallEvents($event)"
-                 [pageBody]="pageBody$ | async" [pageBrickIdProvider]="pageBrickIdProvider.bind(this)"></app-page-editor>
+                 [scrollableContainer]="scrollableContainer"
+                 [pageBody]="pageBody$ | async"
+                 [pageBrickIdProvider]="pageBrickIdProvider.bind(this)"></app-page-editor>
