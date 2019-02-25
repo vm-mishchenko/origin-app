@@ -71,6 +71,14 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
         this.bodyPageEditorContainer.focusOnPageEditor();
     }
 
+    movePageTo() {
+        const targetPageId = window.prompt('Target page id');
+
+        if (targetPageId) {
+            this.pageService.movePage(this.originPageService.selectedPageId, targetPageId);
+        }
+    }
+
     ngOnDestroy() {
         this.originPageService.setSelectedPageId(null);
 

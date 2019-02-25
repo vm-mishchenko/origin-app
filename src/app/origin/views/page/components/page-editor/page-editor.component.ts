@@ -5,12 +5,14 @@ import {
     IWallDefinition,
     IWallModel,
     IWallUiApi,
+    SelectedBrickEvent,
     SelectionPlugin,
     SetPlanEvent,
     TurnBrickIntoEvent,
     UNDO_REDO_API_NAME,
     UndoRedoPlugin,
-    WallModelFactory
+    WallModelFactory,
+    WallRegisterApiEvent
 } from 'ngx-wall';
 import {Subscription} from 'rxjs';
 import {IPageBrickState} from '../../../../../features/page-ui/bricks/page-brick/page-brick.types';
@@ -62,9 +64,21 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
                 }
             })
         );
+
+        // todo: fix that
+        setTimeout(() => {
+            this.subscriptions.push(
+                (this.wallModel.api.ui as IWallUiApi).subscribe((uiEvent) => {
+                    if (uiEvent instanceof SelectedBrickEvent) {
+                        console.log(uiEvent.selectedBrickIds);
+                    }
+                })
+            );
+        });
     }
 
     ngOnInit() {
+
     }
 
     // public API
