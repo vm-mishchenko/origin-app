@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
-import {filter, first, map, switchMap} from 'rxjs/operators';
+import {concat, filter, first, map, pairwise, shareReplay, switchMap} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../../../features/page';
 import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
 import {PageEditorComponent} from '../../components/page-editor/page-editor.component';
@@ -36,12 +36,32 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
         // database -> editor
         this.pageBody$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                return this.pageRepositoryService.pageBody$.pipe(
+                // initial pageBody rendering
+                // emit event as soon as first selected page body is come
+                const initialSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     map((pageBody) => pageBody[selectedPagedId]),
                     first());
+
+                // listen for following (after first) page body changes
+                // compare previous and current body change to determine
+                // whether new body from the storage should be rendered
+                const nextSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
+                    filter((pageBody) => Boolean(pageBody[selectedPagedId])),
+                    pairwise(),
+                    filter(([previousPageBody, currentPageBody]) => {
+                        return JSON.stringify(previousPageBody[selectedPagedId].body) ===
+                            JSON.stringify(currentPageBody[selectedPagedId].body);
+                    }),
+                    map(([previousPageBody, currentPageBody]) => currentPageBody[selectedPagedId])
+                );
+
+                return initialSelectedPageBodyChange.pipe(
+                    concat(nextSelectedPageBodyChange)
+                );
             }),
-            map((bodyPage) => bodyPage.body)
+            map((bodyPage) => bodyPage.body),
+            shareReplay()
         );
     }
 
