@@ -16,6 +16,7 @@ import {BodyPageEditorContainerComponent} from '../body-page-editor-container/bo
 })
 export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
+    selectedBrickIds: string[] = [];
 
     @ViewChild(BodyPageEditorContainerComponent) bodyPageEditorContainer: BodyPageEditorContainerComponent;
 
@@ -36,6 +37,8 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // navigation after selected page was deleted
+
+        console.log(`to home page`);
         this.subscriptions.push(
             this.pageService.events$.pipe(
                 filter((e) => e instanceof DeletePageEvent),
@@ -48,7 +51,9 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
                     // if deleted page is parent of selected page
                     // if deleted page is deep parent of selected page
 
-                    this.navigationService.toPageHome();
+                    if (deletedPageId === selectedPageId) {
+                        this.navigationService.toPageHome();
+                    }
                 })
             ).subscribe()
         );
@@ -77,6 +82,24 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
         if (targetPageId) {
             this.pageService.movePage(this.originPageService.selectedPageId, targetPageId);
         }
+    }
+
+    moveBricksTo() {
+        const targetPageId = window.prompt('Target page id');
+
+        if (targetPageId) {
+            this.pageService.moveBricks(this.originPageService.selectedPageId,
+                this.selectedBrickIds,
+                targetPageId);
+        }
+    }
+
+    removePage() {
+        this.pageService.removePage(this.originPageService.selectedPageId);
+    }
+
+    onSelectedBrickIds(selectedBrickIds: string[]) {
+        this.selectedBrickIds = selectedBrickIds;
     }
 
     ngOnDestroy() {

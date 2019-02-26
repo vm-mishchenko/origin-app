@@ -1,7 +1,8 @@
 <div class="page-editor-view-container" #container>
     <div>
+        <button (click)="removePage()" mat-button>Remove</button>
         <button (click)="movePageTo()" mat-button>Move Page to</button>
-        <button (click)="movePageTo()" mat-button>Move Bricks to</button>
+        <button (mousedown)="moveBricksTo()" mat-button>Move Bricks to</button>
     </div>
 
     <div class="container-fluid">
@@ -24,6 +25,7 @@
             col-lg-6 offset-lg-3
             col-xl-6 offset-xl-3">
                 <app-body-page-editor-container
+                        (selectedBrickIds)="onSelectedBrickIds($event)"
                         [scrollableContainer]="container"
                         [selectedPageId$]="originPageService.selectedPageId$"></app-body-page-editor-container>
             </div>

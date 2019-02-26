@@ -11,8 +11,7 @@ import {
     TurnBrickIntoEvent,
     UNDO_REDO_API_NAME,
     UndoRedoPlugin,
-    WallModelFactory,
-    WallRegisterApiEvent
+    WallModelFactory
 } from 'ngx-wall';
 import {Subscription} from 'rxjs';
 import {IPageBrickState} from '../../../../../features/page-ui/bricks/page-brick/page-brick.types';
@@ -30,6 +29,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     @Output() wallEvents: EventEmitter<any> = new EventEmitter();
     @Output() pageBodyUpdated: EventEmitter<IWallDefinition> = new EventEmitter();
+    @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
 
     wallModel: IWallModel;
     private subscriptions: Subscription[] = [];
@@ -70,7 +70,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.subscriptions.push(
                 (this.wallModel.api.ui as IWallUiApi).subscribe((uiEvent) => {
                     if (uiEvent instanceof SelectedBrickEvent) {
-                        console.log(uiEvent.selectedBrickIds);
+                        this.selectedBrickIds.emit(uiEvent.selectedBrickIds);
                     }
                 })
             );

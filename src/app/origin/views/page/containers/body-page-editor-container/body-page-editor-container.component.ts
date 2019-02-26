@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {filter, first, map, switchMap} from 'rxjs/operators';
@@ -14,8 +14,8 @@ import {PageEditorComponent} from '../../components/page-editor/page-editor.comp
 export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     @Input() selectedPageId$: Observable<string>;
     @Input() scrollableContainer: HTMLElement;
+    @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
     pageBody$: Observable<IWallDefinition>;
-
 
     @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
 
@@ -24,7 +24,6 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
 
     constructor(private pageRepositoryService: PageRepositoryService,
                 private pageService: PageService) {
-
     }
 
     ngOnInit() {
@@ -34,20 +33,19 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
             })
         );
 
-        // body database -> editor
+        // database -> editor
         this.pageBody$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
                 return this.pageRepositoryService.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     map((pageBody) => pageBody[selectedPagedId]),
-                    first()
-                );
+                    first());
             }),
             map((bodyPage) => bodyPage.body)
         );
     }
 
-    // body editor -> database
+    // editor -> database
     pageBodyUpdated(bodyPage: IWallDefinition) {
         this.pageService.updatePageBody({
             id: this.selectedPageId,
@@ -74,10 +72,12 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    // public API
+    onSelectedBrickIds(selectedBrickIds: string[]) {
+        this.selectedBrickIds.emit(selectedBrickIds);
+    }
 
+    // public API
     focusOnPageEditor() {
         this.pageEditorComponent.focusOnPageEditor();
     }
-
 }
