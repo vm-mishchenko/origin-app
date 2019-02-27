@@ -246,6 +246,39 @@ describe('PageService', () => {
                 });
             });
         }));
+
+        it('fit should update brick state in parent body when pageBrickId is defined', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageBody) => {
+                    let parentPageModel = testScope.createWallModel(parentPageBody.body);
+                    const newPageBrick = parentPageModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: null});
+
+                    testScope.service.updatePageBody({
+                        id: parentPageBody.id,
+                        body: parentPageModel.api.core.getPlan()
+                    }).then(() => {
+                        // test action
+                        testScope.service.createPage(parentPageId, {pageBrickId: newPageBrick.id}).then((childPageId) => {
+                            testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageIdUpdated) => {
+                                // test asserts
+                                parentPageModel = testScope.createWallModel(parentPageIdUpdated.body);
+
+                                // make sure that "createPage" API does not create additional page
+                                expect(parentPageModel.api.core.getBricksCount()).toBe(1);
+
+                                // make sure that in body there is only one brick that was created previously
+                                const actualPageBrickId = parentPageModel.api.core.getBrickIds()[0];
+                                expect(actualPageBrickId).toBe(newPageBrick.id);
+
+                                // make sure that state of previously created page was populated by child page id
+                                const pageBrickSnapshot = parentPageModel.api.core.getBrickSnapshot(actualPageBrickId);
+                                expect(pageBrickSnapshot.state.pageId).toBe(childPageId);
+                            });
+                        });
+                    });
+                });
+            });
+        }));
     });
 
     describe('Remove page', () => {
