@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
-import {IWallDefinition, RemoveBricksEvent} from 'ngx-wall';
+import {IWallDefinition, RemoveBricksEvent, TurnBrickIntoEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
-import {concat, filter, first, map, pairwise, shareReplay, switchMap} from 'rxjs/operators';
+import {concat, filter, first, map, pairwise, shareReplay, switchMap, tap} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../../../features/page';
 import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
 import {PageEditorComponent} from '../../components/page-editor/page-editor.component';
@@ -16,6 +16,7 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     @Input() scrollableContainer: HTMLElement;
     @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
     pageBody$: Observable<IWallDefinition>;
+    private currentBody: IWallDefinition = null;
 
     @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
 
@@ -41,7 +42,10 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
                 const initialSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     map((pageBody) => pageBody[selectedPagedId]),
-                    first());
+                    first(),
+                    tap((bodyPage) => {
+                        this.currentBody = bodyPage.body;
+                    }));
 
                 // listen for following (after first) page body changes
                 // compare previous and current body change to determine
@@ -50,8 +54,12 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     pairwise(),
                     filter(([previousPageBody, currentPageBody]) => {
-                        return JSON.stringify(previousPageBody[selectedPagedId].body) ===
-                            JSON.stringify(currentPageBody[selectedPagedId].body);
+                        const previousBody = this.currentBody;
+                        const currentBody = currentPageBody[selectedPagedId].body;
+
+                        const isHasDifference = JSON.stringify(previousBody) !== JSON.stringify(currentBody);
+
+                        return isHasDifference;
                     }),
                     map(([previousPageBody, currentPageBody]) => currentPageBody[selectedPagedId])
                 );
@@ -67,14 +75,12 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
 
     // editor -> database
     pageBodyUpdated(bodyPage: IWallDefinition) {
+        this.currentBody = bodyPage;
+
         this.pageService.updatePageBody({
             id: this.selectedPageId,
             body: bodyPage
         });
-    }
-
-    pageBrickIdProvider(): Promise<string> {
-        return this.pageService.createPage(this.selectedPageId);
     }
 
     wallEvents(event: any) {
@@ -83,6 +89,12 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
                 .map((brick) => brick.state.pageId);
 
             this.pageService.removePages(pageIds);
+        }
+
+        if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {
+            this.pageService.createPage(this.selectedPageId, {
+                pageBrickId: event.brickId
+            });
         }
     }
 

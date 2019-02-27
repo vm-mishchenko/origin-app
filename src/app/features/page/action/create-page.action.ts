@@ -2,6 +2,7 @@ import {WallModelFactory} from 'ngx-wall';
 import {PersistentStorage} from '../../../infrastructure/persistent-storage';
 import {Guid} from '../../../infrastructure/utils';
 import {PAGE_BRICK_TAG_NAME} from '../../page-ui/page-ui.constant';
+import {ICreatePageOption} from '../page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from '../page.types';
 
 export class CreatePageAction {
@@ -11,7 +12,8 @@ export class CreatePageAction {
         private pageBodyStorage: PersistentStorage<IBodyPage>,
         private pageRelationStorage: PersistentStorage<IRelationPage>,
         private guid: Guid,
-        private wallModelFactory: WallModelFactory
+        private wallModelFactory: WallModelFactory,
+        private options: ICreatePageOption
     ) {
     }
 
@@ -62,7 +64,13 @@ export class CreatePageAction {
             this.pageBodyStorage.get(this.parentPageId).then((parentPageBody) => {
                 const wallModel = this.wallModelFactory.create({plan: parentPageBody.body});
 
-                wallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
+                if (this.options.pageBrickId) {
+                    wallModel.api.core.updateBrickState(this.options.pageBrickId, {
+                        pageId: newPageId
+                    });
+                } else {
+                    wallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
+                }
 
                 this.pageBodyStorage.update(this.parentPageId, {
                     body: wallModel.api.core.getPlan()

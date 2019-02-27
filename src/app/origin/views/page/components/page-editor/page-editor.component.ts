@@ -8,14 +8,11 @@ import {
     SelectedBrickEvent,
     SelectionPlugin,
     SetPlanEvent,
-    TurnBrickIntoEvent,
     UNDO_REDO_API_NAME,
     UndoRedoPlugin,
     WallModelFactory
 } from 'ngx-wall';
 import {Subscription} from 'rxjs';
-import {IPageBrickState} from '../../../../../features/page-ui/bricks/page-brick/page-brick.types';
-import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.constant';
 
 @Component({
     selector: 'app-page-editor',
@@ -24,7 +21,6 @@ import {PAGE_BRICK_TAG_NAME} from '../../../../../features/page-ui/page-ui.const
 })
 export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() pageBody: IWallDefinition;
-    @Input() pageBrickIdProvider: (pageBrickId: string) => Promise<string>;
     @Input() scrollableContainer: HTMLElement;
 
     @Output() wallEvents: EventEmitter<any> = new EventEmitter();
@@ -47,21 +43,11 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         this.subscriptions.push(
             this.wallModel.api.core.subscribe((event) => {
-                this.wallEvents.emit(event);
-
                 if (!(event instanceof SetPlanEvent) && !(event instanceof BeforeChangeEvent)) {
                     this.pageBodyUpdated.emit(this.wallModel.api.core.getPlan());
                 }
 
-                if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {
-                    this.pageBrickIdProvider(event.brickId).then((newPageIdentityId) => {
-                        const newPageBrickState: IPageBrickState = {
-                            pageId: newPageIdentityId
-                        };
-
-                        this.wallModel.api.core.updateBrickState(event.brickId, newPageBrickState);
-                    });
-                }
+                this.wallEvents.emit(event);
             })
         );
 

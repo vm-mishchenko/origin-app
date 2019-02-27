@@ -13,6 +13,14 @@ import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage} from './page.types';
 
+export interface ICreatePageOption {
+    pageBrickId: string;
+}
+
+const DEFAULT_CREATE_PAGE_OPTIONS: ICreatePageOption = {
+    pageBrickId: null
+};
+
 /**
  * I cannot add couple pages in parallel :(
  * There is the same problem as with removing several pages in one call
@@ -30,14 +38,15 @@ export class PageService {
                 private guid: Guid) {
     }
 
-    createPage(parentPageId: string = null): Promise<string> {
+    createPage(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
         return new CreatePageAction(
             parentPageId,
             this.pageStorages.pageIdentityStorage,
             this.pageStorages.pageBodyStorage,
             this.pageStorages.pageRelationStorage,
             this.guid,
-            this.wallModelFactory
+            this.wallModelFactory,
+            options
         ).execute();
     }
 
