@@ -37,8 +37,6 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         // navigation after selected page was deleted
-
-        console.log(`to home page`);
         this.subscriptions.push(
             this.pageService.events$.pipe(
                 filter((e) => e instanceof DeletePageEvent),

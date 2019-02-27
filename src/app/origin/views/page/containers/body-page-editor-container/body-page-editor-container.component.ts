@@ -16,7 +16,7 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     @Input() scrollableContainer: HTMLElement;
     @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
     pageBody$: Observable<IWallDefinition>;
-    private currentBody: IWallDefinition = null;
+    private currentBody: string = null;
 
     @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
 
@@ -44,7 +44,7 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
                     map((pageBody) => pageBody[selectedPagedId]),
                     first(),
                     tap((bodyPage) => {
-                        this.currentBody = bodyPage.body;
+                        this.updateCurrentBody(bodyPage.body);
                     }));
 
                 // listen for following (after first) page body changes
@@ -53,13 +53,10 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
                 const nextSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
                     filter((pageBody) => Boolean(pageBody[selectedPagedId])),
                     pairwise(),
-                    filter(([previousPageBody, currentPageBody]) => {
-                        const previousBody = this.currentBody;
-                        const currentBody = currentPageBody[selectedPagedId].body;
+                    filter(([previousPageBody, newPageBody]) => {
+                        const newBody = newPageBody[selectedPagedId].body;
 
-                        const isHasDifference = JSON.stringify(previousBody) !== JSON.stringify(currentBody);
-
-                        return isHasDifference;
+                        return this.currentBody !== JSON.stringify(newBody);
                     }),
                     map(([previousPageBody, currentPageBody]) => currentPageBody[selectedPagedId])
                 );
@@ -75,7 +72,7 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
 
     // editor -> database
     pageBodyUpdated(bodyPage: IWallDefinition) {
-        this.currentBody = bodyPage;
+        this.updateCurrentBody(bodyPage);
 
         this.pageService.updatePageBody({
             id: this.selectedPageId,
@@ -111,5 +108,9 @@ export class BodyPageEditorContainerComponent implements OnInit, OnDestroy {
     // public API
     focusOnPageEditor() {
         this.pageEditorComponent.focusOnPageEditor();
+    }
+
+    private updateCurrentBody(body: IWallDefinition) {
+        this.currentBody = JSON.stringify(body);
     }
 }
