@@ -17,6 +17,8 @@ import {ValueAccessor} from '../value-accessor';
 export class EditableTextComponent extends ValueAccessor<string> {
     @ViewChild('inputElement') inputElement: ElementRef;
 
+    editUrl = false;
+
     updateValue() {
         this.value = this.inputElement.nativeElement.value;
     }

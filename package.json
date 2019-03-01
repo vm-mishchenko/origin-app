@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "test:once": "ng test --watch=false --code-coverage"
+    "test:once": "ng test --watch=false --code-coverage",
+    "release": "ng build --stats-json --prod --base-href /origin-app/"
   },
   "private": true,
   "dependencies": {
