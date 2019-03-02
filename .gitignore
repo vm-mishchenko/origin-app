@@ -1,3 +1,4 @@
 .idea
+.firebase
 src/environments/keys.ts
 src/environments/keys-production.ts

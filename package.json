@@ -9,7 +9,9 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "test:once": "ng test --watch=false --code-coverage",
-    "release": "ng build --stats-json --prod --base-href /origin-app/"
+    "release": "npm run test:once && npm run build:prod && npm run deploy",
+    "build:prod": "ng build --stats-json --prod",
+    "deploy": "firebase deploy"
   },
   "private": true,
   "dependencies": {
