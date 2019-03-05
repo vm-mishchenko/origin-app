@@ -103,7 +103,9 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
     }
 
     removePage() {
-        this.pageService.removePage(this.originPageService.selectedPageId);
+        if (confirm('Are you sure?')) {
+            this.pageService.removePage(this.originPageService.selectedPageId);
+        }
     }
 
     onSelectedBrickIds(selectedBrickIds: string[]) {
