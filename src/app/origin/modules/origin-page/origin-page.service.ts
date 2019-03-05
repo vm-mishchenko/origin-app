@@ -3,7 +3,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {GoogleSignService} from '../../../features/google-sign';
 import {PageStoragesService} from '../../../features/page/page-storages.service';
 
-// store selected page id
+// state selected page id
 @Injectable()
 export class OriginPageService {
     selectedPageId: string;

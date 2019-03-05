@@ -27,6 +27,8 @@ import {BodyPageEditorContainerComponent} from './containers/body-page-editor-co
 import {PageBaseViewContainerComponent} from './containers/page-base-view-container/page-base-view-container.component';
 import {PageEditorViewContainerComponent} from './containers/page-editor-view-container/page-editor-view-container.component';
 import {TitlePageEditorContainerComponent} from './containers/title-page-editor-container/title-page-editor-container.component';
+import {PageViewQuery} from './state/page-view.query';
+import {PageViewStore} from './state/page-view.store';
 
 const routes: Routes = [
     {
@@ -89,6 +91,10 @@ const routes: Routes = [
         MatCardModule,
         MatSidenavModule,
         MatButtonModule,
+    ],
+    providers: [
+        PageViewStore,
+        PageViewQuery
     ]
 })
 export class PageViewModule {

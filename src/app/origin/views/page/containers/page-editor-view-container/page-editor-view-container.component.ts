@@ -1,3 +1,4 @@
+import {MediaMatcher} from '@angular/cdk/layout';
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
@@ -7,6 +8,7 @@ import {NavigationService} from '../../../../../features/navigation';
 import {PageRepositoryService, PageService} from '../../../../../features/page';
 import {DeletePageEvent} from '../../../../../features/page/page-events.type';
 import {OriginPageService} from '../../../../modules/origin-page';
+import {PageViewStore} from '../../state/page-view.store';
 import {BodyPageEditorContainerComponent} from '../body-page-editor-container/body-page-editor-container.component';
 
 @Component({
@@ -20,17 +22,25 @@ export class PageEditorViewContainerComponent implements OnInit, OnDestroy {
 
     @ViewChild(BodyPageEditorContainerComponent) bodyPageEditorContainer: BodyPageEditorContainerComponent;
 
-    constructor(private route: ActivatedRoute,
+    constructor(media: MediaMatcher,
+                private route: ActivatedRoute,
                 private navigationService: NavigationService,
                 private pageService: PageService,
                 private wallModelFactory: WallModelFactory,
                 private pageRepositoryService: PageRepositoryService,
+                private pageViewStore: PageViewStore,
                 public originPageService: OriginPageService) {
+        const mobileQuery = media.matchMedia('(max-width: 600px)');
+
         this.subscriptions.push(
             this.route.params.pipe(
                 map((params) => params.id)
             ).subscribe((pageId) => {
                 this.originPageService.setSelectedPageId(pageId);
+
+                if (mobileQuery.matches) {
+                    this.pageViewStore.closeMenu();
+                }
             })
         );
     }
