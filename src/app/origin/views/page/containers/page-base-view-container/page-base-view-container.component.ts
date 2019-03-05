@@ -34,6 +34,10 @@ export class PageBaseViewContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.pageRepositoryService.loadRootPages();
 
+        if (this.mobileQuery.matches) {
+            this.pageViewStore.closeMenu();
+        }
+
         this.subscriptions.push(
             this.pageViewQuery.isMenuOpen$.subscribe((isMenuOpen) => {
                 if (isMenuOpen) {
