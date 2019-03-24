@@ -11,7 +11,7 @@ const routes: Routes = [
         children: [
             {
                 path: 'page',
-                loadChildren: './origin/views/page/page-view.module#PageViewModule'
+                loadChildren: './features/page/view/page-view.module#PageViewModule'
             },
             {
                 path: 'settings',

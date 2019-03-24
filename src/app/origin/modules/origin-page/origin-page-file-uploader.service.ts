@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IWallFileUploader, IWallFileUploaderResult} from 'ngx-wall';
 import {GoogleSignService} from '../../../features/google-sign';
-import {PageFileUploaderService} from '../../../features/page';
+import {PageFileUploaderService} from '../../../features/page/repository';
 import {OriginPageService} from './origin-page.service';
 
 @Injectable()
