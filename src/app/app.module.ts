@@ -7,10 +7,10 @@ import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {GoogleSignModule} from './features/google-sign';
-import {NavigationModule} from './features/navigation';
+import {AuthModule} from './modules/auth';
+import {NavigationModule} from './modules/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
-import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/origin-pouch-db-sync.module';
+import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
 
 @NgModule({
     declarations: [
@@ -23,10 +23,10 @@ import {OriginPouchDbSyncModule} from './origin/modules/origin-pouchdb-sync/orig
         BrowserAnimationsModule,
         NavigationModule,
         PouchdbStorageModule.forRoot(),
-        GoogleSignModule.forRoot(),
+        AuthModule.forRoot(),
 
         // application level
-        OriginPouchDbSyncModule.forRoot(),
+        PouchDbSyncModule.forRoot(),
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule

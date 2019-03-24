@@ -4,10 +4,10 @@ import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
 import {Subscription} from 'rxjs';
 import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
-import {NavigationService} from '../../../../navigation';
+import {NavigationService} from '../../../../../modules/navigation';
 import {PageRepositoryService, PageService} from '../../../repository';
 import {DeletePageEvent} from '../../../repository/page-events.type';
-import {OriginPageService} from '../../../../../origin/modules/origin-page';
+import {OriginPageService} from '../../../../../modules/origin-page';
 import {PageViewStore} from '../../state/page-view.store';
 import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-container.component';
 

@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {GoogleSignService} from '../../../../../features/google-sign';
-import {OriginPouchDbSyncService} from '../../../../modules/origin-pouchdb-sync/origin-pouch-db-sync.service';
+import {AuthService} from '../../../../../modules/auth';
+import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
 
 // todo: toggle automatically
 @Component({
@@ -9,8 +9,8 @@ import {OriginPouchDbSyncService} from '../../../../modules/origin-pouchdb-sync/
     styleUrls: ['./settings-container.component.scss']
 })
 export class SettingsContainerComponent implements OnInit {
-    constructor(public googleSignService: GoogleSignService,
-                public originPouchDbSyncService: OriginPouchDbSyncService) {
+    constructor(public googleSignService: AuthService,
+                public originPouchDbSyncService: PouchDbSyncService) {
     }
 
     ngOnInit() {

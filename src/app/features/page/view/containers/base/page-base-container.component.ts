@@ -2,7 +2,7 @@ import {MediaMatcher} from '@angular/cdk/layout';
 import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatSidenav} from '@angular/material';
 import {Subscription} from 'rxjs';
-import {NavigationService} from '../../../../navigation';
+import {NavigationService} from '../../../../../modules/navigation';
 import {PageRepositoryService, PageService} from '../../../repository';
 import {PageViewQuery} from '../../state/page-view.query';
 import {PageViewStore} from '../../state/page-view.store';

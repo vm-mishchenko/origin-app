@@ -18,10 +18,10 @@ import {
     WebBookmarkBrickModule
 } from 'ngx-wall';
 import {FormControlsModule} from '../../../components/form-controls';
-import {NavigationModule} from '../../navigation';
+import {NavigationModule} from '../../../modules/navigation';
 import {PageModule} from '../repository';
 import {PageUiModule} from '../ui';
-import {OriginPageModule} from '../../../origin/modules/origin-page';
+import {OriginPageModule} from '../../../modules/origin-page';
 import {PageEditorComponent} from './components/editor/page-editor.component';
 import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';

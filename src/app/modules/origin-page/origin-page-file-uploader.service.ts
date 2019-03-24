@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
 import {IWallFileUploader, IWallFileUploaderResult} from 'ngx-wall';
-import {GoogleSignService} from '../../../features/google-sign';
-import {PageFileUploaderService} from '../../../features/page/repository';
+import {AuthService} from '../auth';
+import {PageFileUploaderService} from '../../features/page/repository';
 import {OriginPageService} from './origin-page.service';
 
 @Injectable()
 export class OriginPageFileUploaderService implements IWallFileUploader {
-    constructor(private googleSignService: GoogleSignService,
+    constructor(private googleSignService: AuthService,
                 private originPageService: OriginPageService,
                 private pageFileUploaderService: PageFileUploaderService) {
     }

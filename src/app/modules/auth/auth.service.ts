@@ -8,7 +8,7 @@ import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 
 @Injectable()
-export class GoogleSignService {
+export class AuthService {
     user: User;
     user$: Observable<User | null>;
     signIn$: Observable<User>;

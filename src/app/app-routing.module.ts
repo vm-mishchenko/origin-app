@@ -1,11 +1,11 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {BaseViewContainerComponent, BaseViewModule} from './origin/views/base';
+import {ShellContainerComponent, ShellViewModule} from './features/shell/view';
 
 const routes: Routes = [
     {
         path: '',
-        component: BaseViewContainerComponent,
+        component: ShellContainerComponent,
         canActivate: [],
         canActivateChild: [],
         children: [
@@ -15,7 +15,7 @@ const routes: Routes = [
             },
             {
                 path: 'settings',
-                loadChildren: './origin/views/settings/settings-view.module#SettingsViewModule'
+                loadChildren: './features/settings/view/settings-view.module#SettingsViewModule'
             }
         ]
     },
@@ -29,7 +29,7 @@ const routes: Routes = [
 @NgModule({
     imports: [
         RouterModule.forRoot(routes),
-        BaseViewModule
+        ShellViewModule
     ],
     exports: [RouterModule]
 })

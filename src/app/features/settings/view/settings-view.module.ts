@@ -2,9 +2,9 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {MatButtonModule, MatCardModule, MatListModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
-import {GoogleSignModule} from '../../../features/google-sign';
-import {OriginPouchDbSyncModule} from '../../modules/origin-pouchdb-sync/origin-pouch-db-sync.module';
-import {SettingsContainerComponent} from './containers/settings-container/settings-container.component';
+import {AuthModule} from '../../../modules/auth';
+import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.module';
+import {SettingsContainerComponent} from './containers/settings/settings-container.component';
 
 const routes: Routes = [
     {
@@ -18,8 +18,8 @@ const routes: Routes = [
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        GoogleSignModule,
-        OriginPouchDbSyncModule,
+        AuthModule,
+        PouchDbSyncModule,
 
         // material
         MatButtonModule,
