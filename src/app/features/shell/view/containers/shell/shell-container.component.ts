@@ -20,12 +20,13 @@ export class ShellContainerComponent implements OnInit {
                 private pageService: PageService,
                 private navigationService: NavigationService,
                 private changeDetectorRef: ChangeDetectorRef) {
-        this.deviceLayoutService.mobileLayout$.subscribe(() => {
-            changeDetectorRef.detectChanges();
-        });
     }
 
     ngOnInit() {
+        this.deviceLayoutService.mobileLayout$.subscribe(() => {
+            this.changeDetectorRef.detectChanges();
+        });
+
         this.sidenav.openedChange.subscribe((value) => {
             if (value) {
                 this.shellStore.openMenu();

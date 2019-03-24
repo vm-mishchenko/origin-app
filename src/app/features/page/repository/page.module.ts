@@ -1,4 +1,3 @@
-import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {WallModule} from 'ngx-wall';
 import {FirebaseFileUploaderModule} from '../../../infrastructure/firebase-file-uploader/firebase-file-uploader.module';
@@ -8,18 +7,26 @@ import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {PageService} from './page.service';
+import {AuthModule, AuthService} from '../../../modules/auth';
 
 @NgModule({
-    declarations: [],
     imports: [
-        CommonModule,
         WallModule,
-        PersistentStorageModule,
         UtilsModule,
+        AuthModule,
+        PersistentStorageModule,
         FirebaseFileUploaderModule
     ]
 })
 export class PageModule {
+    constructor(private authService: AuthService,
+                private pageStoragesService: PageStoragesService) {
+        this.authService.signOut$.subscribe(() => {
+            // user log out
+            this.pageStoragesService.reset();
+        });
+    }
+
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: PageModule,

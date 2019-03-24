@@ -14,14 +14,14 @@ import {
     TextBrickModule,
     TowModule,
     VideoBrickModule,
+    WALL_FILE_UPLOADER,
     WallModule,
     WebBookmarkBrickModule
 } from 'ngx-wall';
 import {FormControlsModule} from '../../../components/form-controls';
 import {NavigationModule} from '../../../modules/navigation';
-import {PageModule} from '../repository';
+import {PageFileUploaderService, PageModule} from '../repository';
 import {PageUiModule} from '../ui';
-import {OriginPageModule} from '../../../modules/origin-page';
 import {PageEditorComponent} from './components/editor/page-editor.component';
 import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';
@@ -29,6 +29,8 @@ import {PageEditorContainerComponent} from './containers/editor/page-editor-cont
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
 import {ShellViewModule} from '../../shell/view';
 import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
+import {PageViewStore} from './state/page-view.store';
+import {PageViewQuery} from './state/page-view.query';
 
 const routes: Routes = [
     {
@@ -68,9 +70,6 @@ const routes: Routes = [
         NavigationModule,
         DeviceLayoutModule,
 
-        // Origin
-        OriginPageModule,
-
         // wall main module
         WallModule,
 
@@ -93,6 +92,14 @@ const routes: Routes = [
         MatCardModule,
         MatSidenavModule,
         MatButtonModule,
+    ],
+    providers: [
+        PageViewStore,
+        PageViewQuery,
+        {
+            provide: WALL_FILE_UPLOADER,
+            useClass: PageFileUploaderService
+        }
     ]
 })
 export class PageViewModule {

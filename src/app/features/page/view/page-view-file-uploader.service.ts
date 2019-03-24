@@ -1,19 +1,19 @@
 import {Injectable} from '@angular/core';
 import {IWallFileUploader, IWallFileUploaderResult} from 'ngx-wall';
-import {AuthService} from '../auth';
-import {PageFileUploaderService} from '../../features/page/repository';
-import {OriginPageService} from './origin-page.service';
+import {AuthService} from '../../../modules/auth';
+import {PageViewQuery} from './state/page-view.query';
+import {PageFileUploaderService} from '../repository';
 
 @Injectable()
-export class OriginPageFileUploaderService implements IWallFileUploader {
+export class PageViewFileUploaderService implements IWallFileUploader {
     constructor(private googleSignService: AuthService,
-                private originPageService: OriginPageService,
+                private pageViewQuery: PageViewQuery,
                 private pageFileUploaderService: PageFileUploaderService) {
     }
 
     upload(brickId: string, file): Promise<IWallFileUploaderResult> {
         return this.pageFileUploaderService.upload(
-            this.originPageService.selectedPageId,
+            this.pageViewQuery.getSelectedPageId(),
             brickId,
             file,
             (path) => `${this.googleSignService.user.uid}/${path}`
