@@ -11,6 +11,9 @@ import {AuthModule} from './modules/auth';
 import {NavigationModule} from './modules/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
 import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
+import {DeviceLayoutModule} from './infrastructure/device-layout/device-layout.module';
+import {PageModule} from './features/page/repository';
+import {ShellViewModule} from './features/shell/view';
 
 @NgModule({
     declarations: [
@@ -24,6 +27,9 @@ import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
         NavigationModule,
         PouchdbStorageModule.forRoot(),
         AuthModule.forRoot(),
+        DeviceLayoutModule.forRoot(),
+        PageModule.forRoot(),
+        ShellViewModule.forRoot(),
 
         // application level
         PouchDbSyncModule.forRoot(),

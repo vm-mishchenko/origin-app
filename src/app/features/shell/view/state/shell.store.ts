@@ -1,19 +1,19 @@
 import {Injectable} from '@angular/core';
 import {Store, StoreConfig} from '@datorama/akita';
 
-export interface IPageViewStore {
+export interface IShellStore {
     isMenuOpen: boolean;
 }
 
-export function createInitialState(): IPageViewStore {
+export function createInitialState(): IShellStore {
     return {
         isMenuOpen: true
     };
 }
 
 @Injectable()
-@StoreConfig({name: 'page-view'})
-export class PageViewStore extends Store<IPageViewStore> {
+@StoreConfig({name: 'shell'})
+export class ShellStore extends Store<IShellStore> {
     constructor() {
         super(createInitialState());
     }

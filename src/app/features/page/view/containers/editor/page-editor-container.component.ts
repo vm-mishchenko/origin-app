@@ -8,8 +8,9 @@ import {NavigationService} from '../../../../../modules/navigation';
 import {PageRepositoryService, PageService} from '../../../repository';
 import {DeletePageEvent} from '../../../repository/page-events.type';
 import {OriginPageService} from '../../../../../modules/origin-page';
-import {PageViewStore} from '../../state/page-view.store';
 import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-container.component';
+import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
+import {ShellStore} from '../../../../shell/view/state/shell.store';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -22,24 +23,22 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
 
     @ViewChild(PageBodyEditorContainerComponent) bodyPageEditorContainer: PageBodyEditorContainerComponent;
 
-    constructor(media: MediaMatcher,
-                private route: ActivatedRoute,
+    constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
                 private pageService: PageService,
                 private wallModelFactory: WallModelFactory,
                 private pageRepositoryService: PageRepositoryService,
-                private pageViewStore: PageViewStore,
+                private deviceLayoutService: DeviceLayoutService,
+                private shellStore: ShellStore,
                 public originPageService: OriginPageService) {
-        const mobileQuery = media.matchMedia('(max-width: 600px)');
-
         this.subscriptions.push(
             this.route.params.pipe(
                 map((params) => params.id)
             ).subscribe((pageId) => {
                 this.originPageService.setSelectedPageId(pageId);
 
-                if (mobileQuery.matches) {
-                    this.pageViewStore.closeMenu();
+                if (this.deviceLayoutService.isMobileLayout()) {
+                    this.shellStore.closeMenu();
                 }
             })
         );

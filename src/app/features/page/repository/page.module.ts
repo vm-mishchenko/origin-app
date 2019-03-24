@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {NgModule} from '@angular/core';
+import {ModuleWithProviders, NgModule} from '@angular/core';
 import {WallModule} from 'ngx-wall';
 import {FirebaseFileUploaderModule} from '../../../infrastructure/firebase-file-uploader/firebase-file-uploader.module';
 import {PersistentStorageModule} from '../../../infrastructure/persistent-storage';
@@ -17,13 +17,18 @@ import {PageService} from './page.service';
         PersistentStorageModule,
         UtilsModule,
         FirebaseFileUploaderModule
-    ],
-    providers: [
-        PageService,
-        PageRepositoryService,
-        PageStoragesService,
-        PageFileUploaderService
     ]
 })
 export class PageModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: PageModule,
+            providers: [
+                PageService,
+                PageRepositoryService,
+                PageStoragesService,
+                PageFileUploaderService
+            ]
+        };
+    }
 }

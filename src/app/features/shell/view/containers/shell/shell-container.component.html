@@ -1,9 +1,27 @@
-<mat-card>
-    <p>Global</p>
-    <mat-nav-list>
-        <a [routerLink]="['/page']" mat-list-item>Page</a>
-        <a [routerLink]="['/settings']" mat-list-item>Settings</a>
-    </mat-nav-list>
-</mat-card>
+<mat-sidenav-container>
+    <mat-sidenav #sidenav [mode]="(deviceLayoutService.mobileLayout$ | async) ? 'over' : 'side'">
+        <mat-nav-list>
+            <a [routerLink]="['/settings']" mat-list-item>Settings</a>
+        </mat-nav-list>
+
+        <mat-divider></mat-divider>
+        <br>
+
+        <app-page-tree-flat-container></app-page-tree-flat-container>
+
+        <mat-nav-list>
+            <br>
+            <button class="add-page" (click)="addPage()" mat-button>Add page</button>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <p>
+            <button (click)="toggleMenu()" mat-button>Toggle</button>
+        </p>
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
 
 <router-outlet></router-outlet>

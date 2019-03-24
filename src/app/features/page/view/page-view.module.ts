@@ -27,10 +27,8 @@ import {PageBodyEditorContainerComponent} from './containers/body-editor/page-bo
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';
 import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
-import {PageViewQuery} from './state/page-view.query';
-import {PageViewStore} from './state/page-view.store';
-
-console.log(`test`);
+import {ShellViewModule} from '../../shell/view';
+import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
 
 const routes: Routes = [
     {
@@ -63,10 +61,12 @@ const routes: Routes = [
         CommonModule,
         PageModule,
         PageUiModule,
+        ShellViewModule,
         RouterModule.forChild(routes),
         ReactiveFormsModule,
         FormControlsModule,
         NavigationModule,
+        DeviceLayoutModule,
 
         // Origin
         OriginPageModule,
@@ -93,10 +93,6 @@ const routes: Routes = [
         MatCardModule,
         MatSidenavModule,
         MatButtonModule,
-    ],
-    providers: [
-        PageViewStore,
-        PageViewQuery
     ]
 })
 export class PageViewModule {
