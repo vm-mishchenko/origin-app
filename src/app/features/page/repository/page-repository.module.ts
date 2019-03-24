@@ -18,7 +18,7 @@ import {AuthModule, AuthService} from '../../../modules/auth';
         FirebaseFileUploaderModule
     ]
 })
-export class PageModule {
+export class PageRepositoryModule {
     constructor(private authService: AuthService,
                 private pageStoragesService: PageStoragesService) {
         this.authService.signOut$.subscribe(() => {
@@ -29,7 +29,7 @@ export class PageModule {
 
     static forRoot(): ModuleWithProviders {
         return {
-            ngModule: PageModule,
+            ngModule: PageRepositoryModule,
             providers: [
                 PageService,
                 PageRepositoryService,

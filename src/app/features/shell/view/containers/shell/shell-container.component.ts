@@ -5,6 +5,7 @@ import {ShellStore} from '../../state/shell.store';
 import {ShellQuery} from '../../state/shell.query';
 import {PageService} from '../../../../page/repository';
 import {NavigationService} from '../../../../../modules/navigation';
+import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
 
 @Component({
     selector: 'app-shell-container',
@@ -19,7 +20,8 @@ export class ShellContainerComponent implements OnInit {
                 private shellQuery: ShellQuery,
                 private pageService: PageService,
                 private navigationService: NavigationService,
-                private changeDetectorRef: ChangeDetectorRef) {
+                private changeDetectorRef: ChangeDetectorRef,
+                public originPouchDbSyncService: PouchDbSyncService) {
     }
 
     ngOnInit() {

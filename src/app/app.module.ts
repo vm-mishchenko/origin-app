@@ -12,7 +12,7 @@ import {NavigationModule} from './modules/navigation';
 import {PouchdbStorageModule} from './infrastructure/pouchdb/pouchdb-storage';
 import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
 import {DeviceLayoutModule} from './infrastructure/device-layout/device-layout.module';
-import {PageModule} from './features/page/repository';
+import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
 
 @NgModule({
@@ -28,7 +28,7 @@ import {ShellViewModule} from './features/shell/view';
         PouchdbStorageModule.forRoot(),
         AuthModule.forRoot(),
         DeviceLayoutModule.forRoot(),
-        PageModule.forRoot(),
+        PageRepositoryModule.forRoot(),
         ShellViewModule.forRoot(),
 
         // application level

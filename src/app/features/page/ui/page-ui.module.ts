@@ -1,25 +1,33 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {MatButtonModule, MatIconModule, MatProgressBarModule, MatTreeModule} from '@angular/material';
+import {MatButtonModule, MatIconModule, MatListModule, MatProgressBarModule, MatTreeModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {BrickRegistry, WallModule} from 'ngx-wall';
-import {PageModule} from '../repository';
+import {PageRepositoryModule} from '../repository';
 import {PageBrickComponent} from './bricks/page-brick/page-brick.component';
 import {PageTreeFlatContainerComponent} from './containers/tree-flat/page-tree-flat-container.component';
 import {PAGE_BRICK_TAG_NAME} from './page-ui.constant';
+import {PageSearchContainerComponent} from './containers/search/page-search-container.component';
+import {PageSearchModule} from '../search/page-search.module';
 
 @NgModule({
     declarations: [
         PageTreeFlatContainerComponent,
-        PageBrickComponent
+        PageBrickComponent,
+        PageSearchContainerComponent,
     ],
     entryComponents: [
         PageBrickComponent
     ],
-    exports: [PageTreeFlatContainerComponent],
+    exports: [
+        PageTreeFlatContainerComponent,
+        PageSearchContainerComponent
+    ],
     imports: [
         CommonModule,
-        PageModule,
+        PageSearchModule,
+        PageRepositoryModule,
+        MatListModule,
         MatTreeModule,
         MatIconModule,
         MatProgressBarModule,

@@ -10,7 +10,7 @@ import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
-import {PageModule} from './page.module';
+import {PageRepositoryModule} from './page-repository.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
@@ -108,7 +108,7 @@ describe('PageService', () => {
 
     beforeEach(() => TestBed.configureTestingModule({
         imports: [
-            PageModule
+            PageRepositoryModule
         ],
         providers: [
             {

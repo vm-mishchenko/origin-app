@@ -6,16 +6,18 @@ import {ShellContainerComponent} from './containers/shell/shell-container.compon
 import {ShellStore} from './state/shell.store';
 import {ShellQuery} from './state/shell.query';
 import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
-import {PageModule} from '../../page/repository';
+import {PageRepositoryModule} from '../../page/repository';
 import {PageUiModule} from '../../page/ui';
 import {NavigationModule} from '../../../modules/navigation';
+import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.module';
 
 @NgModule({
     declarations: [ShellContainerComponent],
     imports: [
         DeviceLayoutModule,
-        PageModule,
+        PageRepositoryModule,
         PageUiModule,
+        PouchDbSyncModule,
         NavigationModule,
         CommonModule,
         RouterModule,

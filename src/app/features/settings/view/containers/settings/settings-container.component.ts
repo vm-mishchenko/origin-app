@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../../../../../modules/auth';
-import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
+import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
+import {ShellStore} from '../../../../shell/view/state/shell.store';
 
 // todo: toggle automatically
 @Component({
@@ -9,10 +10,14 @@ import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-s
     styleUrls: ['./settings-container.component.scss']
 })
 export class SettingsContainerComponent implements OnInit {
-    constructor(public googleSignService: AuthService,
-                public originPouchDbSyncService: PouchDbSyncService) {
+    constructor(public authService: AuthService,
+                private deviceLayoutService: DeviceLayoutService,
+                private shellStore: ShellStore) {
     }
 
     ngOnInit() {
+        if (this.deviceLayoutService.isMobileLayout()) {
+            this.shellStore.closeMenu();
+        }
     }
 }

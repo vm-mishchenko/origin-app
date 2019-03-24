@@ -1,38 +1,13 @@
-<mat-sidenav-container class="settings-view-container">
-    <mat-sidenav #sidenav [mode]="'side'" opened>
-        <mat-nav-list>
-            <a [routerLink]="['./']" mat-list-item>General</a>
-        </mat-nav-list>
+<p>
+    <button (click)="authService.signIn()" *ngIf="!(authService.user$ | async)" mat-button>Sign in</button>
+</p>
 
-        <hr>
+<div *ngIf="authService.user$ | async">
+    <button (click)="authService.signOut()" mat-button>Sign out</button>
 
-        <mat-nav-list>
-            <a [routerLink]="['/page']" mat-list-item>Page</a>
-        </mat-nav-list>
-    </mat-sidenav>
+    <pre>{{(authService.user$ | async)?.displayName}}</pre>
+</div>
 
-    <mat-sidenav-content>
-        <p>
-            <button (click)="sidenav.toggle()" mat-button>Toggle</button>
-        </p>
-
-        <p>
-            <button (click)="googleSignService.signIn()" *ngIf="!(googleSignService.user$ | async)" mat-button>Sign in
-            </button>
-        </p>
-
-        <div *ngIf="googleSignService.user$ | async">
-            <button (click)="googleSignService.signOut()" mat-button>Sign out</button>
-
-            <pre>{{(googleSignService.user$ | async)?.displayName}}</pre>
-        </div>
-
-        <div *ngIf="googleSignService.user$ | async">
-            <button (click)="originPouchDbSyncService.syncPouchDb()" mat-button>Sync databases</button>
-        </div>
-
-        <hr>
-
-        <router-outlet></router-outlet>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+<!--<div *ngIf="authService.user$ | async">
+    <button (click)="originPouchDbSyncService.syncPouchDb()" mat-button>Sync databases</button>
+</div>-->
