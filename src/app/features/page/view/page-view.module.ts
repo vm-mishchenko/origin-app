@@ -31,23 +31,22 @@ import {ShellViewModule} from '../../shell/view';
 import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
 import {PageViewStore} from './state/page-view.store';
 import {PageViewQuery} from './state/page-view.query';
+import {PageSearchPageComponent} from './pages/search/page-search-page.component';
 
 const routes: Routes = [
     {
+        path: 'search',
+        component: PageSearchPageComponent
+    },
+    {
         path: '',
         component: PageBaseContainerComponent,
-        canActivate: [],
-        canActivateChild: [],
         children: [
             {
                 path: ':id',
                 component: PageEditorContainerComponent
             },
         ]
-    },
-    {
-        path: '*',
-        redirectTo: '',
     }
 ];
 
@@ -57,7 +56,8 @@ const routes: Routes = [
         PageBaseContainerComponent,
         PageEditorComponent,
         PageTitleEditorContainerComponent,
-        PageBodyEditorContainerComponent
+        PageBodyEditorContainerComponent,
+        PageSearchPageComponent
     ],
     imports: [
         CommonModule,

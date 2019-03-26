@@ -40,6 +40,12 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         }
     }
 
+    getAll(): Promise<M[]> {
+        return this.findAndLoad({
+            selector: {title: {$exists: true}}
+        });
+    }
+
     findAndLoad(options: any): Promise<M[]> {
         return this.pouchdbStorage.find(options).then((entities) => {
             this.memoryStore.add(entities);

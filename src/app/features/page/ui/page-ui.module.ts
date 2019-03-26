@@ -1,6 +1,14 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {MatButtonModule, MatIconModule, MatListModule, MatProgressBarModule, MatTreeModule} from '@angular/material';
+import {
+    MatButtonModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatListModule,
+    MatProgressBarModule,
+    MatTreeModule
+} from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {BrickRegistry, WallModule} from 'ngx-wall';
 import {PageRepositoryModule} from '../repository';
@@ -9,6 +17,8 @@ import {PageTreeFlatContainerComponent} from './containers/tree-flat/page-tree-f
 import {PAGE_BRICK_TAG_NAME} from './page-ui.constant';
 import {PageSearchContainerComponent} from './containers/search/page-search-container.component';
 import {PageSearchModule} from '../search/page-search.module';
+import {ReactiveFormsModule} from '@angular/forms';
+import {FormControlsModule} from '../../../components/form-controls';
 
 @NgModule({
     declarations: [
@@ -25,6 +35,8 @@ import {PageSearchModule} from '../search/page-search.module';
     ],
     imports: [
         CommonModule,
+        ReactiveFormsModule,
+        FormControlsModule,
         PageSearchModule,
         PageRepositoryModule,
         MatListModule,
@@ -32,6 +44,8 @@ import {PageSearchModule} from '../search/page-search.module';
         MatIconModule,
         MatProgressBarModule,
         MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
         RouterModule,
         WallModule
     ]

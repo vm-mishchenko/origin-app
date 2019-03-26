@@ -15,9 +15,14 @@ export class EntityStorePouchDb<M extends IPouchdbStorageEntity> implements IEnt
     }
 
     find(options: any): Promise<M[]> {
+        const {selector, ...otherOptions} = options;
+
         return this.pouchDb.find({
-            ...options,
-            type: this.entityName
+            selector: {
+                ...selector,
+                type: this.entityName
+            },
+            ...otherOptions
         }).then((result) => result.docs.map((rawEntity) => this.extractEntity(rawEntity)));
     }
 

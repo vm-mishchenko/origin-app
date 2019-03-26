@@ -20,6 +20,10 @@ export class PageRepositoryService {
         return this.pageStoragesService.pageIdentityStorage.get(id);
     }
 
+    getAllIdentityPage(): Promise<IIdentityPage[]> {
+        return this.pageStoragesService.pageIdentityStorage.getAll();
+    }
+
     getBodyPage(id: string): Promise<IBodyPage> {
         return this.pageStoragesService.pageBodyStorage.get(id);
     }

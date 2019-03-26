@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {PageRepositoryService} from '../repository';
 
 export interface IPageSearchItem {
     pageTitle: string;
@@ -7,10 +8,21 @@ export interface IPageSearchItem {
 
 @Injectable()
 export class PageSearchService {
-    constructor() {
+    constructor(private pageRepositoryService: PageRepositoryService) {
     }
 
     search(query: string): Promise<IPageSearchItem[]> {
-        return Promise.resolve([]);
+        return this.pageRepositoryService.getAllIdentityPage().then((pageIdentities) => {
+            return pageIdentities
+                .filter((pageIdentity) => {
+                    return pageIdentity.title.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+                })
+                .map((pageIdentity) => {
+                    return {
+                        pageId: pageIdentity.id,
+                        pageTitle: pageIdentity.title
+                    };
+                });
+        });
     }
 }

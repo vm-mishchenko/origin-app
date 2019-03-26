@@ -1,3 +1,11 @@
-<mat-nav-list>
-    <a [routerLink]="['/settings']" mat-list-item>Settings</a>
-</mat-nav-list>
+<div [formGroup]="pageForm">
+    <mat-form-field>
+        <input matInput placeholder="Search query" formControlName="query">
+    </mat-form-field>
+</div>
+
+<mat-action-list>
+    <button *ngFor="let pageSearchItem of (pageSearchItems$ | async)" mat-list-item (click)="selectSearchItem(pageSearchItem)">
+        {{pageSearchItem.pageTitle}}
+    </button>
+</mat-action-list>
