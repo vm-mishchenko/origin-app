@@ -1,0 +1,5 @@
+@import "./core/core-theme";
+
+@mixin origin-theme($theme, $typography) {
+  @include origin-core-theme($theme, $typography);
+}
