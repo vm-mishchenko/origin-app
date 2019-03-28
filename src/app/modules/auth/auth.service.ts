@@ -7,6 +7,8 @@ import {filter, map, pairwise, shareReplay} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {GapiService} from '../../infrastructure/gapi';
 
+declare var gapi;
+
 @Injectable()
 export class AuthService {
     user: User;
@@ -17,6 +19,8 @@ export class AuthService {
 
     constructor(private gapiService: GapiService,
                 private firebaseAuth: AngularFireAuth) {
+        // this.initGapiClient();
+
         this.user$ = this.firebaseAuth.user.pipe(shareReplay());
 
         this.user$.subscribe((user) => {

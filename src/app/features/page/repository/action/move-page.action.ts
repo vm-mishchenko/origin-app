@@ -20,94 +20,95 @@ export class MovePageAction {
         }
 
         return this.pageRepositoryService.getRelationPage(this.movedPageId).then((movedRelationPage) => {
-            // moved page already at the top
-            if (this.targetPageId === null) {
-                if (movedRelationPage.parentPageId === null) {
-                    return Promise.resolve();
-                }
+            // moved page already in target page
+            if (movedRelationPage.parentPageId === this.targetPageId) {
+                return Promise.resolve();
             }
 
-            return this.pageRepositoryService.getRelationPage(this.targetPageId).then((targetRelationPage) => {
-                // moved page already in target page
-                if (movedRelationPage.parentPageId === targetRelationPage.id) {
-                    return Promise.resolve();
-                }
+            return this.updateTargetPage()
+                .then(() => this.updateMovedPage())
+                .then(() => this.updateOldParentPage(movedRelationPage.parentPageId));
+        });
+    }
 
-                return this.pageRepositoryService.getBodyPage(this.targetPageId).then((targetPageBodyPage) => {
-                    const targetParentPromises = [];
-                    // update new parent body-editor
-                    // todo: duplicated code
-                    const targetWallModel = this.wallModelFactory.create({plan: targetPageBodyPage.body});
-                    targetWallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: this.movedPageId});
+    private updateTargetPage(): Promise<any> {
+        if (this.targetPageId === null) {
+            return Promise.resolve();
+        }
 
-                    targetParentPromises.push(
-                        this.pageStorages.pageBodyStorage.update(targetPageBodyPage.id, {
-                            body: targetWallModel.api.core.getPlan()
-                        })
-                    );
+        return this.pageRepositoryService.getRelationPage(this.targetPageId).then((targetRelationPage) => {
+            return this.pageRepositoryService.getBodyPage(this.targetPageId).then((targetPageBodyPage) => {
+                const targetParentPromises = [];
+                // update new parent body-editor
+                // todo: duplicated code
+                const targetWallModel = this.wallModelFactory.create({plan: targetPageBodyPage.body});
+                targetWallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: this.movedPageId});
 
-                    // update new parent relation
-                    targetParentPromises.push(
-                        this.pageStorages.pageRelationStorage.update(targetRelationPage.id, {
-                            childrenPageId: [
-                                ...targetRelationPage.childrenPageId,
-                                this.movedPageId
-                            ]
-                        })
-                    );
+                targetParentPromises.push(
+                    this.pageStorages.pageBodyStorage.update(targetPageBodyPage.id, {
+                        body: targetWallModel.api.core.getPlan()
+                    })
+                );
 
-                    // update moved page parent id
-                    targetParentPromises.push(
-                        this.pageStorages.pageRelationStorage.update(movedRelationPage.id, {
-                            parentPageId: this.targetPageId
-                        })
-                    );
+                // update new parent relation
 
-                    return Promise.all(targetParentPromises).then(() => {
-                        // if moved page was at the root level then
-                        // there is no need to update old parent page
-                        if (movedRelationPage.parentPageId === null) {
-                            return Promise.resolve();
-                        }
 
-                        // update old parent page
-                        return Promise.all([
-                            this.pageRepositoryService.getRelationPage(movedRelationPage.parentPageId),
-                            this.pageRepositoryService.getBodyPage(movedRelationPage.parentPageId)
-                        ]).then(([oldPageRelationPage, oldPageBodyPage]) => {
-                            const promises = [];
+                targetParentPromises.push(
+                    this.pageStorages.pageRelationStorage.update(targetRelationPage.id, {
+                        childrenPageId: targetRelationPage.childrenPageId.concat([this.movedPageId])
+                    })
+                );
 
-                            // update old parent relation
-                            const movedPageChildIndex = oldPageRelationPage.childrenPageId.indexOf(this.movedPageId);
-                            promises.push(
-                                this.pageStorages.pageRelationStorage.update(oldPageRelationPage.id, {
-                                    childrenPageId: [
-                                        ...oldPageRelationPage.childrenPageId.slice(0, movedPageChildIndex),
-                                        ...oldPageRelationPage.childrenPageId.slice(movedPageChildIndex + 1),
-                                    ]
-                                })
-                            );
+                return Promise.all(targetParentPromises);
+            });
+        });
+    }
 
-                            // update old parent body-editor
-                            // todo: duplicated code
-                            const oldWallModel = this.wallModelFactory.create({plan: oldPageBodyPage.body});
-                            oldWallModel.api.core
-                                .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === this.movedPageId)
-                                .forEach((pageBrick) => {
-                                    oldWallModel.api.core.removeBrick(pageBrick.id);
-                                });
+    private updateMovedPage(): Promise<any> {
+        return this.pageStorages.pageRelationStorage.update(this.movedPageId, {
+            parentPageId: this.targetPageId
+        });
+    }
 
-                            promises.push(
-                                this.pageStorages.pageBodyStorage.update(oldPageBodyPage.id, {
-                                    body: oldWallModel.api.core.getPlan()
-                                })
-                            );
+    private updateOldParentPage(oldParentPageId: string): Promise<any> {
+        if (oldParentPageId === null) {
+            return Promise.resolve();
+        }
 
-                            return Promise.all(promises).then(() => {
-                            });
-                        });
-                    });
+        // update old parent page
+        return Promise.all([
+            this.pageRepositoryService.getRelationPage(oldParentPageId),
+            this.pageRepositoryService.getBodyPage(oldParentPageId)
+        ]).then(([oldPageRelationPage, oldPageBodyPage]) => {
+            const promises = [];
+
+            // update old parent relation
+            const movedPageChildIndex = oldPageRelationPage.childrenPageId.indexOf(this.movedPageId);
+            promises.push(
+                this.pageStorages.pageRelationStorage.update(oldPageRelationPage.id, {
+                    childrenPageId: [
+                        ...oldPageRelationPage.childrenPageId.slice(0, movedPageChildIndex),
+                        ...oldPageRelationPage.childrenPageId.slice(movedPageChildIndex + 1),
+                    ]
+                })
+            );
+
+            // update old parent body-editor
+            // todo: duplicated code
+            const oldWallModel = this.wallModelFactory.create({plan: oldPageBodyPage.body});
+            oldWallModel.api.core
+                .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === this.movedPageId)
+                .forEach((pageBrick) => {
+                    oldWallModel.api.core.removeBrick(pageBrick.id);
                 });
+
+            promises.push(
+                this.pageStorages.pageBodyStorage.update(oldPageBodyPage.id, {
+                    body: oldWallModel.api.core.getPlan()
+                })
+            );
+
+            return Promise.all(promises).then(() => {
             });
         });
     }

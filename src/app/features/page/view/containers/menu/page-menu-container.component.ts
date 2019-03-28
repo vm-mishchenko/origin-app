@@ -17,7 +17,11 @@ export class PageMenuContainerComponent implements OnInit {
     }
 
     moveTo(pageId: string) {
-        this.pageService.movePage(pageId);
+        const targetPageId = prompt('Page id');
+
+        if (targetPageId) {
+            this.pageService.movePage(pageId, targetPageId);
+        }
     }
 
     moveToRoot() {

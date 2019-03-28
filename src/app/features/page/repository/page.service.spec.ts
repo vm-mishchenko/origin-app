@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
-import {FirebaseOptionsToken} from '@angular/fire';
-import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory} from 'ngx-wall';
+import {AngularFireModule, FirebaseOptionsToken} from '@angular/fire';
+import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
 import {environment} from '../../../../environments/environment';
 import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../../infrastructure/pouchdb/pouchdb-storage';
@@ -13,6 +13,9 @@ import {PageRepositoryService} from './page-repository.service';
 import {PageRepositoryModule} from './page-repository.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
+import {AuthModule} from '../../../modules/auth';
+import {of} from 'rxjs';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 @Component({
     selector: 'fixture-brick',
@@ -108,13 +111,22 @@ describe('PageService', () => {
 
     beforeEach(() => TestBed.configureTestingModule({
         imports: [
-            PageRepositoryModule
+            // AngularFireModule.initializeApp(environment.FIREBASE_CONFIG),
+            PageRepositoryModule.forRoot(),
+            WallModule.forRoot(),
+            // AuthModule.forRoot()
         ],
         providers: [
             {
                 provide: PouchdbStorageFactory,
                 useValue: {
                     createPouchDB: () => mockPouchDb
+                }
+            },
+            {
+                provide: AngularFireAuth,
+                useValue: {
+                    authState: of(null)
                 }
             },
             {
@@ -632,7 +644,7 @@ describe('PageService', () => {
         }));
     });
 
-    describe('Move page', () => {
+    fdescribe('Move page', () => {
         it('should handle correctly move page inside itself', async(() => {
             testScope.service.createPage().then((pageId) => {
                 testScope.service.movePage(pageId, pageId).then(() => {
@@ -670,13 +682,17 @@ describe('PageService', () => {
         }));
 
         describe('Target page', () => {
-            it('should update children id', async(() => {
+            fit('should update children id', async(() => {
+                console.log(`1`);
                 Promise.all([
                     testScope.service.createPage(),
                     testScope.service.createPage()
                 ]).then(([parentPageId, childPageId]) => {
+                    console.log(`2`);
                     testScope.service.movePage(childPageId, parentPageId).then(() => {
+                        console.log(`3`);
                         testScope.pageRepositoryService.getRelationPage(parentPageId).then((parentPageRelation) => {
+                            console.log(`4`);
                             expect(parentPageRelation.childrenPageId.includes(childPageId)).toBe(true);
                         });
                     });

@@ -13,18 +13,18 @@ import {AuthModule, AuthService} from '../../../modules/auth';
     imports: [
         WallModule,
         UtilsModule,
-        AuthModule,
+        // AuthModule,
         PersistentStorageModule,
         FirebaseFileUploaderModule
     ]
 })
 export class PageRepositoryModule {
-    constructor(private authService: AuthService,
+    constructor(/*private authService: AuthService,*/
                 private pageStoragesService: PageStoragesService) {
-        this.authService.signOut$.subscribe(() => {
+        /*this.authService.signOut$.subscribe(() => {
             // user log out
             this.pageStoragesService.reset();
-        });
+        });*/
     }
 
     static forRoot(): ModuleWithProviders {

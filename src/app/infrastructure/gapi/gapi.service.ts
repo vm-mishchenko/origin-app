@@ -1,13 +1,12 @@
 import {Injectable} from '@angular/core';
 
+declare var gapi;
+
 const GAPI_URL = 'https://apis.google.com/js/api.js';
 
 @Injectable()
 export class GapiService {
     isGapiLoaded = false;
-
-    constructor() {
-    }
 
     initGapi(config): Promise<any> {
         return gapi.client.init(config);
