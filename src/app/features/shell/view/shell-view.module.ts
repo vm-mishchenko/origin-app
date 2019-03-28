@@ -10,6 +10,7 @@ import {PageRepositoryModule} from '../../page/repository';
 import {PageUiModule} from '../../page/ui';
 import {NavigationModule} from '../../../modules/navigation';
 import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.module';
+import {PortalModule} from '@angular/cdk/portal';
 
 @NgModule({
     declarations: [ShellContainerComponent],
@@ -26,7 +27,8 @@ import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.mod
         MatSidenavModule,
         MatButtonModule,
         MatToolbarModule,
-        MatIconModule
+        MatIconModule,
+        PortalModule
     ]
 })
 export class ShellViewModule {

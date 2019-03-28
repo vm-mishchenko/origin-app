@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
 import {Subscription} from 'rxjs';
@@ -11,6 +11,9 @@ import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/d
 import {ShellStore} from '../../../../shell/view/state/shell.store';
 import {PageViewStore} from '../../state/page-view.store';
 import {PageViewQuery} from '../../state/page-view.query';
+import {ShellContainerComponent} from '../../../../shell/view';
+import {PageBreadcrumbsContainerComponent} from '../breadcrumbs/page-breadcrumbs-container.component';
+import {ComponentPortal} from '@angular/cdk/portal';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -29,6 +32,8 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 private deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
                 private pageViewStore: PageViewStore,
+                private shellContainerComponent: ShellContainerComponent,
+                private componentFactoryResolver: ComponentFactoryResolver,
                 public pageViewQuery: PageViewQuery) {
         this.subscriptions.push(
             this.route.params.pipe(
@@ -82,6 +87,15 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 });
             })
         );
+
+        this.shellContainerComponent.setMainPortalComponent(
+            new ComponentPortal(
+                PageBreadcrumbsContainerComponent,
+                /* ViewContainerRef = */ undefined,
+                /* injector = */ undefined,
+                this.componentFactoryResolver
+            )
+        );
     }
 
     onHeaderEnterHandler() {
@@ -122,5 +136,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });
+
+        this.shellContainerComponent.clearMainPortal();
     }
 }

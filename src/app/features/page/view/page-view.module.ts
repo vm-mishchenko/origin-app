@@ -32,6 +32,7 @@ import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-l
 import {PageViewStore} from './state/page-view.store';
 import {PageViewQuery} from './state/page-view.query';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
+import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
 
 const routes: Routes = [
     {
@@ -57,7 +58,11 @@ const routes: Routes = [
         PageEditorComponent,
         PageTitleEditorContainerComponent,
         PageBodyEditorContainerComponent,
-        PageSearchPageComponent
+        PageSearchPageComponent,
+        PageBreadcrumbsContainerComponent
+    ],
+    entryComponents: [
+        PageBreadcrumbsContainerComponent
     ],
     imports: [
         CommonModule,

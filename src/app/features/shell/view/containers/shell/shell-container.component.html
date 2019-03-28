@@ -17,10 +17,14 @@
 
     <mat-sidenav-content>
         <mat-toolbar>
-            <button mat-icon-button (click)="toggleMenu()">
-                <mat-icon *ngIf="shellQuery.isMenuOpen$ | async">chevron_left</mat-icon>
-                <mat-icon *ngIf="!(shellQuery.isMenuOpen$ | async)">chevron_right</mat-icon>
-            </button>
+            <div class="main-portal-wrapper">
+                <button mat-icon-button (click)="toggleMenu()">
+                    <mat-icon *ngIf="shellQuery.isMenuOpen$ | async">chevron_left</mat-icon>
+                    <mat-icon *ngIf="!(shellQuery.isMenuOpen$ | async)">chevron_right</mat-icon>
+                </button>
+
+                <ng-template [cdkPortalOutlet]="mainPortal"></ng-template>
+            </div>
         </mat-toolbar>
 
         <router-outlet></router-outlet>

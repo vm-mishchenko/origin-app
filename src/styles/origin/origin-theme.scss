@@ -1,5 +1,7 @@
 @import "./core/core-theme";
+@import "./features/page-theme";
 
 @mixin origin-theme($theme, $typography) {
   @include origin-core-theme($theme, $typography);
+  @include page-theme($theme, $typography);
 }

@@ -6,6 +6,7 @@ import {ShellQuery} from '../../state/shell.query';
 import {PageRepositoryService, PageService} from '../../../../page/repository';
 import {NavigationService} from '../../../../../modules/navigation';
 import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
+import {ComponentPortal, Portal} from '@angular/cdk/portal';
 
 @Component({
     selector: 'app-shell-container',
@@ -14,6 +15,8 @@ import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-s
 })
 export class ShellContainerComponent implements OnInit {
     @ViewChild('sidenav') private sidenav: MatSidenav;
+
+    mainPortal: Portal<any>;
 
     constructor(public deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
@@ -56,5 +59,13 @@ export class ShellContainerComponent implements OnInit {
         this.pageService.createPage().then((newPageId) => {
             this.navigationService.toPage(newPageId);
         });
+    }
+
+    setMainPortalComponent(componentPortal: ComponentPortal<any>) {
+        this.mainPortal = componentPortal;
+    }
+
+    clearMainPortal() {
+        this.mainPortal = null;
     }
 }

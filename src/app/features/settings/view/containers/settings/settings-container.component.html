@@ -1,13 +1,18 @@
-<p>
-    <button (click)="authService.signIn()" *ngIf="!(authService.user$ | async)" mat-button>Sign in</button>
-</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="
+            col-md-10 offset-md-1
+            col-lg-8 offset-lg-2
+            col-xl-8 offset-xl-2">
+            <p>
+                <button (click)="authService.signIn()" *ngIf="!(authService.user$ | async)" mat-button>Sign in</button>
+            </p>
 
-<div *ngIf="authService.user$ | async">
-    <button (click)="authService.signOut()" mat-button>Sign out</button>
+            <div *ngIf="authService.user$ | async">
+                <button (click)="authService.signOut()" mat-button>Sign out</button>
 
-    <pre>{{(authService.user$ | async)?.displayName}}</pre>
+                <pre>{{(authService.user$ | async)?.displayName}}</pre>
+            </div>
+        </div>
+    </div>
 </div>
-
-<!--<div *ngIf="authService.user$ | async">
-    <button (click)="originPouchDbSyncService.syncPouchDb()" mat-button>Sync databases</button>
-</div>-->

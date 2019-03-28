@@ -2,10 +2,6 @@
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <button *ngIf="node.level === 0" disabled mat-icon-button></button>
         <a mat-button [routerLink]="['/page', node.id]">{{node.title}}</a>
-
-        <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
-            <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
-        </button>-->
     </mat-tree-node>
 
     <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
@@ -16,10 +12,6 @@
         </button>
 
         <a mat-button [routerLink]="['/page', node.id]">{{node.title}}</a>
-
-        <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
-            <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
-        </button>-->
     </mat-tree-node>
 </mat-tree>
 

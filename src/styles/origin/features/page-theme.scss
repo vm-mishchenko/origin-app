@@ -1,0 +1,6 @@
+@import "../../../app/features/page/view/containers/breadcrumbs/page-breadcrumbs-container-theme.component";
+
+@mixin page-theme($theme, $typography) {
+  @include page-breadcrumbs-container-theme($theme, $typography);
+}
+
