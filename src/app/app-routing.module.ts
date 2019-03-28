@@ -6,8 +6,6 @@ const routes: Routes = [
     {
         path: '',
         component: ShellContainerComponent,
-        canActivate: [],
-        canActivateChild: [],
         children: [
             {
                 path: 'page',
@@ -18,11 +16,6 @@ const routes: Routes = [
                 loadChildren: './features/settings/view/settings-view.module#SettingsViewModule'
             }
         ]
-    },
-    {
-        path: '',
-        redirectTo: '',
-        pathMatch: 'full'
     }
 ];
 

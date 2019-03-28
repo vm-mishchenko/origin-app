@@ -34,6 +34,8 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
             this.route.params.pipe(
                 map((params) => params.id)
             ).subscribe((pageId) => {
+                console.log(`set slected page d`);
+
                 this.pageViewStore.setSelectedPageId(pageId);
 
                 if (this.deviceLayoutService.isMobileLayout()) {
@@ -68,7 +70,9 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
 
         // loading page after selected page was changed
         this.subscriptions.push(
-            this.pageViewQuery.selectedPageId$.subscribe((pageId) => {
+            this.pageViewQuery.selectedPageId$.pipe(
+                filter((selectedPageId) => Boolean(selectedPageId))
+            ).subscribe((pageId) => {
                 Promise.all([
                     this.pageRepositoryService.loadIdentityPage(pageId),
                     this.pageRepositoryService.loadBodyPage(pageId),

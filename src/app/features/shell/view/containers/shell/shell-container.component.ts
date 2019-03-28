@@ -3,7 +3,7 @@ import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/d
 import {MatSidenav} from '@angular/material';
 import {ShellStore} from '../../state/shell.store';
 import {ShellQuery} from '../../state/shell.query';
-import {PageService} from '../../../../page/repository';
+import {PageRepositoryService, PageService} from '../../../../page/repository';
 import {NavigationService} from '../../../../../modules/navigation';
 import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
 
@@ -20,8 +20,10 @@ export class ShellContainerComponent implements OnInit {
                 public shellQuery: ShellQuery,
                 private pageService: PageService,
                 private navigationService: NavigationService,
+                private pageRepositoryService: PageRepositoryService,
                 private changeDetectorRef: ChangeDetectorRef,
                 public originPouchDbSyncService: PouchDbSyncService) {
+        this.pageRepositoryService.loadRootPages();
     }
 
     ngOnInit() {

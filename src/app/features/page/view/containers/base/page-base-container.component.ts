@@ -7,12 +7,7 @@ import {PageRepositoryService} from '../../../repository';
     styleUrls: ['./page-base-container.component.scss']
 })
 export class PageBaseContainerComponent implements OnInit, OnDestroy {
-    constructor(
-        private pageRepositoryService: PageRepositoryService) {
-    }
-
     ngOnInit() {
-        this.pageRepositoryService.loadRootPages();
     }
 
     ngOnDestroy(): void {

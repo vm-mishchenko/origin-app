@@ -11,10 +11,14 @@ export class NavigationService {
     }
 
     toPageHome() {
+        console.log(`to page home`);
+        
         this.router.navigate(['/page']);
     }
 
     toPage(id: string) {
+        console.log(`to page`);
+
         this.router.navigate([`/page/${id}`]);
     }
 }
