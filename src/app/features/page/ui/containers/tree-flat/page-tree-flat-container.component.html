@@ -1,7 +1,7 @@
 <mat-tree [dataSource]="dataSource" [trackBy]="trackByFn" [treeControl]="treeControl">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-        <button disabled mat-icon-button></button>
-        <a [routerLink]="['/page', node.id]">{{node.title}}</a>
+        <button *ngIf="node.level === 0" disabled mat-icon-button></button>
+        <a mat-button [routerLink]="['/page', node.id]">{{node.title}}</a>
 
         <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
             <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>
@@ -15,7 +15,7 @@
             </mat-icon>
         </button>
 
-        <a [routerLink]="['/page', node.id]">{{node.title}}</a>
+        <a mat-button [routerLink]="['/page', node.id]">{{node.title}}</a>
 
         <!--<button (click)="removePage(node.id)" color="primary" mat-icon-button>
             <mat-icon aria-label="Example icon-button with a heart icon">delete</mat-icon>

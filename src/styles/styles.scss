@@ -1,9 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/theming';
-@import "../../../ngx-wall/projects/ngx-wall/src/lib/resources/scss/index";
 @import '~bootstrap/scss/bootstrap-reboot';
 @import '~bootstrap/scss/bootstrap-grid';
 @import "./fonts";
+@import "../../../ngx-wall/projects/ngx-wall/src/lib/resources/scss/index";
 @import 'origin/index';
 
 // Define a custom typography config that overrides the font-family as well as the
@@ -34,7 +34,13 @@ $theme: mat-light-theme(
 // Override typography for a specific Angular Material components.
 @include mat-checkbox-typography($typography);
 
+// include wall core styles
+@include wall();
+
+// include origin core styles
+@include origin();
+
 // Include themed styles
 @include angular-material-theme($theme);
-@include w-wall-theme($theme, $typography);
-@include origin-core-theme($theme, $typography);
+@include wall-theme($theme, $typography);
+@include origin-theme($theme, $typography);

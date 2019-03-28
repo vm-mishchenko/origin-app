@@ -1,1 +1,5 @@
 @import "./core/core";
+
+@mixin origin() {
+  @include origin-core();
+}

@@ -9,4 +9,11 @@
     font-family: mat-font-family($typography);
     font-size: mat-font-size($typography, body-1);
   }
+
+  // rewrite Material styles
+  .mat-list-base {
+    .mat-list-item {
+      font-size: mat-font-size($typography, body-1);
+    }
+  }
 }
