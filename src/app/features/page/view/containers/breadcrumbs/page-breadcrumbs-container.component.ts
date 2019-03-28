@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {filter, switchMap} from 'rxjs/internal/operators';
+import {combineLatest, Observable} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
 import {PageViewQuery} from '../../state/page-view.query';
 import {PageRepositoryService} from '../../../repository';
 
@@ -23,30 +23,34 @@ export class PageBreadcrumbsContainerComponent implements OnInit {
 
     ngOnInit() {
         this.breadcrumbs$ = this.pageViewQuery.selectedPageId$.pipe(
-            filter((selectedPageId) => Boolean(selectedPageId)),
             switchMap((selectedPageId) => {
-                return this.buildBreadcrumbItem(selectedPageId);
+                return combineLatest(
+                    this.pageRepositoryService.pageIdentity$,
+                    this.pageRepositoryService.pageRelation$,
+                ).pipe(
+                    map(([pageIdentity, pageRelation]) => this.buildBreadcrumbItem(selectedPageId, pageIdentity, pageRelation))
+                );
             })
         );
     }
 
-    private buildBreadcrumbItem(pageId: string, result = []): Promise<IBreadcrumbItem[]> {
-        return Promise.all([
-            this.pageRepositoryService.getIdentityPage(pageId),
-            this.pageRepositoryService.getRelationPage(pageId)
-        ]).then(([pageIdentity, pageRelation]) => {
+    private buildBreadcrumbItem(pageId: string, pageIdentities, pageRelations, result = []): IBreadcrumbItem[] {
+        const pageIdentity = pageIdentities[pageId];
+        const pageRelation = pageRelations[pageId];
+
+        if (pageIdentity) {
             const breadcrumbItem: IBreadcrumbItem = {
                 pageId: pageIdentity.id,
                 pageTitle: pageIdentity.title
             };
 
             result.unshift(breadcrumbItem);
+        }
 
-            if (pageRelation.parentPageId) {
-                return this.buildBreadcrumbItem(pageRelation.parentPageId, result);
-            }
+        if (pageRelation && pageRelation.parentPageId) {
+            return this.buildBreadcrumbItem(pageRelation.parentPageId, pageIdentities, pageRelations, result);
+        }
 
-            return result;
-        });
+        return result;
     }
 }

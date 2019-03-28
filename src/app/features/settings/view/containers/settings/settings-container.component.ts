@@ -13,7 +13,6 @@ export class SettingsContainerComponent implements OnInit {
     constructor(public authService: AuthService,
                 private deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore) {
-        console.log(`Settings initialized`);
     }
 
     ngOnInit() {

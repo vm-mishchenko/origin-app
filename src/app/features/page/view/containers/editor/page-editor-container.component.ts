@@ -39,8 +39,6 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
             this.route.params.pipe(
                 map((params) => params.id)
             ).subscribe((pageId) => {
-                console.log(`set slected page d`);
-
                 this.pageViewStore.setSelectedPageId(pageId);
 
                 if (this.deviceLayoutService.isMobileLayout()) {

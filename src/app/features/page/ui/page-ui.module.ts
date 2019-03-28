@@ -52,11 +52,13 @@ import {FormControlsModule} from '../../../components/form-controls';
 })
 export class PageUiModule {
     constructor(private brickRegistry: BrickRegistry) {
-        this.brickRegistry.register({
-            tag: PAGE_BRICK_TAG_NAME,
-            component: PageBrickComponent,
-            name: 'Page',
-            description: 'Embed a sub-page inside this page'
-        });
+        if (!this.brickRegistry.get(PAGE_BRICK_TAG_NAME)) {
+            this.brickRegistry.register({
+                tag: PAGE_BRICK_TAG_NAME,
+                component: PageBrickComponent,
+                name: 'Page',
+                description: 'Embed a sub-page inside this page'
+            });
+        }
     }
 }
