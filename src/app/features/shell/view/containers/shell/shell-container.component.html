@@ -16,9 +16,13 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-        <p>
-            <button (click)="toggleMenu()" mat-button>Toggle</button>
-        </p>
+        <mat-toolbar>
+            <button mat-icon-button (click)="toggleMenu()">
+                <mat-icon *ngIf="shellQuery.isMenuOpen$ | async">chevron_left</mat-icon>
+                <mat-icon *ngIf="!(shellQuery.isMenuOpen$ | async)">chevron_right</mat-icon>
+            </button>
+        </mat-toolbar>
+
         <router-outlet></router-outlet>
     </mat-sidenav-content>
 </mat-sidenav-container>

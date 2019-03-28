@@ -17,7 +17,7 @@ export class ShellContainerComponent implements OnInit {
 
     constructor(public deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
-                private shellQuery: ShellQuery,
+                public shellQuery: ShellQuery,
                 private pageService: PageService,
                 private navigationService: NavigationService,
                 private changeDetectorRef: ChangeDetectorRef,

@@ -51,3 +51,9 @@ mat-nav-list {
 mat-sidenav-content {
   overflow: hidden;
 }
+
+mat-toolbar {
+  height: 50px;
+  margin-bottom: 15px;
+  justify-content: space-between;
+}

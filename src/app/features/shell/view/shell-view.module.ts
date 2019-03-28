@@ -1,6 +1,6 @@
 import {CommonModule} from '@angular/common';
 import {ModuleWithProviders, NgModule} from '@angular/core';
-import {MatButtonModule, MatCardModule, MatListModule, MatSidenavModule} from '@angular/material';
+import {MatButtonModule, MatCardModule, MatIconModule, MatListModule, MatSidenavModule, MatToolbarModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {ShellContainerComponent} from './containers/shell/shell-container.component';
 import {ShellStore} from './state/shell.store';
@@ -25,6 +25,8 @@ import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.mod
         MatCardModule,
         MatSidenavModule,
         MatButtonModule,
+        MatToolbarModule,
+        MatIconModule
     ]
 })
 export class ShellViewModule {

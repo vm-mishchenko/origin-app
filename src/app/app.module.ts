@@ -14,6 +14,7 @@ import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
 import {DeviceLayoutModule} from './infrastructure/device-layout/device-layout.module';
 import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
+import {WallModule} from 'ngx-wall';
 
 @NgModule({
     declarations: [
@@ -30,6 +31,7 @@ import {ShellViewModule} from './features/shell/view';
         DeviceLayoutModule.forRoot(),
         PageRepositoryModule.forRoot(),
         ShellViewModule.forRoot(),
+        WallModule.forRoot(),
 
         // application level
         PouchDbSyncModule.forRoot(),
