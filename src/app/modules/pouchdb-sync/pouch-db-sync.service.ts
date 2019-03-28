@@ -5,6 +5,7 @@ import {AuthService} from '../auth';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
 import {PouchdbStorageSync} from '../../infrastructure/pouchdb/pouchdb-storage/pouchdb-storage-sync.service';
 import {IPouchDbConfig} from './pouchdb-sync.types';
+import {MatSnackBar} from '@angular/material';
 
 /*
 * Knowledge:
@@ -22,7 +23,8 @@ export class PouchDbSyncService {
     constructor(private googleSignService: AuthService,
                 private angularFireDatabase: AngularFireDatabase,
                 private pouchdbStorageFactory: PouchdbStorageFactory,
-                private pouchdbStorageSync: PouchdbStorageSync) {
+                private pouchdbStorageSync: PouchdbStorageSync,
+                private snackBar: MatSnackBar) {
         this.googleSignService.user$.pipe(
             first(),
             filter((user) => Boolean(user))
@@ -61,7 +63,9 @@ export class PouchDbSyncService {
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
         this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
-            console.log(`Pouch Db is synced successfully`);
+            this.snackBar.open('App is synced', '', {
+                duration: 2500 /* milliseconds */
+            });
         });
     }
 }
