@@ -17,6 +17,7 @@ export class ShellContainerComponent implements OnInit {
     @ViewChild('sidenav') private sidenav: MatSidenav;
 
     mainPortal: Portal<any>;
+    secondaryPortal: Portal<any>;
 
     constructor(public deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
@@ -65,7 +66,15 @@ export class ShellContainerComponent implements OnInit {
         this.mainPortal = componentPortal;
     }
 
+    setSecondaryPortalComponent(componentPortal: ComponentPortal<any>) {
+        this.secondaryPortal = componentPortal;
+    }
+
     clearMainPortal() {
         this.mainPortal = null;
+    }
+
+    clearSecondaryPortal() {
+        this.secondaryPortal = null;
     }
 }

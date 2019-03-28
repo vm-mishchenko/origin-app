@@ -1,7 +1,7 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule, MatCardModule, MatListModule, MatSidenavModule} from '@angular/material';
+import {MatButtonModule, MatCardModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
 import {
     CodeBrickModule,
@@ -33,6 +33,7 @@ import {PageViewStore} from './state/page-view.store';
 import {PageViewQuery} from './state/page-view.query';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
 import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
+import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 
 const routes: Routes = [
     {
@@ -59,9 +60,11 @@ const routes: Routes = [
         PageTitleEditorContainerComponent,
         PageBodyEditorContainerComponent,
         PageSearchPageComponent,
-        PageBreadcrumbsContainerComponent
+        PageBreadcrumbsContainerComponent,
+        PageMenuContainerComponent
     ],
     entryComponents: [
+        PageMenuContainerComponent,
         PageBreadcrumbsContainerComponent
     ],
     imports: [
@@ -97,6 +100,8 @@ const routes: Routes = [
         MatCardModule,
         MatSidenavModule,
         MatButtonModule,
+        MatMenuModule,
+        MatIconModule
     ],
     providers: [
         PageViewStore,

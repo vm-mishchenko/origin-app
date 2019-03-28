@@ -14,6 +14,7 @@ import {PageViewQuery} from '../../state/page-view.query';
 import {ShellContainerComponent} from '../../../../shell/view';
 import {PageBreadcrumbsContainerComponent} from '../breadcrumbs/page-breadcrumbs-container.component';
 import {ComponentPortal} from '@angular/cdk/portal';
+import {PageMenuContainerComponent} from '../menu/page-menu-container.component';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -22,7 +23,6 @@ import {ComponentPortal} from '@angular/cdk/portal';
 })
 export class PageEditorContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
-    selectedBrickIds: string[] = [];
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
@@ -38,6 +38,15 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
         this.shellContainerComponent.setMainPortalComponent(
             new ComponentPortal(
                 PageBreadcrumbsContainerComponent,
+                /* ViewContainerRef = */ undefined,
+                /* injector = */ undefined,
+                this.componentFactoryResolver
+            )
+        );
+
+        this.shellContainerComponent.setSecondaryPortalComponent(
+            new ComponentPortal(
+                PageMenuContainerComponent,
                 /* ViewContainerRef = */ undefined,
                 /* injector = */ undefined,
                 this.componentFactoryResolver
@@ -100,40 +109,13 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
         this.bodyPageEditorContainer.focusOnPageEditor();
     }
 
-    movePageTo() {
-        const targetPageId = window.prompt('Target page id');
-
-        if (targetPageId) {
-            this.pageService.movePage(this.pageViewQuery.getSelectedPageId(), targetPageId);
-        }
-    }
-
-    moveBricksTo() {
-        const targetPageId = window.prompt('Target page id');
-
-        if (targetPageId) {
-            this.pageService.moveBricks(this.pageViewQuery.getSelectedPageId(),
-                this.selectedBrickIds,
-                targetPageId);
-        }
-    }
-
-    removePage() {
-        if (confirm('Are you sure?')) {
-            this.pageService.removePage(this.pageViewQuery.getSelectedPageId());
-        }
-    }
-
-    onSelectedBrickIds(selectedBrickIds: string[]) {
-        this.selectedBrickIds = selectedBrickIds;
-    }
-
     ngOnDestroy() {
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });
 
         this.shellContainerComponent.clearMainPortal();
+        this.shellContainerComponent.clearSecondaryPortal();
 
         this.pageViewStore.setSelectedPageId(null);
     }

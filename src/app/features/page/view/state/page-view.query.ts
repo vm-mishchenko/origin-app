@@ -13,4 +13,8 @@ export class PageViewQuery extends Query<IPageViewStore> {
     getSelectedPageId(): string {
         return this.getValue().selectedPageId;
     }
+
+    getSelectedBrickIds(): string[] {
+        return this.getValue().selectedBrickIds;
+    }
 }

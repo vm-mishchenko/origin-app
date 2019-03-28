@@ -1,3 +1,5 @@
+<p class="empty-message" *ngIf="!dataSource.data.length"><i>No pages yet</i></p>
+
 <mat-tree [dataSource]="dataSource" [trackBy]="trackByFn" [treeControl]="treeControl">
     <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <button *ngIf="node.level === 0" disabled mat-icon-button></button>

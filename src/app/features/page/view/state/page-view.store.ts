@@ -3,11 +3,13 @@ import {Store, StoreConfig} from '@datorama/akita';
 
 export interface IPageViewStore {
     selectedPageId: string;
+    selectedBrickIds: string[];
 }
 
 export function createInitialState(): IPageViewStore {
     return {
-        selectedPageId: null
+        selectedPageId: null,
+        selectedBrickIds: []
     };
 }
 
@@ -23,6 +25,15 @@ export class PageViewStore extends Store<IPageViewStore> {
             return {
                 ...state,
                 selectedPageId: pageId
+            };
+        });
+    }
+
+    setSelectedBrickIds(selectedBrickIds: string[]) {
+        this.update((state) => {
+            return {
+                ...state,
+                selectedBrickIds
             };
         });
     }

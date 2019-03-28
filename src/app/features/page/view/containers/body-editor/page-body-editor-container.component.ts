@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent, TurnBrickIntoEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {concat, filter, first, map, pairwise, shareReplay, switchMap, tap} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../repository';
 import {PAGE_BRICK_TAG_NAME} from '../../../ui/page-ui.constant';
 import {PageEditorComponent} from '../../components/editor/page-editor.component';
+import {PageViewStore} from '../../state/page-view.store';
 
 @Component({
     selector: 'app-body-page-editor-container',
@@ -14,7 +15,6 @@ import {PageEditorComponent} from '../../components/editor/page-editor.component
 export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     @Input() selectedPageId$: Observable<string>;
     @Input() scrollableContainer: HTMLElement;
-    @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
     pageBody$: Observable<IWallDefinition>;
     private currentBody: string = null;
 
@@ -24,7 +24,8 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = [];
 
     constructor(private pageRepositoryService: PageRepositoryService,
-                private pageService: PageService) {
+                private pageService: PageService,
+                private pageViewStore: PageViewStore) {
     }
 
     ngOnInit() {
@@ -102,7 +103,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     }
 
     onSelectedBrickIds(selectedBrickIds: string[]) {
-        this.selectedBrickIds.emit(selectedBrickIds);
+        this.pageViewStore.setSelectedBrickIds(selectedBrickIds);
     }
 
     // public API
