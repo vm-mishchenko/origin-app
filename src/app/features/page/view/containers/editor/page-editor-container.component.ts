@@ -35,6 +35,15 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 private shellContainerComponent: ShellContainerComponent,
                 private componentFactoryResolver: ComponentFactoryResolver,
                 public pageViewQuery: PageViewQuery) {
+        this.shellContainerComponent.setMainPortalComponent(
+            new ComponentPortal(
+                PageBreadcrumbsContainerComponent,
+                /* ViewContainerRef = */ undefined,
+                /* injector = */ undefined,
+                this.componentFactoryResolver
+            )
+        );
+
         this.subscriptions.push(
             this.route.params.pipe(
                 map((params) => params.id)
@@ -85,15 +94,6 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 });
             })
         );
-
-        this.shellContainerComponent.setMainPortalComponent(
-            new ComponentPortal(
-                PageBreadcrumbsContainerComponent,
-                /* ViewContainerRef = */ undefined,
-                /* injector = */ undefined,
-                this.componentFactoryResolver
-            )
-        );
     }
 
     onHeaderEnterHandler() {
@@ -129,12 +129,12 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.pageViewStore.setSelectedPageId(null);
-
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });
 
         this.shellContainerComponent.clearMainPortal();
+
+        this.pageViewStore.setSelectedPageId(null);
     }
 }
