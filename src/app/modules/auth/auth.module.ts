@@ -12,6 +12,10 @@ import {AuthService} from './auth.service';
     ]
 })
 export class AuthModule {
+    constructor(private googleSignService: AuthService) {
+        this.googleSignService.initGapiClient();
+    }
+
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: AuthModule,

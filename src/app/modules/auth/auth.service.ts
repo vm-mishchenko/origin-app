@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import * as firebase from 'firebase';
-import {User} from 'firebase';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 import {Observable} from 'rxjs';
 import {filter, map, pairwise, shareReplay} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
@@ -11,16 +11,14 @@ declare var gapi;
 
 @Injectable()
 export class AuthService {
-    user: User;
-    user$: Observable<User | null>;
-    signIn$: Observable<User>;
+    user: firebase.User;
+    user$: Observable<firebase.User | null>;
+    signIn$: Observable<firebase.User>;
     signOut$: Observable<any>;
     private isGapiInitialize = false;
 
     constructor(private gapiService: GapiService,
                 private firebaseAuth: AngularFireAuth) {
-        // this.initGapiClient();
-
         this.user$ = this.firebaseAuth.user.pipe(shareReplay());
 
         this.user$.subscribe((user) => {

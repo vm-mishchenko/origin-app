@@ -1,8 +1,7 @@
 import {Component} from '@angular/core';
-import {async, fakeAsync, flushMicrotasks, TestBed, tick} from '@angular/core/testing';
-import {AngularFireModule, FirebaseOptionsToken} from '@angular/fire';
+import {async, fakeAsync, flushMicrotasks, TestBed} from '@angular/core/testing';
+import {FirebaseOptionsToken} from '@angular/fire';
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
-import {environment} from '../../../../environments/environment';
 import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../../infrastructure/pouchdb/pouchdb-storage';
 import {EntityStorePouchDbMock} from '../../../infrastructure/pouchdb/pouchdb-storage/test/entity-store-pouchdb-mock';
@@ -13,9 +12,9 @@ import {PageRepositoryService} from './page-repository.service';
 import {PageRepositoryModule} from './page-repository.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
-import {AuthModule} from '../../../modules/auth';
 import {of} from 'rxjs';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {AuthModule} from '../../../modules/auth';
 
 @Component({
     selector: 'fixture-brick',
@@ -44,6 +43,8 @@ class TestScope {
     pageFileUploaderService: PageFileUploaderService;
 
     initialize() {
+        // its important to instantiate PersistentStorageFactory before PageService
+        // since we can configure storage before page starts using it
         const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
         persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
 
@@ -105,16 +106,17 @@ class TestScope {
     }
 }
 
-describe('PageService', () => {
+fdescribe('PageService', () => {
     const mockPouchDb = new EntityStorePouchDbMock();
     let testScope: TestScope;
 
+    const startTime = new Date();
+
     beforeEach(() => TestBed.configureTestingModule({
         imports: [
-            // AngularFireModule.initializeApp(environment.FIREBASE_CONFIG),
             PageRepositoryModule.forRoot(),
             WallModule.forRoot(),
-            // AuthModule.forRoot()
+            AuthModule.forRoot()
         ],
         providers: [
             {
@@ -126,11 +128,14 @@ describe('PageService', () => {
             {
                 provide: AngularFireAuth,
                 useValue: {
-                    authState: of(null)
+                    user: of(null)
                 }
             },
             {
-                provide: FirebaseOptionsToken, useValue: environment.FIREBASE_CONFIG
+                // critical to have value as empty object
+                // with real options tests will stack
+                // unfortunately, there are no time to investigate
+                provide: FirebaseOptionsToken, useValue: {}
             }
         ]
     }));
@@ -181,15 +186,13 @@ describe('PageService', () => {
             });
         }));
 
-        it('should create page relation', fakeAsync(() => {
-            let pageRelation: IRelationPage = null;
-
+        it('should create page relation', async(() => {
             testScope.service.createPage().then((id) => {
+                let pageRelation: IRelationPage = null;
                 testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
                     pageRelation = pages[id];
                 });
 
-                flushMicrotasks();
                 expect(pageRelation).toBeDefined();
                 expect(pageRelation.parentPageId).toBe(null);
                 expect(pageRelation.childrenPageId.length).toBe(0);
@@ -200,7 +203,9 @@ describe('PageService', () => {
             let pageIdentity: IIdentityPage = null;
 
             testScope.service.createPage().then((parentPageId) => {
+
                 testScope.service.createPage(parentPageId).then((childPageId) => {
+
                     testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
                         pageIdentity = pages[childPageId];
                     });
@@ -224,25 +229,19 @@ describe('PageService', () => {
             });
         }));
 
-        it('should update parent relation', fakeAsync(() => {
-            let parentPageRelation: IRelationPage = null;
+        it('should update parent relation', async(() => {
+            testScope.service.createPage().then((parentPageId) => {
+                testScope.service.createPage(parentPageId).then((childPageId) => {
+                    let parentPageRelation: IRelationPage = null;
 
-            let childPageId: string;
-            let parentPageId: string;
+                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
+                        parentPageRelation = pages[parentPageId];
+                    });
 
-            testScope.service.createPage().then((parentPageId_) => parentPageId = parentPageId_);
-            tick();
-
-            testScope.service.createPage(parentPageId).then((childPageId_) => childPageId = childPageId_);
-            tick();
-
-            testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                parentPageRelation = pages[parentPageId];
+                    expect(parentPageRelation.childrenPageId.length).toBe(1);
+                    expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
+                });
             });
-
-            flushMicrotasks();
-            expect(parentPageRelation.childrenPageId.length).toBe(1);
-            expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
         }));
 
         it('should add page brick to parent body-editor', async(() => {
@@ -259,7 +258,7 @@ describe('PageService', () => {
             });
         }));
 
-        it('fit should update brick state in parent body-editor when pageBrickId is defined', async(() => {
+        it('it should update brick state in parent body-editor when pageBrickId is defined', async(() => {
             testScope.service.createPage().then((parentPageId) => {
                 testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageBody) => {
                     let parentPageModel = testScope.createWallModel(parentPageBody.body);
@@ -644,7 +643,7 @@ describe('PageService', () => {
         }));
     });
 
-    fdescribe('Move page', () => {
+    describe('Move page', () => {
         it('should handle correctly move page inside itself', async(() => {
             testScope.service.createPage().then((pageId) => {
                 testScope.service.movePage(pageId, pageId).then(() => {
@@ -682,17 +681,13 @@ describe('PageService', () => {
         }));
 
         describe('Target page', () => {
-            fit('should update children id', async(() => {
-                console.log(`1`);
+            it('should update children id', async(() => {
                 Promise.all([
                     testScope.service.createPage(),
                     testScope.service.createPage()
                 ]).then(([parentPageId, childPageId]) => {
-                    console.log(`2`);
                     testScope.service.movePage(childPageId, parentPageId).then(() => {
-                        console.log(`3`);
                         testScope.pageRepositoryService.getRelationPage(parentPageId).then((parentPageRelation) => {
-                            console.log(`4`);
                             expect(parentPageRelation.childrenPageId.includes(childPageId)).toBe(true);
                         });
                     });

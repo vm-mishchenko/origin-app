@@ -26,7 +26,7 @@ export class PersistentStorageFactory {
         // combine user and default options
         options = {
             ...options,
-            ...this.globalFactoryOptions,
+            ...this.globalFactoryOptions
         };
 
         const memoryStore = new EntityStore<EntityState<M>, M>({}, {

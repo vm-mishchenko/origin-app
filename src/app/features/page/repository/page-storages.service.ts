@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
+import {AuthService} from '../../../modules/auth';
 
 @Injectable()
 export class PageStoragesService {
@@ -8,7 +9,8 @@ export class PageStoragesService {
     pageBodyStorage: PersistentStorage<IBodyPage>;
     pageRelationStorage: PersistentStorage<IRelationPage>;
 
-    constructor(private persistentStorageFactory: PersistentStorageFactory) {
+    constructor(private persistentStorageFactory: PersistentStorageFactory,
+                private authService: AuthService) {
         // initialize required storage
         this.pageIdentityStorage = this.persistentStorageFactory.create<IIdentityPage>({
             name: 'page-identity'
@@ -18,6 +20,11 @@ export class PageStoragesService {
         });
         this.pageRelationStorage = this.persistentStorageFactory.create<IRelationPage>({
             name: 'page-relation'
+        });
+
+        this.authService.signOut$.subscribe(() => {
+            // user log out
+            this.reset();
         });
     }
 
