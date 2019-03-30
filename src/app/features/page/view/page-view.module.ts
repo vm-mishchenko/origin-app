@@ -36,6 +36,8 @@ import {PageMenuContainerComponent} from './containers/menu/page-menu-container.
 import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
 import {DialogWrapperService} from './services/dialog-wrapper.service';
 import {BottomSheetWrapperService} from './services/bottom-sheet-wrapper.service';
+import {PageBreadcrumbStream} from './state/page-breadcrumbs-view.stream';
+import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 
 const routes: Routes = [
     {
@@ -65,11 +67,13 @@ const routes: Routes = [
         PageBreadcrumbsContainerComponent,
         PageMenuContainerComponent,
         PickPageDialogComponent,
+        PageMiniBreadcrumbsContainerComponent,
     ],
     entryComponents: [
         PickPageDialogComponent,
         PageMenuContainerComponent,
-        PageBreadcrumbsContainerComponent
+        PageBreadcrumbsContainerComponent,
+        PageMiniBreadcrumbsContainerComponent
     ],
     imports: [
         CommonModule,
@@ -106,6 +110,7 @@ const routes: Routes = [
         MatIconModule
     ],
     providers: [
+        PageBreadcrumbStream,
         BottomSheetWrapperService,
         DialogWrapperService,
         PageViewStore,

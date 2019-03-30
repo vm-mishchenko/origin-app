@@ -20,8 +20,7 @@
         <mat-toolbar>
             <div class="main-portal-wrapper">
                 <button mat-icon-button (click)="toggleMenu()">
-                    <mat-icon *ngIf="shellQuery.isMenuOpen$ | async">chevron_left</mat-icon>
-                    <mat-icon *ngIf="!(shellQuery.isMenuOpen$ | async)">chevron_right</mat-icon>
+                    <mat-icon>menu</mat-icon>
                 </button>
 
                 <ng-template [cdkPortalOutlet]="mainPortal"></ng-template>

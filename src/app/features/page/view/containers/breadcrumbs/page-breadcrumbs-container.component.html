@@ -1,5 +1,5 @@
 <ul>
-    <li *ngFor="let breadcrumbs of breadcrumbs$ | async; let last = last">
+    <li *ngFor="let breadcrumbs of pageBreadcrumbStream.breadcrumbs$ | async; let last = last">
         <a *ngIf="!last" mat-button [routerLink]="['/page', breadcrumbs.pageId]">{{breadcrumbs.pageTitle}}</a>
         <span *ngIf="!last">/</span>
         <span class="last" *ngIf="last">{{breadcrumbs.pageTitle}}</span>

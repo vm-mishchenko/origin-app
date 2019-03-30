@@ -1,0 +1,10 @@
+<div *ngIf="(pageBreadcrumbStream.breadcrumbs$ | async).length === 1">
+    {{(pageBreadcrumbStream.breadcrumbs$ | async)[0].pageTitle}}
+</div>
+
+<div *ngIf="(pageBreadcrumbStream.breadcrumbs$ | async).length > 1">
+    <a [routerLink]="['/page', (penultBreadcrumb$ | async).pageId]" mat-button>
+        <mat-icon>arrow_back</mat-icon>
+        {{(lastBreadcrumb$ | async).pageTitle}}
+    </a>
+</div>

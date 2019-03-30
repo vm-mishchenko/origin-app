@@ -15,6 +15,7 @@ import {ShellContainerComponent} from '../../../../shell/view';
 import {PageBreadcrumbsContainerComponent} from '../breadcrumbs/page-breadcrumbs-container.component';
 import {ComponentPortal} from '@angular/cdk/portal';
 import {PageMenuContainerComponent} from '../menu/page-menu-container.component';
+import {PageMiniBreadcrumbsContainerComponent} from '../mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 
 @Component({
     selector: 'app-page-editor-view-container',
@@ -37,7 +38,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 public pageViewQuery: PageViewQuery) {
         this.shellContainerComponent.setMainPortalComponent(
             new ComponentPortal(
-                PageBreadcrumbsContainerComponent,
+                this.deviceLayoutService.isMobileLayout() ? PageMiniBreadcrumbsContainerComponent : PageBreadcrumbsContainerComponent,
                 /* ViewContainerRef = */ undefined,
                 /* injector = */ undefined,
                 this.componentFactoryResolver
