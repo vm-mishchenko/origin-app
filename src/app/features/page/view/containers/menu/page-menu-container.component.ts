@@ -16,11 +16,11 @@ export class PageMenuContainerComponent implements OnInit {
     ngOnInit() {
     }
 
-    moveTo(pageId: string) {
+    moveTo() {
         const targetPageId = prompt('Page id');
 
         if (targetPageId) {
-            this.pageService.movePage(pageId, targetPageId);
+            this.pageService.movePage(this.pageViewQuery.getSelectedPageId(), targetPageId);
         }
     }
 
