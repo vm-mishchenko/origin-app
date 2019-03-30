@@ -1,7 +1,6 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {WallModule} from 'ngx-wall';
 import {FirebaseFileUploaderModule} from '../../../infrastructure/firebase-file-uploader/firebase-file-uploader.module';
-import {PersistentStorageModule} from '../../../infrastructure/persistent-storage';
 import {UtilsModule} from '../../../infrastructure/utils';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
@@ -13,8 +12,6 @@ import {AuthModule} from '../../../modules/auth';
     imports: [
         WallModule,
         UtilsModule,
-        AuthModule,
-        PersistentStorageModule,
         FirebaseFileUploaderModule
     ]
 })

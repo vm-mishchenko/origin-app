@@ -8,7 +8,9 @@ PouchDB.plugin(PouchFind);
 
 const POUCH_STORAGE_LOCAL_DB_NAME_KEY = 'pouchdb-storage:local-database-name';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PouchdbStorageFactory {
     private database: IPouchDb;
 

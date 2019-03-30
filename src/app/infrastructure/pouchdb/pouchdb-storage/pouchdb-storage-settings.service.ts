@@ -3,7 +3,9 @@ import {Injectable} from '@angular/core';
 const REMOTE_DB_URL_KEY = 'pouchdb-storage:removeDbUrl';
 const LOCAL_DB_NAMES_KEY = 'pouchdb-storage:localDbNames';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PouchdbStorageSettings {
     localDbNames: string[] = [];
     remoteDbUrl: string;

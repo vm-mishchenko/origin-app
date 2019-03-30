@@ -5,20 +5,16 @@ import {RouterModule} from '@angular/router';
 import {ShellContainerComponent} from './containers/shell/shell-container.component';
 import {ShellStore} from './state/shell.store';
 import {ShellQuery} from './state/shell.query';
-import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
 import {PageRepositoryModule} from '../../page/repository';
 import {PageUiModule} from '../../page/ui';
 import {NavigationModule} from '../../../modules/navigation';
-import {PouchDbSyncModule} from '../../../modules/pouchdb-sync/pouch-db-sync.module';
 import {PortalModule} from '@angular/cdk/portal';
 
 @NgModule({
     declarations: [ShellContainerComponent],
     imports: [
-        DeviceLayoutModule,
         PageRepositoryModule,
         PageUiModule,
-        PouchDbSyncModule,
         NavigationModule,
         CommonModule,
         RouterModule,

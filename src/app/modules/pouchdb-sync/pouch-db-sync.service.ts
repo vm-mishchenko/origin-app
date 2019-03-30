@@ -16,7 +16,9 @@ import {MatSnackBar} from '@angular/material';
 * 2. database sync from Settings page
 * */
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PouchDbSyncService {
     private pouchDbConfig: IPouchDbConfig;
 

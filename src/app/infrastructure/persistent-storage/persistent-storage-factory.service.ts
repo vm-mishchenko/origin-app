@@ -9,7 +9,9 @@ akitaConfig({
     resettable: true
 });
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PersistentStorageFactory {
     private globalFactoryOptions: IPersistedStorageFactoryOptions = {
         pouchDbSavingDebounceTime: POUCH_DB_DEBOUNCE_TIME

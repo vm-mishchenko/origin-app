@@ -4,7 +4,9 @@ declare var gapi;
 
 const GAPI_URL = 'https://apis.google.com/js/api.js';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class GapiService {
     isGapiLoaded = false;
 

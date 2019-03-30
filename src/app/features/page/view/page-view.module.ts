@@ -28,7 +28,6 @@ import {PageBaseContainerComponent} from './containers/base/page-base-container.
 import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
 import {ShellViewModule} from '../../shell/view';
-import {DeviceLayoutModule} from '../../../infrastructure/device-layout/device-layout.module';
 import {PageViewStore} from './state/page-view.store';
 import {PageViewQuery} from './state/page-view.query';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
@@ -76,7 +75,6 @@ const routes: Routes = [
         ReactiveFormsModule,
         FormControlsModule,
         NavigationModule,
-        DeviceLayoutModule,
 
         // wall main module
         WallModule,

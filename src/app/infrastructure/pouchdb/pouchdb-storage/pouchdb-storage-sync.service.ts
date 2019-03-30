@@ -2,7 +2,9 @@ import {Injectable} from '@angular/core';
 import PouchDB from 'pouchdb';
 import {PouchdbStorageFactory} from './pouchdb-storage-factory.service';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PouchdbStorageSync {
     constructor(private pouchdbStorageFactory: PouchdbStorageFactory) {
     }

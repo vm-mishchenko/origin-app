@@ -14,7 +14,6 @@ import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 import {of} from 'rxjs';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {AuthModule} from '../../../modules/auth';
 
 @Component({
     selector: 'fixture-brick',
@@ -115,8 +114,7 @@ fdescribe('PageService', () => {
     beforeEach(() => TestBed.configureTestingModule({
         imports: [
             PageRepositoryModule.forRoot(),
-            WallModule.forRoot(),
-            AuthModule.forRoot()
+            WallModule.forRoot()
         ],
         providers: [
             {

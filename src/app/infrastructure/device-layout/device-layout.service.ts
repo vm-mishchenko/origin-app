@@ -2,7 +2,9 @@ import {Injectable} from '@angular/core';
 import {MediaMatcher} from '@angular/cdk/layout';
 import {BehaviorSubject, Observable} from 'rxjs';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DeviceLayoutService {
     mobileLayout$: Observable<Boolean> = new BehaviorSubject(false);
     private mobileQuery: MediaQueryList;

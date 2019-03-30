@@ -9,7 +9,9 @@ import {GapiService} from '../../infrastructure/gapi';
 
 declare var gapi;
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class AuthService {
     user: firebase.User;
     user$: Observable<firebase.User | null>;
