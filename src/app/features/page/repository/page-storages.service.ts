@@ -18,7 +18,7 @@ export class PageStoragesService {
             name: 'page-identity'
         });
         this.pageBodyStorage = this.persistentStorageFactory.create<IBodyPage>({
-            name: 'page-body-editor'
+            name: 'page-body'
         });
         this.pageRelationStorage = this.persistentStorageFactory.create<IRelationPage>({
             name: 'page-relation'
