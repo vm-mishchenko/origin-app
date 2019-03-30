@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {IPageSearchItem} from '../../../search/page-search.service';
 import {NavigationService} from '../../../../../modules/navigation';
+import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
+import {ShellStore} from '../../../../shell/view/state/shell.store';
 
 @Component({
     selector: 'app-page-search-page',
@@ -8,10 +10,15 @@ import {NavigationService} from '../../../../../modules/navigation';
     styleUrls: ['./page-search-page.component.scss']
 })
 export class PageSearchPageComponent implements OnInit {
-    constructor(private navigationService: NavigationService) {
+    constructor(private navigationService: NavigationService,
+                private shellStore: ShellStore,
+                private deviceLayoutService: DeviceLayoutService) {
     }
 
     ngOnInit() {
+        if (this.deviceLayoutService.isMobileLayout()) {
+            this.shellStore.closeMenu();
+        }
     }
 
     selectItem(pageSearchItem: IPageSearchItem) {
