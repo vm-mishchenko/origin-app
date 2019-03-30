@@ -96,6 +96,18 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         this.memoryStore.reset();
     }
 
+    sync(): Promise<any> {
+        return Promise.all(
+            Object.values(this.query.getValue().entities).map((entity) => {
+                return this.pouchdbStorage.get(entity.id).then((pouchDbEntity) => {
+                    this.memoryStore.update(entity.id, pouchDbEntity);
+                }).catch(() => {
+                    this.memoryStore.remove(entity.id);
+                });
+            })
+        );
+    }
+
     private extractEntityFromRawEntity(rawEntity) {
         const {_id, _rev, ...entity} = rawEntity;
 

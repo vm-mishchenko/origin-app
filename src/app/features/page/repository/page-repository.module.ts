@@ -6,7 +6,6 @@ import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
 import {PageService} from './page.service';
-import {AuthModule} from '../../../modules/auth';
 
 @NgModule({
     imports: [

@@ -33,4 +33,12 @@ export class PageStoragesService {
         this.pageBodyStorage.reset();
         this.pageRelationStorage.reset();
     }
+
+    sync(): Promise<any> {
+        return Promise.all([
+            this.pageIdentityStorage.sync(),
+            this.pageBodyStorage.sync(),
+            this.pageRelationStorage.sync()
+        ]);
+    }
 }

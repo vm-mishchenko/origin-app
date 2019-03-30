@@ -6,6 +6,7 @@ import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storag
 import {PouchdbStorageSync} from '../../infrastructure/pouchdb/pouchdb-storage/pouchdb-storage-sync.service';
 import {IPouchDbConfig} from './pouchdb-sync.types';
 import {MatSnackBar} from '@angular/material';
+import {Observable, Subject} from 'rxjs';
 
 /*
 * Knowledge:
@@ -20,6 +21,7 @@ import {MatSnackBar} from '@angular/material';
     providedIn: 'root'
 })
 export class PouchDbSyncService {
+    synced$: Observable<any> = new Subject();
     private pouchDbConfig: IPouchDbConfig;
 
     constructor(private googleSignService: AuthService,
@@ -65,6 +67,8 @@ export class PouchDbSyncService {
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
         this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
+            (this.synced$ as Subject).next();
+            
             this.snackBar.open('App is synced', '', {
                 duration: 2500 /* milliseconds */
             });
