@@ -25,7 +25,9 @@ const DEFAULT_CREATE_PAGE_OPTIONS: ICreatePageOption = {
  * I cannot add couple pages in parallel :(
  * There is the same problem as with removing several pages in one call
  * */
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PageService {
     // todo - integrate to application event stream
     // todo - replace any type

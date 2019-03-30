@@ -1,29 +1,23 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
-import {WallModule} from 'ngx-wall';
-import {FirebaseFileUploaderModule} from '../../../infrastructure/firebase-file-uploader/firebase-file-uploader.module';
-import {UtilsModule} from '../../../infrastructure/utils';
-import {PageFileUploaderService} from './page-file-uploader.service';
+import {NgModule} from '@angular/core';
 import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
-import {PageService} from './page.service';
+import {PouchDbSyncService} from '../../../modules/pouchdb-sync/pouch-db-sync.service';
+import {AuthService} from '../../../modules/auth';
 
-@NgModule({
-    imports: [
-        WallModule,
-        UtilsModule,
-        FirebaseFileUploaderModule
-    ]
-})
+@NgModule({})
 export class PageRepositoryModule {
-    static forRoot(): ModuleWithProviders {
-        return {
-            ngModule: PageRepositoryModule,
-            providers: [
-                PageService,
-                PageRepositoryService,
-                PageStoragesService,
-                PageFileUploaderService
-            ]
-        };
+    constructor(private pouchDbSyncService: PouchDbSyncService,
+                private authService: AuthService,
+                private pageRepositoryService: PageRepositoryService,
+                private pageStoragesService: PageStoragesService) {
+        this.authService.signOut$.subscribe(() => {
+            // user log out
+            this.pageStoragesService.reset();
+        });
+
+        this.pouchDbSyncService.synced$.subscribe(() => {
+            this.pageStoragesService.sync();
+            this.pageRepositoryService.loadRootPages();
+        });
     }
 }

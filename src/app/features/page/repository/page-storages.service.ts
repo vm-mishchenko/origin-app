@@ -3,7 +3,9 @@ import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructu
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 import {AuthService} from '../../../modules/auth';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PageStoragesService {
     pageIdentityStorage: PersistentStorage<IIdentityPage>;
     pageBodyStorage: PersistentStorage<IBodyPage>;

@@ -5,7 +5,9 @@ import {AngularFireStorage} from '@angular/fire/storage';
 * Receive path and file - save it
 * No logic around unsuccessful operations
 * */
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class FirebaseFileUploaderService {
     constructor(private fireStorage: AngularFireStorage) {
     }

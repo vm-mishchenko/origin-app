@@ -13,7 +13,6 @@ import {PortalModule} from '@angular/cdk/portal';
 @NgModule({
     declarations: [ShellContainerComponent],
     imports: [
-        PageRepositoryModule,
         PageUiModule,
         NavigationModule,
         CommonModule,

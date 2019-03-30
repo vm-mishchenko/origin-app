@@ -11,7 +11,6 @@ import {
 } from '@angular/material';
 import {RouterModule} from '@angular/router';
 import {BrickRegistry, WallModule} from 'ngx-wall';
-import {PageRepositoryModule} from '../repository';
 import {PageBrickComponent} from './bricks/page-brick/page-brick.component';
 import {PageTreeFlatContainerComponent} from './containers/tree-flat/page-tree-flat-container.component';
 import {PAGE_BRICK_TAG_NAME} from './page-ui.constant';
@@ -38,7 +37,6 @@ import {FormControlsModule} from '../../../components/form-controls';
         ReactiveFormsModule,
         FormControlsModule,
         PageSearchModule,
-        PageRepositoryModule,
         MatListModule,
         MatTreeModule,
         MatIconModule,

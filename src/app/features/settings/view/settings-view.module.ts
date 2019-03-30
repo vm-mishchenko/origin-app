@@ -2,7 +2,6 @@ import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
 import {MatButtonModule, MatCardModule, MatListModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthModule} from '../../../modules/auth';
 import {SettingsContainerComponent} from './containers/settings/settings-container.component';
 import {ShellViewModule} from '../../shell/view';
 
@@ -18,7 +17,6 @@ const routes: Routes = [
     imports: [
         CommonModule,
         RouterModule.forChild(routes),
-        AuthModule,
         ShellViewModule,
 
         // material

@@ -67,8 +67,8 @@ export class PouchDbSyncService {
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
         this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
-            (this.synced$ as Subject).next();
-            
+            (this.synced$ as Subject<any>).next();
+
             this.snackBar.open('App is synced', '', {
                 duration: 2500 /* milliseconds */
             });

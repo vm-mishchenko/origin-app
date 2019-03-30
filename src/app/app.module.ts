@@ -7,12 +7,14 @@ import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {AuthModule} from './modules/auth';
 import {NavigationModule} from './modules/navigation';
-import {PouchDbSyncModule} from './modules/pouchdb-sync/pouch-db-sync.module';
 import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
 import {WallModule} from 'ngx-wall';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+import {AngularFireDatabaseModule} from '@angular/fire/database';
+import {MatSnackBarModule} from '@angular/material';
+import {AngularFireAuthModule} from '@angular/fire/auth';
 
 @NgModule({
     declarations: [
@@ -24,13 +26,17 @@ import {WallModule} from 'ngx-wall';
         ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
         BrowserAnimationsModule,
         NavigationModule,
-        AuthModule,
-        PageRepositoryModule.forRoot(),
+        PageRepositoryModule,
         ShellViewModule.forRoot(),
         WallModule.forRoot(),
 
-        // application level
-        PouchDbSyncModule,
+        // firebase
+        AngularFireAuthModule,
+        AngularFireStorageModule,
+        AngularFireDatabaseModule,
+
+        // material
+        MatSnackBarModule,
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule

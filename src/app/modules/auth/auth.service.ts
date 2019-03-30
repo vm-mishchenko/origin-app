@@ -21,6 +21,8 @@ export class AuthService {
 
     constructor(private gapiService: GapiService,
                 private firebaseAuth: AngularFireAuth) {
+        this.initGapiClient();
+
         this.user$ = this.firebaseAuth.user.pipe(shareReplay());
 
         this.user$.subscribe((user) => {

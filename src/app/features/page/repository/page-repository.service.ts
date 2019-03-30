@@ -4,7 +4,9 @@ import {Observable} from 'rxjs';
 import {PageStoragesService} from './page-storages.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PageRepositoryService {
     pageIdentity$: Observable<HashMap<IIdentityPage>>;
     pageRelation$: Observable<HashMap<IRelationPage>>;

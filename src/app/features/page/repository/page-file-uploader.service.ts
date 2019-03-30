@@ -7,7 +7,9 @@ import {IBodyPage} from './page.types';
 
 type IPathPreProcessor = (path: string) => string;
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PageFileUploaderService {
     constructor(private guid: Guid, private firebaseFileUploader: FirebaseFileUploaderService,
                 private pageRepositoryService: PageRepositoryService,

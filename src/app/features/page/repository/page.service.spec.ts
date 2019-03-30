@@ -9,11 +9,11 @@ import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
-import {PageRepositoryModule} from './page-repository.module';
 import {PageService} from './page.service';
 import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
-import {of} from 'rxjs';
-import {AngularFireAuth} from '@angular/fire/auth';
+import {environment} from '../../../../environments/environment';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+import {AngularFireAuthModule} from '@angular/fire/auth';
 
 @Component({
     selector: 'fixture-brick',
@@ -105,7 +105,7 @@ class TestScope {
     }
 }
 
-fdescribe('PageService', () => {
+describe('PageService', () => {
     const mockPouchDb = new EntityStorePouchDbMock();
     let testScope: TestScope;
 
@@ -113,8 +113,9 @@ fdescribe('PageService', () => {
 
     beforeEach(() => TestBed.configureTestingModule({
         imports: [
-            PageRepositoryModule.forRoot(),
-            WallModule.forRoot()
+            WallModule.forRoot(),
+            AngularFireAuthModule,
+            AngularFireStorageModule
         ],
         providers: [
             {
@@ -124,16 +125,7 @@ fdescribe('PageService', () => {
                 }
             },
             {
-                provide: AngularFireAuth,
-                useValue: {
-                    user: of(null)
-                }
-            },
-            {
-                // critical to have value as empty object
-                // with real options tests will stack
-                // unfortunately, there are no time to investigate
-                provide: FirebaseOptionsToken, useValue: {}
+                provide: FirebaseOptionsToken, useValue: environment.FIREBASE_CONFIG
             }
         ]
     }));

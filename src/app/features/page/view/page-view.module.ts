@@ -20,7 +20,7 @@ import {
 } from 'ngx-wall';
 import {FormControlsModule} from '../../../components/form-controls';
 import {NavigationModule} from '../../../modules/navigation';
-import {PageFileUploaderService, PageRepositoryModule} from '../repository';
+import {PageFileUploaderService} from '../repository';
 import {PageUiModule} from '../ui';
 import {PageEditorComponent} from './components/editor/page-editor.component';
 import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
@@ -68,7 +68,6 @@ const routes: Routes = [
     ],
     imports: [
         CommonModule,
-        PageRepositoryModule,
         PageUiModule,
         ShellViewModule,
         RouterModule.forChild(routes),
