@@ -13,7 +13,7 @@ import {ShellViewModule} from './features/shell/view';
 import {WallModule} from 'ngx-wall';
 import {AngularFireStorageModule} from '@angular/fire/storage';
 import {AngularFireDatabaseModule} from '@angular/fire/database';
-import {MatSnackBarModule} from '@angular/material';
+import {MatBottomSheetModule, MatDialogModule, MatSnackBarModule} from '@angular/material';
 import {AngularFireAuthModule} from '@angular/fire/auth';
 
 @NgModule({
@@ -36,7 +36,9 @@ import {AngularFireAuthModule} from '@angular/fire/auth';
         AngularFireDatabaseModule,
 
         // material
+        MatDialogModule,
         MatSnackBarModule,
+        MatBottomSheetModule,
 
         // todo-hack: https://github.com/angular/material2/issues/10820
         OverlayModule

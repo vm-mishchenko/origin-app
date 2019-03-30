@@ -2,6 +2,7 @@
     <mat-sidenav #sidenav [mode]="(deviceLayoutService.mobileLayout$ | async) ? 'over' : 'side'">
         <mat-nav-list>
             <a [routerLink]="['/settings']" mat-list-item>Settings</a>
+            <a [routerLink]="['/page/search']" mat-list-item>Search</a>
         </mat-nav-list>
 
         <mat-divider></mat-divider>
@@ -26,6 +27,7 @@
                 <ng-template [cdkPortalOutlet]="mainPortal"></ng-template>
             </div>
             <div>
+                <button mat-button (click)="sync()" [disabled]="!(authService.user$ | async)">Sync</button>
                 <ng-template [cdkPortalOutlet]="secondaryPortal"></ng-template>
             </div>
         </mat-toolbar>

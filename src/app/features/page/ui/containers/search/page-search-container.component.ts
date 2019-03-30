@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
 import {IPageSearchItem, PageSearchService} from '../../../search/page-search.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable, of} from 'rxjs';
@@ -10,6 +10,8 @@ import {debounceTime, switchMap} from 'rxjs/operators';
     styleUrls: ['./page-search-container.component.scss']
 })
 export class PageSearchContainerComponent implements OnInit {
+    @ViewChild('input') input: ElementRef;
+
     @Output() selectItem: EventEmitter<IPageSearchItem> = new EventEmitter();
     pageSearchItems$: Observable<IPageSearchItem[]>;
     pageForm: FormGroup;
@@ -19,6 +21,8 @@ export class PageSearchContainerComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.input.nativeElement.focus();
+
         this.pageForm = this.formBuilder.group({
             query: this.formBuilder.control('')
         });

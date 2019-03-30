@@ -670,6 +670,28 @@ describe('PageService', () => {
             });
         }));
 
+        it('should not move page if target page is a child of moved page', async(() => {
+            Promise.all([
+                testScope.service.createPage(),
+                testScope.service.createPage()
+            ]).then(([parentPageId, childPageId]) => {
+                testScope.service.movePage(childPageId, parentPageId).then(() => {
+                    // test action
+                    testScope.service.movePage(parentPageId, childPageId).then(() => {
+                        testScope.pageRepositoryService.getRelationPage(parentPageId).then((parentPageRelation) => {
+                            expect(parentPageRelation.childrenPageId.includes(childPageId)).toBe(true);
+                            expect(parentPageRelation.parentPageId).toBe(null);
+                        });
+
+                        testScope.pageRepositoryService.getRelationPage(childPageId).then((childPageRelation) => {
+                            expect(childPageRelation.parentPageId).toBe(parentPageId);
+                            expect(childPageRelation.childrenPageId.length).toBe(0);
+                        });
+                    });
+                });
+            });
+        }));
+
         describe('Target page', () => {
             it('should update children id', async(() => {
                 Promise.all([

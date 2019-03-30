@@ -7,6 +7,7 @@ import {PageRepositoryService, PageService} from '../../../../page/repository';
 import {NavigationService} from '../../../../../modules/navigation';
 import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
 import {ComponentPortal, Portal} from '@angular/cdk/portal';
+import {AuthService} from '../../../../../modules/auth';
 
 @Component({
     selector: 'app-shell-container',
@@ -20,6 +21,7 @@ export class ShellContainerComponent implements OnInit {
     secondaryPortal: Portal<any>;
 
     constructor(public deviceLayoutService: DeviceLayoutService,
+                public authService: AuthService,
                 private shellStore: ShellStore,
                 public shellQuery: ShellQuery,
                 private pageService: PageService,
@@ -60,6 +62,10 @@ export class ShellContainerComponent implements OnInit {
         this.pageService.createPage().then((newPageId) => {
             this.navigationService.toPage(newPageId);
         });
+    }
+
+    sync() {
+        this.originPouchDbSyncService.syncPouchDb();
     }
 
     setMainPortalComponent(componentPortal: ComponentPortal<any>) {

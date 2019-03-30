@@ -33,6 +33,9 @@ import {PageViewQuery} from './state/page-view.query';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
 import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
+import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
+import {DialogWrapperService} from './services/dialog-wrapper.service';
+import {BottomSheetWrapperService} from './services/bottom-sheet-wrapper.service';
 
 const routes: Routes = [
     {
@@ -60,9 +63,11 @@ const routes: Routes = [
         PageBodyEditorContainerComponent,
         PageSearchPageComponent,
         PageBreadcrumbsContainerComponent,
-        PageMenuContainerComponent
+        PageMenuContainerComponent,
+        PickPageDialogComponent,
     ],
     entryComponents: [
+        PickPageDialogComponent,
         PageMenuContainerComponent,
         PageBreadcrumbsContainerComponent
     ],
@@ -101,6 +106,8 @@ const routes: Routes = [
         MatIconModule
     ],
     providers: [
+        BottomSheetWrapperService,
+        DialogWrapperService,
         PageViewStore,
         PageViewQuery,
         {

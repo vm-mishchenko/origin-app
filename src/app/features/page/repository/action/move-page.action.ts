@@ -10,7 +10,6 @@ export class MovePageAction {
                 private pageRepositoryService: PageRepositoryService,
                 private wallModelFactory: WallModelFactory,
     ) {
-
     }
 
     execute(): Promise<any> {
@@ -25,9 +24,18 @@ export class MovePageAction {
                 return Promise.resolve();
             }
 
-            return this.updateTargetPage()
-                .then(() => this.updateMovedPage())
-                .then(() => this.updateOldParentPage(movedRelationPage.parentPageId));
+            // run guards
+            return Promise.all([
+                this.targetPageIsNotChildOfMovedPageGuard()
+            ]).then(() => {
+                return this.updateTargetPage()
+                    .then(() => this.updateMovedPage())
+                    .then(() => this.updateOldParentPage(movedRelationPage.parentPageId));
+            }).catch(() => {
+                // catch some inconsistency
+                // skip all operations
+                return Promise.resolve();
+            });
         });
     }
 
@@ -51,8 +59,6 @@ export class MovePageAction {
                 );
 
                 // update new parent relation
-
-
                 targetParentPromises.push(
                     this.pageStorages.pageRelationStorage.update(targetRelationPage.id, {
                         childrenPageId: targetRelationPage.childrenPageId.concat([this.movedPageId])
@@ -110,6 +116,24 @@ export class MovePageAction {
 
             return Promise.all(promises).then(() => {
             });
+        });
+    }
+
+    // guards
+    private targetPageIsNotChildOfMovedPageGuard(pageId: string = this.targetPageId): Promise<any> {
+        return this.pageRepositoryService.getRelationPage(pageId).then((targetRelation) => {
+            if (!targetRelation.parentPageId) {
+                return Promise.resolve();
+            }
+
+            if (targetRelation.parentPageId === this.movedPageId) {
+                return Promise.reject('Forbidden operation');
+            }
+
+            // lets look above, maybe somewhere there will be moved page
+            if (targetRelation.parentPageId) {
+                return this.targetPageIsNotChildOfMovedPageGuard(targetRelation.parentPageId);
+            }
         });
     }
 }
