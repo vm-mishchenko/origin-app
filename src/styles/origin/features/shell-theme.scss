@@ -1,0 +1,5 @@
+@import "../../../app/features/shell/view/containers/welcome/shell-welcome-container-theme.component";
+
+@mixin shell-theme($theme, $typography) {
+  @include shell-welcome-container-theme($theme, $typography);
+}

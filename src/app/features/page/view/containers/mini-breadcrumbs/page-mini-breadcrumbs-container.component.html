@@ -1,4 +1,4 @@
-<div *ngIf="(pageBreadcrumbStream.breadcrumbs$ | async).length === 1">
+<div class="root" *ngIf="(pageBreadcrumbStream.breadcrumbs$ | async).length === 1">
     {{(pageBreadcrumbStream.breadcrumbs$ | async)[0].pageTitle}}
 </div>
 

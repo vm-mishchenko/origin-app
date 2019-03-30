@@ -9,9 +9,10 @@ import {PageRepositoryModule} from '../../page/repository';
 import {PageUiModule} from '../../page/ui';
 import {NavigationModule} from '../../../modules/navigation';
 import {PortalModule} from '@angular/cdk/portal';
+import {ShellWelcomeContainerComponent} from './containers/welcome/shell-welcome-container.component';
 
 @NgModule({
-    declarations: [ShellContainerComponent],
+    declarations: [ShellContainerComponent, ShellWelcomeContainerComponent],
     imports: [
         PageUiModule,
         NavigationModule,
