@@ -2,7 +2,7 @@ import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@a
 import {IPageSearchItem, PageSearchService} from '../../../search/page-search.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable, of} from 'rxjs';
-import {debounceTime, switchMap} from 'rxjs/operators';
+import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-page-search-container',
@@ -14,6 +14,16 @@ export class PageSearchContainerComponent implements OnInit {
 
     @Output() selectItem: EventEmitter<IPageSearchItem> = new EventEmitter();
     pageSearchItems$: Observable<IPageSearchItem[]>;
+    emptyTextIndex = 0;
+    emptyTextVariants: string[] = [
+        'Nothing here',
+        'I remember, it definitely has that name!',
+        'Hm, seems empty',
+        'No results',
+        ':( I agree, remember page name is not always easy',
+        'Good try, keep going'
+    ];
+    emptyText$: Observable<string>;
     pageForm: FormGroup;
 
     constructor(private pageSearchService: PageSearchService,
@@ -37,9 +47,28 @@ export class PageSearchContainerComponent implements OnInit {
                 return this.pageSearchService.search(query);
             })
         );
+
+        this.emptyText$ = this.pageSearchItems$.pipe(
+            startWith(this.getNextEmptyText()),
+            debounceTime(500),
+            map(() => {
+                return this.getNextEmptyText();
+            })
+        );
     }
 
     selectSearchItem(pageSearchItem: IPageSearchItem) {
         this.selectItem.emit(pageSearchItem);
+    }
+
+    private getNextEmptyText() {
+        this.emptyTextIndex++;
+
+        if (this.emptyTextIndex === this.emptyTextVariants.length) {
+            this.emptyTextIndex = 0;
+        }
+
+
+        return this.emptyTextVariants[this.emptyTextIndex];
     }
 }

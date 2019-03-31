@@ -10,3 +10,8 @@
         {{pageSearchItem.pageTitle}}
     </button>
 </mat-action-list>
+
+<div class="empty" *ngIf="(pageSearchItems$ | async)?.length === 0">
+    <i>{{emptyText$ | async}}</i>
+</div>
+

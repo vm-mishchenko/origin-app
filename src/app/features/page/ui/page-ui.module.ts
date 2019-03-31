@@ -44,6 +44,7 @@ import {FormControlsModule} from '../../../components/form-controls';
         MatButtonModule,
         MatInputModule,
         MatFormFieldModule,
+        MatProgressBarModule,
         RouterModule,
         WallModule
     ]
