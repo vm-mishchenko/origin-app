@@ -27,7 +27,7 @@
                 <ng-template [cdkPortalOutlet]="mainPortal"></ng-template>
             </div>
             <div>
-                <button mat-button (click)="sync()" [disabled]="!(authService.user$ | async)">Sync</button>
+                <a [routerLink]="['/page/search']" mat-button>Search</a>
                 <ng-template [cdkPortalOutlet]="secondaryPortal"></ng-template>
             </div>
         </mat-toolbar>
