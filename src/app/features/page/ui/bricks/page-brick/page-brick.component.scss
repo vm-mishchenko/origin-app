@@ -1,3 +1,5 @@
+@import "~@angular/material/theming";
+
 a {
   width: 100%;
   text-align: left;
@@ -6,4 +8,11 @@ a {
 
 mat-icon {
   margin-right: 5px;
+}
+
+@media ($mat-small) {
+  a {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
 }
