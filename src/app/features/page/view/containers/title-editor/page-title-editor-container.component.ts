@@ -65,7 +65,7 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
                 // focus on title
                 setTimeout(() => {
                     this.headerControlComponent.focus();
-                }, 300);
+                });
             })
         );
     }
