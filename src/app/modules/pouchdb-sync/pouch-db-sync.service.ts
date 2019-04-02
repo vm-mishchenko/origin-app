@@ -21,6 +21,8 @@ import {Observable, Subject} from 'rxjs';
     providedIn: 'root'
 })
 export class PouchDbSyncService {
+    private syncPromise: Promise<any>;
+
     synced$: Observable<any> = new Subject();
     private pouchDbConfig: IPouchDbConfig;
 
@@ -66,12 +68,19 @@ export class PouchDbSyncService {
     syncPouchDb() {
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
-        this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
-            (this.synced$ as Subject<any>).next();
+        // cache promise to avoid unnecessary double sync call
+        if (!this.syncPromise) {
+            this.syncPromise = this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
+                (this.synced$ as Subject<any>).next();
 
-            this.snackBar.open('App is synced', '', {
-                duration: 2500 /* milliseconds */
+                this.snackBar.open('App is synced', '', {
+                    duration: 2500 /* milliseconds */
+                });
+            }).finally(() => {
+                this.syncPromise = null;
             });
-        });
+        }
+
+        return this.syncPromise;
     }
 }
