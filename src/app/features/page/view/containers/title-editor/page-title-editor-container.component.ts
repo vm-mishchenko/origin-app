@@ -1,8 +1,9 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
 import {PageRepositoryService, PageService} from '../../../repository';
+import {HeaderControlComponent} from '../../../../../components/form-controls/header-control/header-control.component';
 
 @Component({
     selector: 'app-title-page-editor-container',
@@ -10,6 +11,7 @@ import {PageRepositoryService, PageService} from '../../../repository';
     styleUrls: ['./page-title-editor-container.component.scss']
 })
 export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnDestroy {
+    @ViewChild(HeaderControlComponent) headerControlComponent: HeaderControlComponent;
     @Input() selectedPageId: string;
     @Output() enter: EventEmitter<any> = new EventEmitter();
 
@@ -59,6 +61,11 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
                 this.pageForm.patchValue({
                     title: selectedPageIdentityTitle
                 });
+
+                // focus on title
+                setTimeout(() => {
+                    this.headerControlComponent.focus();
+                }, 300);
             })
         );
     }

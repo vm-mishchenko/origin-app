@@ -39,4 +39,22 @@ export class HeaderControlComponent extends ValueAccessor<string> {
             this.enter.emit();
         }
     }
+
+    // public API
+    focus() {
+        const textNode = this.editor.nativeElement.childNodes[0];
+
+        if (textNode) {
+            // place caret at the end
+            const range = document.createRange();
+            const sel = window.getSelection();
+
+            range.setStart(textNode, this.editor.nativeElement.textContent.length);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else {
+            // or focus on element if it's empty
+            this.editor.nativeElement.focus();
+        }
+    }
 }
