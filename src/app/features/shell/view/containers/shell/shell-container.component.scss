@@ -52,6 +52,11 @@ mat-sidenav-content {
   overflow: hidden;
 }
 
+.route-outlet {
+  overflow: auto;
+  height: calc(100% - 71px);
+}
+
 mat-toolbar {
   height: 50px;
   margin-bottom: 15px;
