@@ -12,10 +12,8 @@ import {filter, map} from 'rxjs/internal/operators';
     styleUrls: ['./page-menu-container.component.scss']
 })
 export class PageMenuContainerComponent implements OnInit {
-
     constructor(private pageViewQuery: PageViewQuery,
                 private pageService: PageService,
-                public dialog: MatDialog,
                 public dialogWrapperService: DialogWrapperService) {
     }
 
@@ -37,13 +35,25 @@ export class PageMenuContainerComponent implements OnInit {
     }
 
     moveBrickTo() {
-        const targetPageId = window.prompt('Target page id');
+        // store selected brick ids
+        // because during page selection (in dialog) that value will be lost
+        // wall reacts on each document click and unselect bricks
+        const selectedBrickIds = this.pageViewQuery.getSelectedBrickIds();
 
-        if (targetPageId) {
-            this.pageService.moveBricks(this.pageViewQuery.getSelectedPageId(),
-                this.pageViewQuery.getSelectedBrickIds(),
-                targetPageId);
+        if (!selectedBrickIds.length) {
+            return;
         }
+
+        this.dialogWrapperService.open(PickPageDialogComponent).afterClosed()
+            .pipe(
+                filter((result) => Boolean(result)),
+                map((result) => result.pageId)
+            ).subscribe((pageId) => {
+
+            this.pageService.moveBricks(this.pageViewQuery.getSelectedPageId(),
+                selectedBrickIds,
+                pageId);
+        });
     }
 
     remove() {

@@ -37,7 +37,11 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
             plugins: [
                 new CopyPlugin(this.injector),
                 new UndoRedoPlugin(this.injector),
-                new SelectionPlugin(this.injector)
+                new SelectionPlugin(this.injector, {
+                    shouldUnselectBrick: (e) => {
+                        return !this.isMenuButton(e.target as HTMLElement);
+                    }
+                })
             ]
         });
 
@@ -102,5 +106,11 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });
+    }
+
+    private isMenuButton(targetElement: HTMLElement): boolean {
+        // todo: 'paged-editor-menu-handler' - hardcoded value, it's used in page-menu-container
+        // that is a quick fix for which should be found more robust solution
+        return Array.from(targetElement.classList).includes('paged-editor-menu-handler');
     }
 }

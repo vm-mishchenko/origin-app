@@ -1,10 +1,10 @@
 <mat-menu #appMenu="matMenu" yPosition="above">
     <button mat-menu-item (click)="moveTo()">Move to</button>
     <button mat-menu-item (click)="moveToRoot()">Move to Root</button>
-    <button mat-menu-item (click)="moveBrickTo()">Move Brick to</button>
+    <button class="paged-editor-menu-handler" mat-menu-item (click)="moveBrickTo()">Move Brick to</button>
     <button mat-menu-item (click)="remove()">Remove</button>
 </mat-menu>
 
-<button mat-icon-button [matMenuTriggerFor]="appMenu">
-    <mat-icon>more_vert</mat-icon>
+<button class="paged-editor-menu-handler" mat-icon-button [matMenuTriggerFor]="appMenu">
+    <mat-icon class="paged-editor-menu-handler">more_vert</mat-icon>
 </button>
