@@ -54,7 +54,8 @@ export class PouchdbStorageFactory {
             localStorage.setItem(POUCH_STORAGE_LOCAL_DB_NAME_KEY, localDbName);
         }
 
-        this.database = new PouchDB(localDbName);
+        // todo: set auto_compaction for true, but need more investigation
+        this.database = new PouchDB(localDbName, {auto_compaction: true});
     }
 
     private getLocalDbName(): string {
