@@ -11,7 +11,8 @@
     "test:once": "ng test --watch=false --code-coverage",
     "release": "npm run test:once && npm run build:prod && npm run deploy",
     "build:prod": "ng build --stats-json --prod",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "private": true,
   "dependencies": {
@@ -64,6 +65,7 @@
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "~3.1.6"
+    "typescript": "~3.1.6",
+    "coveralls": "^3.0.2"
   }
 }
