@@ -4,14 +4,25 @@
             col-md-10 offset-md-1
             col-lg-8 offset-lg-2
             col-xl-8 offset-xl-2">
-            <p>
-                <button (click)="authService.signIn()" *ngIf="!(authService.user$ | async)" mat-button>Sign in</button>
-            </p>
+            <h2>Account</h2>
+            <div *ngIf="authService.user$ | async">
+                <p>Hi, {{(authService.user$ | async)?.displayName}}</p>
+                <button color="accent" (click)="authService.signOut()" mat-flat-button>Sign out</button>
+            </div>
+
+            <div *ngIf="!(authService.user$ | async)">
+                <p>Log in if you want to sync your data with a cloud.</p>
+                <p>It's not necessary though, app works completely locally and offline.</p>
+                <button color="accent" (click)="authService.signIn()" mat-flat-button>Sign in</button>
+            </div>
+
+            <br>
 
             <div *ngIf="authService.user$ | async">
-                <button (click)="authService.signOut()" mat-button>Sign out</button>
-
-                <pre>{{(authService.user$ | async)?.displayName}}</pre>
+                <h3>Sync data</h3>
+                <p>Your pages will be automatically synced every time you open the app.</p>
+                <button color="accent" (click)="pouchDbSyncService.syncPouchDb()" mat-flat-button>Sync it now
+                </button>
             </div>
         </div>
     </div>
