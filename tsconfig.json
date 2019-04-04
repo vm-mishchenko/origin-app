@@ -26,9 +26,6 @@
       "@angular/*": [
         "./node_modules/@angular/*"
       ],
-      "@ng-bootstrap/*": [
-        "./node_modules/@ng-bootstrap/*"
-      ],
       "rxjs": [
         "./node_modules/rxjs"
       ],
