@@ -39,7 +39,7 @@
     "core-js": "^2.5.4",
     "firebase": "5.8.2",
     "ngx-sticky-modal": "^0.0.3",
-    "ngx-wall": "1.1.16",
+    "ngx-wall": "^1.1.17",
     "open-iconic": "1.1.1",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0",

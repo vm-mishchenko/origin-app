@@ -3,7 +3,7 @@
 @import '~bootstrap/scss/bootstrap-reboot';
 @import '~bootstrap/scss/bootstrap-grid';
 @import "./fonts";
-@import "../../../ngx-wall/projects/ngx-wall/src/lib/resources/scss/index";
+@import "~ngx-wall/scss/index";
 @import 'origin/index';
 
 // Define a custom typography config that overrides the font-family as well as the
