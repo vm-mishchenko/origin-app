@@ -14,6 +14,8 @@ import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 import {environment} from '../../../../environments/environment';
 import {AngularFireStorageModule} from '@angular/fire/storage';
 import {AngularFireAuthModule} from '@angular/fire/auth';
+import {AuthService} from '../../../modules/auth';
+import {of} from 'rxjs';
 
 @Component({
     selector: 'fixture-brick',
@@ -122,6 +124,13 @@ describe('PageService', () => {
                 provide: PouchdbStorageFactory,
                 useValue: {
                     createPouchDB: () => mockPouchDb
+                }
+            },
+            // mock for easier firebase and google account configuration
+            {
+                provide: AuthService,
+                useValue: {
+                    signOut$: of(null)
                 }
             },
             {
