@@ -95,7 +95,6 @@ const routes: Routes = [
         HeaderBrickModule,
         ImgBrickModule,
         CodeBrickModule,
-        WebBookmarkBrickModule,
         PickOutModule,
         TowModule,
         RadarModule,
