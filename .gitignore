@@ -2,3 +2,5 @@
 .firebase
 src/environments/keys-production.ts
 src/environments/keys-dev.ts
+dist
+coverage
