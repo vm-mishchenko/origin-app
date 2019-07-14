@@ -20,24 +20,24 @@ import {
 } from 'ngx-wall';
 import {FormControlsModule} from '../../../components/form-controls';
 import {NavigationModule} from '../../../modules/navigation';
-import {PageFileUploaderService} from '../repository';
+import {ShellViewModule} from '../../shell/view';
 import {PageUiModule} from '../ui';
 import {PageEditorComponent} from './components/editor/page-editor.component';
-import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';
-import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
-import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
-import {ShellViewModule} from '../../shell/view';
-import {PageViewStore} from './state/page-view.store';
-import {PageViewQuery} from './state/page-view.query';
-import {PageSearchPageComponent} from './pages/search/page-search-page.component';
+import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
+import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
-import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
-import {DialogWrapperService} from './services/dialog-wrapper.service';
-import {BottomSheetWrapperService} from './services/bottom-sheet-wrapper.service';
-import {PageBreadcrumbStream} from './state/page-breadcrumbs-view.stream';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
+import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
+import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
+import {PageViewFileUploaderService} from './page-view-file-uploader.service';
+import {PageSearchPageComponent} from './pages/search/page-search-page.component';
+import {BottomSheetWrapperService} from './services/bottom-sheet-wrapper.service';
+import {DialogWrapperService} from './services/dialog-wrapper.service';
+import {PageBreadcrumbStream} from './state/page-breadcrumbs-view.stream';
+import {PageViewQuery} from './state/page-view.query';
+import {PageViewStore} from './state/page-view.store';
 
 const routes: Routes = [
     {
@@ -116,7 +116,7 @@ const routes: Routes = [
         PageViewQuery,
         {
             provide: WALL_FILE_UPLOADER,
-            useClass: PageFileUploaderService
+            useClass: PageViewFileUploaderService
         }
     ]
 })
