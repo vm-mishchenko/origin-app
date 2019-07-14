@@ -72,7 +72,7 @@ export class AuthService {
 
     // todo: maybe move to separate service to not expose that method publicly
     initGapiClient(): Promise<any> {
-        if (this.isGapiInitialize) {
+        if (this.isGapiLibraryAlreadyLoaded()) {
             return Promise.resolve();
         }
 
@@ -109,5 +109,9 @@ export class AuthService {
             this.firebaseAuth.auth.signOut(),
             gapi.auth2.getAuthInstance().signOut()
         ]);
+    }
+
+    private isGapiLibraryAlreadyLoaded(): boolean {
+        return Boolean(this.isGapiInitialize);
     }
 }
