@@ -2,5 +2,6 @@
                  (wallEvents)="wallEvents($event)"
                  (selectedBrickIds)="onSelectedBrickIds($event)"
                  [scrollableContainer]="scrollableContainer"
+                 [isPageLocked$]="pageViewQuery.isPageLocked$"
                  [pageBody]="pageBody$ | async">
 </app-page-editor>

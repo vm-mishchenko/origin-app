@@ -12,8 +12,11 @@ import {
     UndoRedoPlugin,
     WallModelFactory
 } from 'ngx-wall';
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 
+/**
+ * Dump component responsible for rendering Wall model.
+ */
 @Component({
     selector: 'app-page-editor',
     templateUrl: './page-editor.component.html',
@@ -21,6 +24,7 @@ import {Subscription} from 'rxjs';
 })
 export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() pageBody: IWallDefinition;
+    @Input() isPageLocked$: Observable<boolean>;
     @Input() scrollableContainer: HTMLElement;
 
     @Output() wallEvents: EventEmitter<any> = new EventEmitter();
@@ -28,6 +32,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
 
     wallModel: IWallModel;
+
     private subscriptions: Subscription[] = [];
 
     constructor(private wallModelFactory: WallModelFactory,
@@ -45,6 +50,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
             ]
         });
 
+        // proxy all wall model events to parent
         this.subscriptions.push(
             this.wallModel.api.core.subscribe((event) => {
                 if (!(event instanceof SetPlanEvent) && !(event instanceof BeforeChangeEvent)) {
@@ -68,7 +74,16 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnInit() {
-
+        // update wall model "readonly" mode
+        this.subscriptions.push(
+            this.isPageLocked$.subscribe((isPageLocked) => {
+                if (isPageLocked) {
+                    this.wallModel.api.core.enableReadOnly();
+                } else {
+                    this.wallModel.api.core.disableReadOnly();
+                }
+            })
+        );
     }
 
     // public API

@@ -5,6 +5,7 @@ import {concat, filter, first, map, pairwise, shareReplay, switchMap, tap} from 
 import {PageRepositoryService, PageService} from '../../../repository';
 import {PAGE_BRICK_TAG_NAME} from '../../../ui/page-ui.constant';
 import {PageEditorComponent} from '../../components/editor/page-editor.component';
+import {PageViewQuery} from '../../state/page-view.query';
 import {PageViewStore} from '../../state/page-view.store';
 
 @Component({
@@ -13,7 +14,6 @@ import {PageViewStore} from '../../state/page-view.store';
     styleUrls: ['./page-body-editor-container.component.scss']
 })
 export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
-    @Input() selectedPageId$: Observable<string>;
     @Input() scrollableContainer: HTMLElement;
 
     pageBody$: Observable<IWallDefinition>;
@@ -26,18 +26,19 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
 
     constructor(private pageRepositoryService: PageRepositoryService,
                 private pageService: PageService,
+                public pageViewQuery: PageViewQuery,
                 private pageViewStore: PageViewStore) {
     }
 
     ngOnInit() {
         this.subscriptions.push(
-            this.selectedPageId$.subscribe((pageId) => {
+            this.pageViewQuery.selectedPageId$.subscribe((pageId) => {
                 this.selectedPageId = pageId;
             })
         );
 
         // database -> editor
-        this.pageBody$ = this.selectedPageId$.pipe(
+        this.pageBody$ = this.pageViewQuery.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
                 // initial pageBody rendering
                 // emit event as soon as first selected page body-editor is come
