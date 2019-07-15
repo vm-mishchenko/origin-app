@@ -15,9 +15,8 @@ import {DeletePageEvent} from '../../../repository/page-events.type';
 import {PageViewQuery} from '../../state/page-view.query';
 import {PageViewStore} from '../../state/page-view.store';
 import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-container.component';
-import {PageBreadcrumbsContainerComponent} from '../breadcrumbs/page-breadcrumbs-container.component';
+import {PageEditorMainMenuComponent} from '../editor-main-menu/page-editor-main-menu.component';
 import {PageMenuContainerComponent} from '../menu/page-menu-container.component';
-import {PageMiniBreadcrumbsContainerComponent} from '../mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 
 
 /**
@@ -48,7 +47,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 public pageViewQuery: PageViewQuery) {
         this.shellContainerComponent.setMainPortalComponent(
             new ComponentPortal(
-                this.deviceLayoutService.isMobileLayout() ? PageMiniBreadcrumbsContainerComponent : PageBreadcrumbsContainerComponent,
+                PageEditorMainMenuComponent,
                 /* ViewContainerRef = */ undefined,
                 /* injector = */ undefined,
                 this.componentFactoryResolver

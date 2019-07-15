@@ -1,0 +1,4 @@
+<mat-icon *ngIf="pageViewQuery.isPageLocked$ | async">lock</mat-icon>
+<app-page-mini-breadcrumbs-container
+        *ngIf="this.deviceLayoutService.isMobileLayout()"></app-page-mini-breadcrumbs-container>
+<app-page-breadcrumbs-container *ngIf="!this.deviceLayoutService.isMobileLayout()"></app-page-breadcrumbs-container>

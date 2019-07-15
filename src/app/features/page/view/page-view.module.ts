@@ -26,6 +26,7 @@ import {PageEditorComponent} from './components/editor/page-editor.component';
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';
 import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
+import {PageEditorMainMenuComponent} from './containers/editor-main-menu/page-editor-main-menu.component';
 import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
@@ -68,12 +69,14 @@ const routes: Routes = [
         PageMenuContainerComponent,
         PickPageDialogComponent,
         PageMiniBreadcrumbsContainerComponent,
+        PageEditorMainMenuComponent,
     ],
     entryComponents: [
         PickPageDialogComponent,
         PageMenuContainerComponent,
         PageBreadcrumbsContainerComponent,
-        PageMiniBreadcrumbsContainerComponent
+        PageMiniBreadcrumbsContainerComponent,
+        PageEditorMainMenuComponent
     ],
     imports: [
         CommonModule,
