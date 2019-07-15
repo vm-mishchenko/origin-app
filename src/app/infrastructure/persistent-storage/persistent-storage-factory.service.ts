@@ -13,6 +13,8 @@ akitaConfig({
     providedIn: 'root'
 })
 export class PersistentStorageFactory {
+    private persistentStorageCache: Map<string, PersistentStorage<any>> = new Map();
+
     private globalFactoryOptions: IPersistedStorageFactoryOptions = {
         pouchDbSavingDebounceTime: POUCH_DB_DEBOUNCE_TIME
     };
@@ -22,26 +24,37 @@ export class PersistentStorageFactory {
 
     // todo: need cached already created Storages.
     create<M extends IPersistedStorageEntity>(options: IPersistedStorageCreateOptions): PersistentStorage<M> {
-        // pouch db database
-        const pouchdbStorage = this.pouchdbStorageFactory.createPouchDB<M>({
-            name: options.name
-        });
+        if (!this.persistentStorageCache.has(options.name)) {
+            // pouch db database
+            const pouchdbStorage = this.pouchdbStorageFactory.createPouchDB<M>({
+                name: options.name
+            });
 
-        // merge client and default options
-        options = {
-            ...options,
-            ...this.globalFactoryOptions
-        };
+            // merge client and default options
+            options = {
+                ...options,
+                ...this.globalFactoryOptions
+            };
 
-        // akita memory store
-        const memoryStore = new EntityStore<EntityState<M>, M>({}, {
-            storeName: options.name
-        });
+            // akita memory store
+            const memoryStore = new EntityStore<EntityState<M>, M>({}, {
+                storeName: options.name
+            });
 
-        // akita query based on akita memory store
-        const query = new Query<EntityState<M>>(memoryStore);
+            // akita query based on akita memory store
+            const query = new Query<EntityState<M>>(memoryStore);
 
-        return new PersistentStorage<M>(pouchdbStorage, memoryStore, query, {pouchDbSavingDebounceTime: options.pouchDbSavingDebounceTime});
+            const persistentStorage = new PersistentStorage<M>(
+                pouchdbStorage,
+                memoryStore,
+                query,
+                {pouchDbSavingDebounceTime: options.pouchDbSavingDebounceTime}
+            );
+
+            this.persistentStorageCache.set(options.name, persistentStorage);
+        }
+
+        return this.persistentStorageCache.get(options.name);
     }
 
     // set global options for factory. Used for all operation

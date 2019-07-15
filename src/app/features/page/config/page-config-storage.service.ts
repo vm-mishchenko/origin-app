@@ -18,13 +18,12 @@ export interface IPageConfigData {
     providedIn: 'root'
 })
 export class PageConfigStorageService {
-    pageConfigStorage: PersistentStorage<IPageConfigData>;
+    pageConfigStorage: PersistentStorage<IPageConfigData> = this.persistentStorageFactory.create<IPageConfigData>({
+        name: 'page-config'
+    });
 
     constructor(private persistentStorageFactory: PersistentStorageFactory,
                 private pageRepositoryService: PageRepositoryService) {
-        this.pageConfigStorage = this.persistentStorageFactory.create<IPageConfigData>({
-            name: 'page-config'
-        });
     }
 
     changeConfig(change: PageLockConfigChange): Promise<any> {
