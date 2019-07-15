@@ -1,22 +1,29 @@
+import {ComponentPortal} from '@angular/cdk/portal';
 import {Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
-import {Subscription} from 'rxjs';
-import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {filter, map, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
+import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
 import {NavigationService} from '../../../../../modules/navigation';
+import {ShellContainerComponent} from '../../../../shell/view';
+import {ShellStore} from '../../../../shell/view/state/shell.store';
+import {PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
+import {PageConfigRepositoryService} from '../../../config/page-config-repository.service';
+import {PageConfigStorageService} from '../../../config/page-config-storage.service';
 import {PageRepositoryService, PageService} from '../../../repository';
 import {DeletePageEvent} from '../../../repository/page-events.type';
-import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-container.component';
-import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
-import {ShellStore} from '../../../../shell/view/state/shell.store';
-import {PageViewStore} from '../../state/page-view.store';
 import {PageViewQuery} from '../../state/page-view.query';
-import {ShellContainerComponent} from '../../../../shell/view';
+import {PageViewStore} from '../../state/page-view.store';
+import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-container.component';
 import {PageBreadcrumbsContainerComponent} from '../breadcrumbs/page-breadcrumbs-container.component';
-import {ComponentPortal} from '@angular/cdk/portal';
 import {PageMenuContainerComponent} from '../menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from '../mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 
+
+/**
+ * Container around page title and body editors.
+ */
 @Component({
     selector: 'app-page-editor-view-container',
     templateUrl: './page-editor-container.component.html',
@@ -24,6 +31,9 @@ import {PageMiniBreadcrumbsContainerComponent} from '../mini-breadcrumbs/page-mi
 })
 export class PageEditorContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
+    pageConfig$: Observable<any>;
+
+    @ViewChild(PageBodyEditorContainerComponent) bodyPageEditorContainer: PageBodyEditorContainerComponent;
 
     constructor(private route: ActivatedRoute,
                 private navigationService: NavigationService,
@@ -35,6 +45,8 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 private pageViewStore: PageViewStore,
                 private shellContainerComponent: ShellContainerComponent,
                 private componentFactoryResolver: ComponentFactoryResolver,
+                private pageConfigStorageService: PageConfigStorageService,
+                private pageConfigRepositoryService: PageConfigRepositoryService,
                 public pageViewQuery: PageViewQuery) {
         this.shellContainerComponent.setMainPortalComponent(
             new ComponentPortal(
@@ -67,8 +79,6 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
         );
     }
 
-    @ViewChild(PageBodyEditorContainerComponent) bodyPageEditorContainer: PageBodyEditorContainerComponent;
-
     ngOnInit() {
         // navigation after selected page was deleted
         this.subscriptions.push(
@@ -96,6 +106,10 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 filter((selectedPageId) => Boolean(selectedPageId))
             ).subscribe((pageId) => {
                 Promise.all([
+                    // load selected page config
+                    this.pageConfigRepositoryService.load(pageId),
+
+                    // loading page after selected page was changed
                     this.pageRepositoryService.loadIdentityPage(pageId),
                     this.pageRepositoryService.loadBodyPage(pageId),
                     this.pageRepositoryService.loadTreePageChildren(pageId)
@@ -104,8 +118,32 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 });
             })
         );
+
+        this.pageConfig$ = this.pageViewQuery.selectedPageId$.pipe(
+            switchMap((selectedPagedId) => {
+                return this.pageConfigRepositoryService.pageConfigs$.pipe(
+                    filter((pageConfigs) => Boolean(pageConfigs[selectedPagedId])),
+                    map((pageConfigs) => pageConfigs[selectedPagedId].configs)
+                );
+            }),
+            shareReplay()
+        );
+
+        this.pageConfig$.subscribe((config) => {
+            console.log(config);
+        });
     }
 
+    onConfigChange() {
+        console.log(`onConfigChange`);
+        this.pageConfigStorageService.changeConfig(new PageLockConfigChange(this.pageViewQuery.getSelectedPageId(), true)).then(() => {
+            console.log(`page config is changed`);
+        });
+    }
+
+    /**
+     * Focus to page body after Enter press on page title.
+     */
     onHeaderEnterHandler() {
         this.bodyPageEditorContainer.focusOnPageEditor();
     }

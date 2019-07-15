@@ -12,6 +12,13 @@
         </div>
     </div>
 
+    <h3>Page Config</h3>
+    <button (click)="onConfigChange()">Change config</button>
+
+    <pre>
+        {{(pageConfig$|async) | json}}
+    </pre>
+
     <div class="container-fluid" [pick-out-area]="{scrollableContainer: container}">
         <div class="row">
             <div class="

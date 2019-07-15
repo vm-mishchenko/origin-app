@@ -1,10 +1,13 @@
-/* Facade around memory and pouchDB databases */
 import {EntityState, EntityStore, HashMap, Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {EntityStorePouchDb} from '../pouchdb/pouchdb-storage';
 import {IPersistedStorageEntity, IPersistentStorageOptions} from './persistent-storage.types';
 
+/**
+ * Facade around memory and pouchDB databases.
+ * Need to think about splitting methods to two classes - read only and write only.
+ * */
 export class PersistentStorage<M extends IPersistedStorageEntity> {
     entities$: Observable<HashMap<M>>;
 
@@ -22,6 +25,7 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         return this.query.getValue().entities;
     }
 
+    // todo: need to cache those requests
     load(id: string): Promise<M> {
         return this.pouchdbStorage.get(id).then((rawEntity) => {
             const entity = this.extractEntityFromRawEntity(rawEntity);
@@ -54,7 +58,19 @@ export class PersistentStorage<M extends IPersistedStorageEntity> {
         });
     }
 
+    isExist(id: string): Promise<boolean> {
+        return this.get(id).then(() => true).catch(() => false);
+    }
+
     // mutate
+    addIfNotExists(record: M): Promise<any> {
+        return this.isExist(record.id).then((isExists) => {
+            if (!isExists) {
+                return this.add(record);
+            }
+        });
+    }
+
     add(record: M): Promise<any> {
         this.memoryStore.add(record);
 

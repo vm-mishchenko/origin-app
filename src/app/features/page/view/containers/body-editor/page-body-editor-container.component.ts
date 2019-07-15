@@ -15,13 +15,14 @@ import {PageViewStore} from '../../state/page-view.store';
 export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     @Input() selectedPageId$: Observable<string>;
     @Input() scrollableContainer: HTMLElement;
+
     pageBody$: Observable<IWallDefinition>;
+
     private currentBody: string = null;
-
-    @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
-
     private selectedPageId: string;
     private subscriptions: Subscription[] = [];
+
+    @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
 
     constructor(private pageRepositoryService: PageRepositoryService,
                 private pageService: PageService,

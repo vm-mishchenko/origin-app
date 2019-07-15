@@ -20,21 +20,25 @@ export class PersistentStorageFactory {
     constructor(private pouchdbStorageFactory: PouchdbStorageFactory) {
     }
 
+    // todo: need cached already created Storages.
     create<M extends IPersistedStorageEntity>(options: IPersistedStorageCreateOptions): PersistentStorage<M> {
+        // pouch db database
         const pouchdbStorage = this.pouchdbStorageFactory.createPouchDB<M>({
             name: options.name
         });
 
-        // combine user and default options
+        // merge client and default options
         options = {
             ...options,
             ...this.globalFactoryOptions
         };
 
+        // akita memory store
         const memoryStore = new EntityStore<EntityState<M>, M>({}, {
             storeName: options.name
         });
 
+        // akita query based on akita memory store
         const query = new Query<EntityState<M>>(memoryStore);
 
         return new PersistentStorage<M>(pouchdbStorage, memoryStore, query, {pouchDbSavingDebounceTime: options.pouchDbSavingDebounceTime});

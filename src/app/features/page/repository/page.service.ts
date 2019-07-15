@@ -24,7 +24,7 @@ const DEFAULT_CREATE_PAGE_OPTIONS: ICreatePageOption = {
 /**
  * I cannot add couple pages in parallel :(
  * There is the same problem as with removing several pages in one call
- * */
+ */
 @Injectable({
     providedIn: 'root'
 })
