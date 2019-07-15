@@ -6,9 +6,13 @@ import {PageConfig} from './page.config.class';
 
 export interface IPageConfigData {
     id: string;
-    configs: {
-        [name: string]: any;
-    };
+
+    // todo: rename to items
+    configs: IPageConfigItems;
+}
+
+export interface IPageConfigItems {
+    [name: string]: any;
 }
 
 /**
@@ -18,7 +22,7 @@ export interface IPageConfigData {
     providedIn: 'root'
 })
 export class PageConfigStorageService {
-    pageConfigStorage: PersistentStorage<IPageConfigData> = this.persistentStorageFactory.create<IPageConfigData>({
+    private pageConfigStorage: PersistentStorage<IPageConfigData> = this.persistentStorageFactory.create<IPageConfigData>({
         name: 'page-config'
     });
 

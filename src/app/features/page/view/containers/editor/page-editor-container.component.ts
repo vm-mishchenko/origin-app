@@ -2,13 +2,12 @@ import {ComponentPortal} from '@angular/cdk/portal';
 import {Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {WallModelFactory} from 'ngx-wall';
-import {Observable, Subscription} from 'rxjs';
-import {filter, map, shareReplay, switchMap, tap, withLatestFrom} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
 import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
 import {NavigationService} from '../../../../../modules/navigation';
 import {ShellContainerComponent} from '../../../../shell/view';
 import {ShellStore} from '../../../../shell/view/state/shell.store';
-import {PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
 import {PageConfigRepositoryService} from '../../../config/page-config-repository.service';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';
 import {PageRepositoryService, PageService} from '../../../repository';
@@ -31,7 +30,6 @@ import {PageMiniBreadcrumbsContainerComponent} from '../mini-breadcrumbs/page-mi
 })
 export class PageEditorContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
-    pageConfig$: Observable<any>;
 
     @ViewChild(PageBodyEditorContainerComponent) bodyPageEditorContainer: PageBodyEditorContainerComponent;
 
@@ -118,27 +116,6 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 });
             })
         );
-
-        this.pageConfig$ = this.pageViewQuery.selectedPageId$.pipe(
-            switchMap((selectedPagedId) => {
-                return this.pageConfigRepositoryService.pageConfigs$.pipe(
-                    filter((pageConfigs) => Boolean(pageConfigs[selectedPagedId])),
-                    map((pageConfigs) => pageConfigs[selectedPagedId].configs)
-                );
-            }),
-            shareReplay()
-        );
-
-        this.pageConfig$.subscribe((config) => {
-            console.log(config);
-        });
-    }
-
-    onConfigChange() {
-        console.log(`onConfigChange`);
-        this.pageConfigStorageService.changeConfig(new PageLockConfigChange(this.pageViewQuery.getSelectedPageId(), true)).then(() => {
-            console.log(`page config is changed`);
-        });
     }
 
     /**

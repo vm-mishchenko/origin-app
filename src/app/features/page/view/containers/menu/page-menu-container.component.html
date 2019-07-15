@@ -3,6 +3,9 @@
     <button mat-menu-item (click)="moveToRoot()">Move to Root</button>
     <button class="paged-editor-menu-handler" mat-menu-item (click)="moveBrickTo()">Move Brick to</button>
     <button mat-menu-item (click)="remove()">Remove</button>
+    <hr>
+    <button mat-menu-item (click)="unlockPage()" *ngIf="(isPageLocked$ | async)">Page UnLock</button>
+    <button mat-menu-item (click)="lockPage()" *ngIf="!(isPageLocked$ | async)">Page Lock</button>
 </mat-menu>
 
 <button class="paged-editor-menu-handler" mat-icon-button [matMenuTriggerFor]="appMenu">

@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HashMap} from '@datorama/akita';
 import {Observable} from 'rxjs/internal/Observable';
+import {filter, map} from 'rxjs/operators';
 import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {PageRepositoryService} from '../repository';
-import {IPageConfigData, PageConfigStorageService} from './page-config-storage.service';
-
+import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 
 /**
  * Read-only page config storage.
@@ -13,11 +13,11 @@ import {IPageConfigData, PageConfigStorageService} from './page-config-storage.s
     providedIn: 'root'
 })
 export class PageConfigRepositoryService {
-    pageConfigs$: Observable<HashMap<IPageConfigData>> = this.pageConfigStorageService.pageConfigStorage.entities$;
-
     private pageConfigStorage: PersistentStorage<IPageConfigData> = this.persistentStorageFactory.create<IPageConfigData>({
         name: 'page-config'
     });
+
+    pageConfigs$: Observable<HashMap<IPageConfigData>> = this.pageConfigStorage.entities$;
 
     constructor(private pageConfigStorageService: PageConfigStorageService,
                 private persistentStorageFactory: PersistentStorageFactory,
@@ -29,7 +29,6 @@ export class PageConfigRepositoryService {
      * @param id Page id.
      */
     load(id: string): Promise<any> {
-        console.log(`load`);
         // the tricky part that Page Config might not exists, because Page could be already created before.
         return this.pageRepositoryService.getIdentityPage(id).then(() => {
             // Page exists, we could safely try to create Page Config if it does not exists
@@ -40,4 +39,16 @@ export class PageConfigRepositoryService {
             }).then(() => this.pageConfigStorage.load(id));
         });
     }
+
+    get$(id: string): Observable<IPageConfigItems> {
+        return this.pageConfigs$.pipe(
+            filter((pageConfigs) => Boolean(pageConfigs[id])),
+            map((pageConfigs) => pageConfigs[id].configs)
+        );
+    }
+
+    get(id: string): Promise<IPageConfigItems> {
+        return this.pageConfigStorage.get(id).then((pageConfig) => pageConfig.configs);
+    }
 }
+
