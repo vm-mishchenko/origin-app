@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs/internal/Observable';
-import {filter, map, switchMap} from 'rxjs/operators';
-import {PAGE_LOCK_CONFIG_ITEM_TYPE, PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
-import {PageConfigRepositoryService} from '../../../config/page-config-repository.service';
+import {filter, map} from 'rxjs/operators';
+import {PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';
 import {PageService} from '../../../repository';
 import {DialogWrapperService} from '../../services/dialog-wrapper.service';
@@ -15,26 +14,16 @@ import {PickPageDialogComponent} from '../pick-page-dialog/pick-page-dialog.comp
     styleUrls: ['./page-menu-container.component.scss']
 })
 export class PageMenuContainerComponent implements OnInit {
-    isPageLocked$: Observable<boolean>;
+    // "isLocked" page config  value
+    isPageLocked$: Observable<boolean> = this.pageViewQuery.isPageLocked$;
 
     constructor(private pageViewQuery: PageViewQuery,
                 private pageService: PageService,
                 private pageConfigStorageService: PageConfigStorageService,
-                private pageConfigRepositoryService: PageConfigRepositoryService,
                 public dialogWrapperService: DialogWrapperService) {
     }
 
     ngOnInit() {
-        // receive "isLocked" page config  value
-        this.isPageLocked$ = this.pageViewQuery.selectedPageId$.pipe(
-            switchMap((selectedPageId) => {
-                return this.pageConfigRepositoryService.get$(selectedPageId).pipe(
-                    map((pageConfig) => {
-                        return pageConfig[PAGE_LOCK_CONFIG_ITEM_TYPE];
-                    })
-                );
-            })
-        );
     }
 
     moveTo() {
