@@ -2,8 +2,9 @@ import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, Si
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
-import {PageRepositoryService, PageService} from '../../../repository';
 import {HeaderControlComponent} from '../../../../../components/form-controls/header-control/header-control.component';
+import {PageRepositoryService, PageService} from '../../../repository';
+import {PageViewQuery} from '../../state/page-view.query';
 
 @Component({
     selector: 'app-title-page-editor-container',
@@ -23,6 +24,7 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
 
     constructor(private formBuilder: FormBuilder,
                 private pageService: PageService,
+                public pageViewQuery: PageViewQuery,
                 private pageRepositoryService: PageRepositoryService) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')

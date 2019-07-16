@@ -31,6 +31,7 @@ export class HeaderControlComponent extends ValueAccessor<string> {
     onKeyUpHandler(e: KeyboardEvent) {
         const ENTER_KEY = 13;
 
+        // todo: fix keyCode
         if (e.keyCode === ENTER_KEY) {
             e.preventDefault();
 

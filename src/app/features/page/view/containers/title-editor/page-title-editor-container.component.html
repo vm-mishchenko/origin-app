@@ -1,4 +1,11 @@
-<div [formGroup]="pageForm">
+<!--Readonly mode-->
+<h1 *ngIf="pageViewQuery.isPageLocked$ | async">
+    {{selectedPageIdentityTitle$ | async}}
+</h1>
+
+<!--Edit mode-->
+<div [formGroup]="pageForm"
+     [ngClass]="{'hidden': pageViewQuery.isPageLocked$ | async}">
     <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
                       placeholder="Untitled"></o-header-control>
 </div>
