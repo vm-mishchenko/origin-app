@@ -1,20 +1,20 @@
 import {OverlayModule} from '@angular/cdk/overlay';
 import {NgModule} from '@angular/core';
 import {FirebaseOptionsToken} from '@angular/fire';
+import {AngularFireAuthModule} from '@angular/fire/auth';
+import {AngularFireDatabaseModule} from '@angular/fire/database';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+import {MatBottomSheetModule, MatDialogModule, MatSnackBarModule} from '@angular/material';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
+import {WallModule} from 'ngx-wall';
 import {environment} from '../environments/environment';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {NavigationModule} from './modules/navigation';
 import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
-import {WallModule} from 'ngx-wall';
-import {AngularFireStorageModule} from '@angular/fire/storage';
-import {AngularFireDatabaseModule} from '@angular/fire/database';
-import {MatBottomSheetModule, MatDialogModule, MatSnackBarModule} from '@angular/material';
-import {AngularFireAuthModule} from '@angular/fire/auth';
+import {NavigationModule} from './modules/navigation';
 
 @NgModule({
     declarations: [

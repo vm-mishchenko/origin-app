@@ -14,7 +14,8 @@
     "build:prod": "ng build --stats-json --prod --preserve-symlinks",
     "deploy": "firebase deploy",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "ngx-wall-dev": "./scripts/ngx-wall-dev.sh"
+    "ngx-wall-dev": "./scripts/ngx-wall-dev.sh",
+    "cinatabase-dev": "./scripts/cinatabase-dev.sh"
   },
   "private": true,
   "dependencies": {
@@ -41,6 +42,7 @@
     "firebase": "5.8.2",
     "ngx-sticky-modal": "^0.0.4",
     "ngx-wall": "^1.1.19",
+    "cinatabase": "^0.0.1",
     "open-iconic": "1.1.1",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0",
