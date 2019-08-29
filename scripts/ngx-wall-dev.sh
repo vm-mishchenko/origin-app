@@ -3,6 +3,8 @@ cd ~/experients/ngx-wall
 # connect ngx-wall dist folder to origin project
 #  share ngx-wall dist folder
 mkdir -p dist/ngx-wall
+#  create fake file because if dist/ngx-wall is empty
+#  npm link parent ngx-wall folder instead of dist/ngx-wall
 touch README.md
 cd dist/ngx-wall
 npm link
