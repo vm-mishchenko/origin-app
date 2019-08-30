@@ -1,8 +1,10 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {HashMap} from '@datorama/akita';
+import {DatabaseManager} from 'cinatabase';
 import {Observable} from 'rxjs/internal/Observable';
 import {filter, map} from 'rxjs/operators';
 import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
+import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {PageRepositoryService} from '../repository';
 import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 
@@ -21,7 +23,13 @@ export class PageConfigRepositoryService {
 
     constructor(private pageConfigStorageService: PageConfigStorageService,
                 private persistentStorageFactory: PersistentStorageFactory,
-                private pageRepositoryService: PageRepositoryService) {
+                private pageRepositoryService: PageRepositoryService,
+                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
+        const pageId = '05500cc5-7cb4-0e81-9e51-00cefaa46773';
+
+        this.databaseManager.collection('page-identity').doc(pageId).snapshot().then((snapshot) => {
+            console.log(snapshot);
+        });
     }
 
     /**

@@ -26,6 +26,12 @@
       "@angular/*": [
         "./node_modules/@angular/*"
       ],
+      "pouchdb": [
+        "./node_modules/pouchdb"
+      ],
+      "pouchdb-find": [
+        "./node_modules/pouchdb-find"
+      ],
       "rxjs": [
         "./node_modules/rxjs"
       ],
