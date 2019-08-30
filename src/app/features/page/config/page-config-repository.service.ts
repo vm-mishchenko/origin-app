@@ -27,9 +27,18 @@ export class PageConfigRepositoryService {
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
         const pageId = '05500cc5-7cb4-0e81-9e51-00cefaa46773';
 
-        this.databaseManager.collection('page-identity').doc(pageId).snapshot().then((snapshot) => {
-            console.log(snapshot);
+      this.databaseManager.collection('test-collection')
+        .doc('third')
+        .update(
+          {foo: 'forr'}
+        )
+        .then(() => {
+          console.log(`update succefully`);
         });
+
+      /*this.databaseManager.collection('test-collection').doc('first').set({foo: 'forr'}).then(() => {
+        console.log(`set succefully`);
+      });*/
     }
 
     /**
