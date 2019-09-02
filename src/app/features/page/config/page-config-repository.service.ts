@@ -1,10 +1,10 @@
 import {Inject, Injectable} from '@angular/core';
 import {HashMap} from '@datorama/akita';
-import {DatabaseManager} from 'cinatabase';
+import {DatabaseManager, MemoryDb} from 'cinatabase';
 import {Observable} from 'rxjs/internal/Observable';
 import {filter, map} from 'rxjs/operators';
 import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
-import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
+import {DATABASE_MANAGER, MEMORY_DB_INJECTION_TOKEN} from '../../../infrastructure/storage/storage.module';
 import {PageRepositoryService} from '../repository';
 import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 
@@ -24,21 +24,42 @@ export class PageConfigRepositoryService {
     constructor(private pageConfigStorageService: PageConfigStorageService,
                 private persistentStorageFactory: PersistentStorageFactory,
                 private pageRepositoryService: PageRepositoryService,
-                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
+                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager,
+                @Inject(MEMORY_DB_INJECTION_TOKEN) private memoryDatabase: MemoryDb) {
         const pageId = '05500cc5-7cb4-0e81-9e51-00cefaa46773';
 
-      this.databaseManager.collection('test-collection')
-        .doc('third')
-        .update(
-          {foo: 'forr'}
-        )
-        .then(() => {
-          console.log(`update succefully`);
-        });
+        /*this.databaseManager.collection('test-collection')
+          .doc('third')
+          .update(
+            {foo: 'forr'}
+          )
+          .then(() => {
+            console.log(`update succefully`);
+          });*/
 
-      /*this.databaseManager.collection('test-collection').doc('first').set({foo: 'forr'}).then(() => {
-        console.log(`set succefully`);
-      });*/
+        /*this.databaseManager.collection('page-identity').doc(pageId).snapshot().then(() => {
+            const pageConfigDoc = this.databaseManager.collection('page-config').doc(pageId);
+
+            // create page config if not exists
+            return pageConfigDoc.snapshot()
+              .then((configSnapshot) => {
+                  if (!configSnapshot.exists) {
+                      return pageConfigDoc.set({});
+                  }
+              }).then(() => pageConfigDoc.sync());
+        });*/
+
+        /*this.databaseManager.collection('page-identity').doc(pageId).snapshot().then((docSnapshot) => {
+            console.log(docSnapshot);
+        });*/
+
+        const pageIdentityQuery = this.databaseManager.collection('page-identity').query();
+
+        pageIdentityQuery.sync().then(() => {
+            pageIdentityQuery.snapshot().then((querySnapshot) => {
+                console.log(querySnapshot);
+            });
+        });
     }
 
     /**
