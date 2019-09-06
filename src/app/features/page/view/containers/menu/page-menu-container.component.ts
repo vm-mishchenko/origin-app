@@ -64,7 +64,7 @@ export class PageMenuContainerComponent implements OnInit {
 
     remove() {
         if (confirm('Are you sure?')) {
-            this.pageService.removePage(this.pageViewQuery.getSelectedPageId());
+            this.pageService.removePage2(this.pageViewQuery.getSelectedPageId());
         }
     }
 

@@ -17,7 +17,7 @@ import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageService} from './page.service';
-import {IBodyPage, IRelationPage} from './page.types';
+import {IBodyPage} from './page.types';
 
 @Component({
     selector: 'fixture-brick',
@@ -163,20 +163,15 @@ class TestScope2 {
     }
 
     addBrick(pageId: string, tag: string, state = {}): Promise<IBrickSnapshot> {
-        let pageBody: IBodyPage;
+        return this.database.collection('page-body').doc(pageId).snapshot().then((pageBodySnapshot) => {
+            const wallModel = this.createWallModel(pageBodySnapshot.data().body);
 
-        this.pageRepositoryService.pageBody$.subscribe((pages) => {
-            pageBody = pages[pageId];
+            const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
+
+            return this.service.updatePageBody2(pageBodySnapshot.id, {
+                body: wallModel.api.core.getPlan()
+            }).then(() => newBrick);
         });
-
-        const wallModel = this.createWallModel(pageBody.body);
-
-        const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
-
-        return this.service.updatePageBody({
-            ...pageBody,
-            body: wallModel.api.core.getPlan()
-        }).then(() => newBrick);
     }
 }
 
@@ -495,6 +490,136 @@ describe('PageService2', () => {
             }));
         });
     });
+
+    describe('Remove page 2', () => {
+        fit('should delete page identity, body-editor, relation', async(() => {
+            testScope.service.createPage2().then((pageId) => {
+                testScope.service.removePage2(pageId).then(() => {
+                    testScope.database.collection('page-identity').doc(pageId).snapshot().then((snapshot) => {
+                        expect(snapshot.exists).toBe(false);
+                    });
+
+                    testScope.database.collection('page-body').doc(pageId).snapshot().then((snapshot) => {
+                        expect(snapshot.exists).toBe(false);
+                    });
+
+                    testScope.database.collection('page-relation').doc(pageId).snapshot().then((snapshot) => {
+                        expect(snapshot.exists).toBe(false);
+                    });
+                });
+            });
+        }));
+
+        fit('should delete child page identity, body-editor, relation', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.service.removePage2(parentPageId).then(() => {
+                        testScope.database.collection('page-identity').doc(childPageId).snapshot().then((snapshot) => {
+                            expect(snapshot.exists).toBe(false);
+                        });
+
+                        testScope.database.collection('page-body').doc(childPageId).snapshot().then((snapshot) => {
+                            expect(snapshot.exists).toBe(false);
+                        });
+
+                        testScope.database.collection('page-relation').doc(childPageId).snapshot().then((snapshot) => {
+                            expect(snapshot.exists).toBe(false);
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should delete all sub child page identity, body-editor, relation', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.service.createPage2(childPageId).then((subChildPageId) => {
+                        testScope.service.removePage2(parentPageId).then(() => {
+                            testScope.database.collection('page-identity').doc(subChildPageId).snapshot().then((snapshot) => {
+                                expect(snapshot.exists).toBe(false);
+                            });
+
+                            testScope.database.collection('page-body').doc(subChildPageId).snapshot().then((snapshot) => {
+                                expect(snapshot.exists).toBe(false);
+                            });
+
+                            testScope.database.collection('page-relation').doc(subChildPageId).snapshot().then((snapshot) => {
+                                expect(snapshot.exists).toBe(false);
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should update parent relation children', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    const parentPageRelationDoc = testScope.database.collection('page-relation').doc(parentPageId);
+
+                    parentPageRelationDoc.snapshot().then((parentPageRelationSnapshot) => {
+                        expect(parentPageRelationSnapshot.data().childrenPageId.includes(childPageId)).toBeTruthy();
+                    });
+
+                    testScope.service.removePage2(childPageId).then(() => {
+                        parentPageRelationDoc.snapshot().then((parentPageRelationSnapshot) => {
+                            expect(parentPageRelationSnapshot.data().childrenPageId.length).toBe(0);
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should update parent body-editor', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    const pageBodies = testScope.database.collection('page-body');
+
+                    pageBodies.doc(parentPageId).snapshot().then((parentBodyPageSnapshot) => {
+                        expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId)).toBeDefined();
+                    });
+
+                    testScope.service.removePage2(childPageId).then(() => {
+                        pageBodies.doc(parentPageId).snapshot().then((parentBodyPageSnapshot) => {
+                            expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId)).not.toBeDefined();
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should remove page file resources', async(() => {
+            testScope.service.createPage2().then((pageId) => {
+                const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                    const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                    testScope.service.removePage2(pageId).then(() => {
+                        expect(removeFileSpy).toHaveBeenCalled();
+                        expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                    });
+                });
+            });
+        }));
+
+        fit('should remove child page file resources', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                    testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePage2(parentPageId).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+                            expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                        });
+                    });
+                });
+            });
+        }));
+    });
 });
 
 describe('PageService', () => {
@@ -549,168 +674,6 @@ describe('PageService', () => {
     it('should be created', () => {
         const service: PageService = TestBed.get(PageService);
         expect(service).toBeTruthy();
-    });
-
-    describe('Remove page', () => {
-        it('should delete page identity, body-editor, relation', async(() => {
-            let pageIdentity;
-            let pageBody;
-            let pageRelation;
-
-            testScope.service.createPage().then((pageId) => {
-                testScope.service.removePage(pageId).then(() => {
-                    testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
-                        pageIdentity = pages[pageId];
-                    });
-
-                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                        pageBody = pages[pageId];
-                    });
-
-                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                        pageRelation = pages[pageId];
-                    });
-
-                    expect(pageIdentity).not.toBeDefined();
-                    expect(pageBody).not.toBeDefined();
-                    expect(pageRelation).not.toBeDefined();
-                });
-            });
-        }));
-
-        it('should delete child page identity, body-editor, relation', async(() => {
-            let childPageIdentity;
-            let childPageBody;
-            let childPageRelation;
-
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.service.removePage(parentPageId).then(() => {
-                        testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
-                            childPageIdentity = pages[childPageId];
-                        });
-
-                        testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                            childPageBody = pages[childPageId];
-                        });
-
-                        testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                            childPageRelation = pages[childPageId];
-                        });
-
-                        expect(childPageIdentity).not.toBeDefined();
-                        expect(childPageBody).not.toBeDefined();
-                        expect(childPageRelation).not.toBeDefined();
-                    });
-                });
-            });
-        }));
-
-        it('should delete all sub child page identity, body-editor, relation', async(() => {
-            let subChildPageIdentity;
-            let subChildPageBody;
-            let subChildPageRelation;
-
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.service.createPage(childPageId).then((subChildPageId) => {
-                        testScope.service.removePage(parentPageId).then(() => {
-                            testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
-                                subChildPageIdentity = pages[subChildPageId];
-                            });
-
-                            testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                                subChildPageBody = pages[subChildPageId];
-                            });
-
-                            testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                                subChildPageRelation = pages[subChildPageId];
-                            });
-
-                            expect(subChildPageIdentity).not.toBeDefined();
-                            expect(subChildPageBody).not.toBeDefined();
-                            expect(subChildPageRelation).not.toBeDefined();
-                        });
-                    });
-                });
-            });
-        }));
-
-        it('should update parent relation children', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    let parentPageRelation: IRelationPage;
-
-                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                        parentPageRelation = pages[parentPageId];
-                    });
-
-                    expect(parentPageRelation.childrenPageId.includes(childPageId)).toBeTruthy();
-
-                    testScope.service.removePage(childPageId).then(() => {
-                        testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                            parentPageRelation = pages[parentPageId];
-                        });
-
-                        expect(parentPageRelation.childrenPageId.length).toBe(0);
-                    });
-                });
-            });
-        }));
-
-        it('should update parent body-editor', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    let parentPageBody: IBodyPage;
-
-                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                        parentPageBody = pages[parentPageId];
-                    });
-
-                    expect(testScope.findPageBrick(parentPageBody.body, childPageId)).toBeDefined();
-
-                    testScope.service.removePage(childPageId).then(() => {
-                        testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                            parentPageBody = pages[parentPageId];
-                        });
-
-                        expect(testScope.findPageBrick(parentPageBody.body, childPageId)).not.toBeDefined();
-                    });
-                });
-            });
-        }));
-
-        it('should remove page file resources', async(() => {
-            testScope.service.createPage().then((pageId) => {
-                const FAKE_FILE_PATH = 'https://fake/file.txt';
-
-                testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
-                    const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
-
-                    testScope.service.removePage(pageId).then(() => {
-                        expect(removeFileSpy).toHaveBeenCalled();
-                        expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
-                    });
-                });
-            });
-        }));
-
-        it('should remove child page file resources', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    const FAKE_FILE_PATH = 'https://fake/file.txt';
-
-                    testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
-                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
-
-                        testScope.service.removePage(parentPageId).then(() => {
-                            expect(removeFileSpy).toHaveBeenCalled();
-                            expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
-                        });
-                    });
-                });
-            });
-        }));
     });
 
     describe('Remove pages', () => {

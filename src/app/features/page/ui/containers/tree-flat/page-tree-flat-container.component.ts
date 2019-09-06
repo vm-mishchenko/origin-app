@@ -63,7 +63,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
 
     removePage(id: string) {
         this.pageTreeFlatSelection.removeSelectedPageId(id);
-        this.pageService.removePage(id);
+        this.pageService.removePage2(id);
     }
 
     reRenderTree() {

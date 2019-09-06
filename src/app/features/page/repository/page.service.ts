@@ -10,6 +10,7 @@ import {MoveBricksAction} from './action/move-bricks.action';
 import {MovePageAction} from './action/move-page.action';
 import {MovePageAction2} from './action/move-page.action2';
 import {RemovePageAction} from './action/remove-page.action';
+import {RemovePageAction2} from './action/remove-page.action2';
 import {RemovePagesAction} from './action/remove-pages.action';
 import {DeletePageEvent} from './page-events.type';
 import {PageFileUploaderService} from './page-file-uploader.service';
@@ -110,6 +111,17 @@ export class PageService {
         });
     }
 
+    removePage2(pageId: string): Promise<any> {
+        return new RemovePageAction2(
+          pageId,
+          this.wallModelFactory,
+          this.pageFileUploaderService,
+          this.databaseManager
+        ).execute().then(() => {
+            (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
+        });
+    }
+
     // it's important to use this API vs iteration over removePage API
     removePages(pageIds: string[]): Promise<any> {
         return new RemovePagesAction(
@@ -132,5 +144,9 @@ export class PageService {
 
     updatePageBody(bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
         return this.pageStorages.pageBodyStorage.update(bodyPage.id, bodyPage);
+    }
+
+    updatePageBody2(bodyPageId: string, bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
+        return this.databaseManager.collection('page-body').doc(bodyPageId).update(bodyPage);
     }
 }
