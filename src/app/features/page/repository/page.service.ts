@@ -1,8 +1,11 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
+import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
+import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {Guid} from '../../../infrastructure/utils';
 import {CreatePageAction} from './action/create-page.action';
+import {CreatePageAction2} from './action/create-page.action2';
 import {MoveBricksAction} from './action/move-bricks.action';
 import {MovePageAction} from './action/move-page.action';
 import {RemovePageAction} from './action/remove-page.action';
@@ -37,7 +40,8 @@ export class PageService {
                 private pageRepositoryService: PageRepositoryService,
                 private wallModelFactory: WallModelFactory,
                 private pageFileUploaderService: PageFileUploaderService,
-                private guid: Guid) {
+                private guid: Guid,
+                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
 
     createPage(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
@@ -49,6 +53,16 @@ export class PageService {
             this.guid,
             this.wallModelFactory,
             options
+        ).execute();
+    }
+
+    createPage2(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
+        return new CreatePageAction2(
+          parentPageId,
+          this.guid,
+          this.wallModelFactory,
+          options,
+          this.databaseManager
         ).execute();
     }
 

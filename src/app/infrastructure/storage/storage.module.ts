@@ -1,9 +1,11 @@
 import {InjectionToken, NgModule} from '@angular/core';
-import {DatabaseManager, MemoryDb, RemoteDb} from 'cinatabase';
+import {DatabaseManager, MemoryDb, PouchDbRemoteProvider, RemoteDb} from 'cinatabase';
 
 export const DATABASE_MANAGER = new InjectionToken('Store Manager');
 export const REMOTE_DB_INJECTION_TOKEN = new InjectionToken('Remote Db');
 export const MEMORY_DB_INJECTION_TOKEN = new InjectionToken('Memory Db');
+
+const dbName = localStorage.getItem('pouchdb-storage:local-database-name') || String(Date.now());
 
 @NgModule({
   providers: [
@@ -13,7 +15,7 @@ export const MEMORY_DB_INJECTION_TOKEN = new InjectionToken('Memory Db');
     },
     {
       provide: REMOTE_DB_INJECTION_TOKEN,
-      useValue: new RemoteDb()
+      useValue: new RemoteDb(new PouchDbRemoteProvider(dbName))
     },
     {
       provide: DATABASE_MANAGER,

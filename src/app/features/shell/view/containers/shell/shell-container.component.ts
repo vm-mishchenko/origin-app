@@ -59,7 +59,7 @@ export class ShellContainerComponent implements OnInit {
     }
 
     addPage() {
-        this.pageService.createPage().then((newPageId) => {
+        this.pageService.createPage2().then((newPageId) => {
             this.navigationService.toPage(newPageId);
         });
     }

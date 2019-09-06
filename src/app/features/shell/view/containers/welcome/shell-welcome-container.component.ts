@@ -23,7 +23,7 @@ export class ShellWelcomeContainerComponent implements OnInit {
     }
 
     awesomeStuffStartsHere() {
-        this.pageService.createPage().then((newPageId) => {
+        this.pageService.createPage2().then((newPageId) => {
             this.navigationService.toPage(newPageId);
         });
     }

@@ -42,10 +42,10 @@ export class PageConfigRepositoryService {
     get$(id: string): Observable<IPageConfigItems> {
       return this.databaseManager.collection('page-config').doc(id)
         .onSnapshot().pipe(
-          filter((pageConfigSnapshot) => {
+          filter((pageConfigSnapshot: any) => {
             return pageConfigSnapshot.exists;
           }),
-          map((pageConfigSnapshot) => {
+          map((pageConfigSnapshot: any) => {
             return pageConfigSnapshot.data().configs;
           })
         );

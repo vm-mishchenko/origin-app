@@ -92,7 +92,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
         }
 
         if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {
-            this.pageService.createPage(this.selectedPageId, {
+            this.pageService.createPage2(this.selectedPageId, {
                 pageBrickId: event.brickId
             });
         }

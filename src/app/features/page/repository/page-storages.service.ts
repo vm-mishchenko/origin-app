@@ -1,7 +1,9 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
+import {DatabaseManager} from 'cinatabase';
 import {PersistentStorage, PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
-import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
+import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {AuthService} from '../../../modules/auth';
+import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
 
 @Injectable({
     providedIn: 'root'

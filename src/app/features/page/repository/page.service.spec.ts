@@ -1,21 +1,23 @@
 import {Component} from '@angular/core';
 import {async, fakeAsync, flushMicrotasks, TestBed} from '@angular/core/testing';
 import {FirebaseOptionsToken} from '@angular/fire';
+import {AngularFireAuthModule} from '@angular/fire/auth';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+import {DatabaseManager, InMemoryRemoteProvider, MemoryDb, RemoteDb} from 'cinatabase';
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
+import {of} from 'rxjs';
+import {environment} from '../../../../environments/environment';
 import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {PouchdbStorageFactory} from '../../../infrastructure/pouchdb/pouchdb-storage';
 import {EntityStorePouchDbMock} from '../../../infrastructure/pouchdb/pouchdb-storage/test/entity-store-pouchdb-mock';
+import {DATABASE_MANAGER, StoreModule} from '../../../infrastructure/storage/storage.module';
+import {AuthService} from '../../../modules/auth';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageService} from './page.service';
-import {IBodyPage, IIdentityPage, IRelationPage} from './page.types';
-import {environment} from '../../../../environments/environment';
-import {AngularFireStorageModule} from '@angular/fire/storage';
-import {AngularFireAuthModule} from '@angular/fire/auth';
-import {AuthService} from '../../../modules/auth';
-import {of} from 'rxjs';
+import {IBodyPage, IRelationPage} from './page.types';
 
 @Component({
     selector: 'fixture-brick',
@@ -107,6 +109,231 @@ class TestScope {
     }
 }
 
+class TestScope2 {
+    database: DatabaseManager;
+    service: PageService;
+    pageRepositoryService: PageRepositoryService;
+    pageFileUploaderService: PageFileUploaderService;
+
+    initialize() {
+        // its important to instantiate PersistentStorageFactory before PageService
+        // since we can configure storage before page starts using it
+        const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
+        persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
+
+        this.service = TestBed.get(PageService);
+        this.pageRepositoryService = TestBed.get(PageRepositoryService);
+        this.pageFileUploaderService = TestBed.get(PageFileUploaderService);
+        this.database = TestBed.get(DATABASE_MANAGER);
+
+        const brickRegistry: BrickRegistry = TestBed.get(BrickRegistry);
+
+        brickRegistry.register({
+            tag: PAGE_BRICK_TAG_NAME,
+            component: PageBrickComponent,
+            name: 'Page',
+            description: 'Embed a sub-page inside this page'
+        });
+
+        brickRegistry.register(FIXTURE_BRICK_SPECIFICATION);
+    }
+
+    createWallModel(plan: IWallDefinition): IWallModel {
+        const wallModelFactory: WallModelFactory = TestBed.get(WallModelFactory);
+
+        return wallModelFactory.create({plan});
+    }
+
+    findPageBrick(wallDefinition: IWallDefinition, pageId: string): IBrickSnapshot {
+        const wallModel = this.createWallModel(wallDefinition);
+
+        return wallModel.api.core.filterBricks((brick) => {
+            return brick.tag === 'page' && brick.state.pageId === pageId;
+        })[0];
+    }
+
+    hasPageEntities(pageId): Promise<boolean> {
+        return Promise.all([
+            this.pageRepositoryService.hasIdentityPage(pageId),
+            this.pageRepositoryService.hasRelationPage(pageId),
+            this.pageRepositoryService.hasBodyPage(pageId)
+        ]).then(([hasIdentityPage, hasRelationPage, hasBodyPage]) => {
+            return Boolean(hasIdentityPage && hasRelationPage && hasBodyPage);
+        });
+    }
+
+    addBrick(pageId: string, tag: string, state = {}): Promise<IBrickSnapshot> {
+        let pageBody: IBodyPage;
+
+        this.pageRepositoryService.pageBody$.subscribe((pages) => {
+            pageBody = pages[pageId];
+        });
+
+        const wallModel = this.createWallModel(pageBody.body);
+
+        const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
+
+        return this.service.updatePageBody({
+            ...pageBody,
+            body: wallModel.api.core.getPlan()
+        }).then(() => newBrick);
+    }
+}
+
+describe('PageService2', () => {
+    const mockPouchDb = new EntityStorePouchDbMock();
+    let testScope: TestScope2;
+
+    beforeEach(() => TestBed.configureTestingModule({
+        imports: [
+            WallModule.forRoot(),
+            AngularFireAuthModule,
+            AngularFireStorageModule,
+            StoreModule
+        ],
+        providers: [
+            {
+                provide: DATABASE_MANAGER,
+                useFactory: () => {
+                    const memoryDb = new MemoryDb();
+                    const remoteDb = new RemoteDb(new InMemoryRemoteProvider());
+                    return new DatabaseManager(memoryDb, remoteDb);
+                }
+            },
+            {
+                provide: PouchdbStorageFactory,
+                useValue: {
+                    createPouchDB: () => mockPouchDb
+                }
+            },
+            // mock for easier firebase and google account configuration
+            {
+                provide: AuthService,
+                useValue: {
+                    signOut$: of(null)
+                }
+            },
+            {
+                provide: FirebaseOptionsToken, useValue: environment.FIREBASE_CONFIG
+            }
+        ]
+    }));
+
+    beforeEach(() => {
+        testScope = new TestScope2();
+        testScope.initialize();
+    });
+
+    afterEach(() => {
+        testScope = null;
+    });
+
+    describe('Create page 2', () => {
+        it('should return created page id', async(() => {
+            testScope.service.createPage2().then((id) => {
+                expect(id).toBeDefined();
+            });
+        }));
+
+        it('should create page identity, body-editor', async(() => {
+            testScope.service.createPage2().then((id) => {
+                testScope.database.collection('page-identity').doc(id).snapshot().then((snapshot) => {
+                    expect(snapshot.exists).toBe(true);
+                });
+
+                testScope.database.collection('page-body').doc(id).snapshot().then((snapshot) => {
+                    expect(snapshot.exists).toBe(true);
+                });
+            });
+        }));
+
+        it('should create page relation', async(() => {
+            testScope.service.createPage2().then((id) => {
+                testScope.database.collection('page-relation').doc(id).snapshot().then((pageRelation) => {
+                    expect(pageRelation.exists).toBe(true);
+                    expect(pageRelation.data().parentPageId).toBe(null);
+                    expect(pageRelation.data().childrenPageId.length).toBe(0);
+                });
+            });
+        }));
+
+        it('should create child page', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.database.collection('page-identity').doc(childPageId).snapshot().then((pageIdentity) => {
+                        expect(pageIdentity.exists).toBe(true);
+                    });
+                });
+            });
+        }));
+
+        it('should create child page relation', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.database.collection('page-relation').doc(childPageId).snapshot().then((snapshot) => {
+                        expect(snapshot.data().parentPageId).toBe(parentPageId);
+                    });
+                });
+            });
+        }));
+
+        it('should update parent relation', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.database.collection('page-relation').doc(parentPageId).snapshot().then((snapshot) => {
+                        expect(snapshot.data().childrenPageId.length).toBe(1);
+                        expect(snapshot.data().childrenPageId[0]).toBe(childPageId);
+                    });
+                });
+            });
+        }));
+
+        it('should add page brick to parent body-editor', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    testScope.database.collection('page-body').doc(parentPageId).snapshot().then((snapshot) => {
+                        expect(testScope.findPageBrick(snapshot.data().body, childPageId)).toBeDefined();
+                    });
+                });
+            });
+        }));
+
+        it('should update brick state in parent body-editor when pageBrickId is defined', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                const parentPageBodyDoc = testScope.database.collection('page-body').doc(parentPageId);
+
+                parentPageBodyDoc.snapshot().then((parentPageBodySnapshot) => {
+                    let parentPageModel = testScope.createWallModel(parentPageBodySnapshot.data().body);
+                    const newPageBrick = parentPageModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: null});
+
+                    parentPageBodyDoc.update({
+                        body: parentPageModel.api.core.getPlan()
+                    }).then(() => {
+                        // test action
+                        testScope.service.createPage2(parentPageId, {pageBrickId: newPageBrick.id}).then((childPageId) => {
+                            parentPageBodyDoc.snapshot().then((parentPageBodySnapshotUpdated) => {
+                                // test asserts
+                                parentPageModel = testScope.createWallModel(parentPageBodySnapshotUpdated.data().body);
+
+                                // make sure that "createPage" API does not create additional page
+                                expect(parentPageModel.api.core.getBricksCount()).toBe(1);
+
+                                // make sure that in body-editor there is only one brick that was created previously
+                                const actualPageBrickId = parentPageModel.api.core.getBrickIds()[0];
+                                expect(actualPageBrickId).toBe(newPageBrick.id);
+
+                                // make sure that state of previously created page was populated by child page id
+                                const pageBrickSnapshot = parentPageModel.api.core.getBrickSnapshot(actualPageBrickId);
+                                expect(pageBrickSnapshot.state.pageId).toBe(childPageId);
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+    });
+});
+
 describe('PageService', () => {
     const mockPouchDb = new EntityStorePouchDbMock();
     let testScope: TestScope;
@@ -124,6 +351,14 @@ describe('PageService', () => {
                 provide: PouchdbStorageFactory,
                 useValue: {
                     createPouchDB: () => mockPouchDb
+                }
+            },
+            {
+                provide: DATABASE_MANAGER,
+                useFactory: () => {
+                    const memoryDb = new MemoryDb();
+                    const remoteDb = new RemoteDb(new InMemoryRemoteProvider());
+                    return new DatabaseManager(memoryDb, remoteDb);
                 }
             },
             // mock for easier firebase and google account configuration
@@ -151,144 +386,6 @@ describe('PageService', () => {
     it('should be created', () => {
         const service: PageService = TestBed.get(PageService);
         expect(service).toBeTruthy();
-    });
-
-    describe('Create page', () => {
-        it('should return created page id', async(() => {
-            testScope.service.createPage().then((id) => {
-                expect(id).toBeDefined();
-            });
-        }));
-
-        it('should create page identity, body-editor', fakeAsync(() => {
-            let pageIdentity: IIdentityPage = null;
-            let pageBody: IBodyPage = null;
-
-            testScope.service.createPage().then((id) => {
-                testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
-                    pageIdentity = pages[id];
-                });
-
-                testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                    pageBody = pages[id];
-                });
-
-                flushMicrotasks();
-                // tick() - we might tick as well. Tick is needed when I wanna wait for
-                // particular time in setTimeout
-                // https://www.joshmorony.com/testing-asynchronous-code-with-fakeasync-in-angular
-
-                // async without flushMicrotasks or tick do the same
-
-                expect(pageIdentity).toBeDefined();
-                expect(pageBody).toBeDefined();
-            });
-        }));
-
-        it('should create page relation', async(() => {
-            testScope.service.createPage().then((id) => {
-                let pageRelation: IRelationPage = null;
-                testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                    pageRelation = pages[id];
-                });
-
-                expect(pageRelation).toBeDefined();
-                expect(pageRelation.parentPageId).toBe(null);
-                expect(pageRelation.childrenPageId.length).toBe(0);
-            });
-        }));
-
-        it('should create child page', async(() => {
-            let pageIdentity: IIdentityPage = null;
-
-            testScope.service.createPage().then((parentPageId) => {
-
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-
-                    testScope.pageRepositoryService.pageIdentity$.subscribe((pages) => {
-                        pageIdentity = pages[childPageId];
-                    });
-
-                    expect(pageIdentity).toBeDefined();
-                });
-            });
-        }));
-
-        it('should create child page relation', async(() => {
-            let childPageRelation: IRelationPage = null;
-
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                        childPageRelation = pages[childPageId];
-                    });
-
-                    expect(childPageRelation.parentPageId).toBe(parentPageId);
-                });
-            });
-        }));
-
-        it('should update parent relation', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    let parentPageRelation: IRelationPage = null;
-
-                    testScope.pageRepositoryService.pageRelation$.subscribe((pages) => {
-                        parentPageRelation = pages[parentPageId];
-                    });
-
-                    expect(parentPageRelation.childrenPageId.length).toBe(1);
-                    expect(parentPageRelation.childrenPageId[0]).toBe(childPageId);
-                });
-            });
-        }));
-
-        it('should add page brick to parent body-editor', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.service.createPage(parentPageId).then((childPageId) => {
-                    let parentPageBody: IBodyPage;
-
-                    testScope.pageRepositoryService.pageBody$.subscribe((pages) => {
-                        parentPageBody = pages[parentPageId];
-                    });
-
-                    expect(testScope.findPageBrick(parentPageBody.body, childPageId)).toBeDefined();
-                });
-            });
-        }));
-
-        it('it should update brick state in parent body-editor when pageBrickId is defined', async(() => {
-            testScope.service.createPage().then((parentPageId) => {
-                testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageBody) => {
-                    let parentPageModel = testScope.createWallModel(parentPageBody.body);
-                    const newPageBrick = parentPageModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: null});
-
-                    testScope.service.updatePageBody({
-                        id: parentPageBody.id,
-                        body: parentPageModel.api.core.getPlan()
-                    }).then(() => {
-                        // test action
-                        testScope.service.createPage(parentPageId, {pageBrickId: newPageBrick.id}).then((childPageId) => {
-                            testScope.pageRepositoryService.getBodyPage(parentPageId).then((parentPageIdUpdated) => {
-                                // test asserts
-                                parentPageModel = testScope.createWallModel(parentPageIdUpdated.body);
-
-                                // make sure that "createPage" API does not create additional page
-                                expect(parentPageModel.api.core.getBricksCount()).toBe(1);
-
-                                // make sure that in body-editor there is only one brick that was created previously
-                                const actualPageBrickId = parentPageModel.api.core.getBrickIds()[0];
-                                expect(actualPageBrickId).toBe(newPageBrick.id);
-
-                                // make sure that state of previously created page was populated by child page id
-                                const pageBrickSnapshot = parentPageModel.api.core.getBrickSnapshot(actualPageBrickId);
-                                expect(pageBrickSnapshot.state.pageId).toBe(childPageId);
-                            });
-                        });
-                    });
-                });
-            });
-        }));
     });
 
     describe('Remove page', () => {
