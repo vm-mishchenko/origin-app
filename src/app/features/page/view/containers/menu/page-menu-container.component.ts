@@ -32,12 +32,12 @@ export class PageMenuContainerComponent implements OnInit {
                 filter((result) => Boolean(result)),
                 map((result) => result.pageId)
             ).subscribe((pageId) => {
-            this.pageService.movePage(this.pageViewQuery.getSelectedPageId(), pageId);
+            this.pageService.movePage2(this.pageViewQuery.getSelectedPageId(), pageId);
         });
     }
 
     moveToRoot() {
-        this.pageService.movePage(this.pageViewQuery.getSelectedPageId());
+        this.pageService.movePage2(this.pageViewQuery.getSelectedPageId());
     }
 
     moveBrickTo() {

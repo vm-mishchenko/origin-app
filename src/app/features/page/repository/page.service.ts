@@ -8,6 +8,7 @@ import {CreatePageAction} from './action/create-page.action';
 import {CreatePageAction2} from './action/create-page.action2';
 import {MoveBricksAction} from './action/move-bricks.action';
 import {MovePageAction} from './action/move-page.action';
+import {MovePageAction2} from './action/move-page.action2';
 import {RemovePageAction} from './action/remove-page.action';
 import {RemovePagesAction} from './action/remove-pages.action';
 import {DeletePageEvent} from './page-events.type';
@@ -73,6 +74,15 @@ export class PageService {
             this.pageStorages,
             this.pageRepositoryService,
             this.wallModelFactory
+        )).execute();
+    }
+
+    movePage2(movedPageId: string, targetPageId: string = null): Promise<any> {
+        return (new MovePageAction2(
+          movedPageId,
+          targetPageId,
+          this.wallModelFactory,
+          this.databaseManager
         )).execute();
     }
 
