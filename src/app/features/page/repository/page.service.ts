@@ -4,7 +4,6 @@ import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {Guid} from '../../../infrastructure/utils';
-import {CreatePageAction} from './action/create-page.action';
 import {CreatePageAction2} from './action/create-page.action2';
 import {MoveBricksAction2} from './action/move-bricks.action2';
 import {MovePageAction2} from './action/move-page.action2';
