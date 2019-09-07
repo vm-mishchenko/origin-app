@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IOnWallStateChange} from 'ngx-wall';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {filter, map, switchMap} from 'rxjs/operators';
 import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {IPageBrickState} from './page-brick.types';
 
@@ -20,6 +20,7 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
         this.pageTitle$ = this.pageId$.pipe(
           switchMap((pageId) => {
               return this.pageRepositoryService2.selectPageIdentity(pageId).pipe(
+                filter((pageIdentitySnapshot) => pageIdentitySnapshot.exists),
                 map((pageIdentitySnapshot) => pageIdentitySnapshot.data().title)
               );
           })

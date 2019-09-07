@@ -22,6 +22,10 @@ export class PageRepositoryService2 {
     return this.databaseManager.collection('page-identity').query().snapshot({source: 'remote'});
   }
 
+  pageIdentity(pageId: string) {
+    return this.databaseManager.collection('page-body').doc(pageId).snapshot();
+  }
+
   pageBody(pageId: string) {
     return this.databaseManager.collection('page-body').doc(pageId).snapshot();
   }
@@ -64,12 +68,14 @@ export class PageRepositoryService2 {
 
   syncTreePageChildren(pageId: string) {
     this.databaseManager.collection('page-relation').doc(pageId).snapshot().then((pageRelationSnapshot) => {
-      return Promise.all(pageRelationSnapshot.data().childrenPageId.map((childPageId) => {
-        return Promise.all([
-          this.syncIdentityPage(childPageId),
-          this.syncRelationPage(childPageId),
-        ]);
-      }));
+      if (pageRelationSnapshot.exists) {
+        return Promise.all(pageRelationSnapshot.data().childrenPageId.map((childPageId) => {
+          return Promise.all([
+            this.syncIdentityPage(childPageId),
+            this.syncRelationPage(childPageId),
+          ]);
+        }));
+      }
     });
   }
 

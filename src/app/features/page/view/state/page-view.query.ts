@@ -1,14 +1,16 @@
 import {Injectable} from '@angular/core';
 import {Query} from '@datorama/akita';
 import {Observable} from 'rxjs';
-import {map, shareReplay, switchMap} from 'rxjs/operators';
+import {filter, map, shareReplay, switchMap} from 'rxjs/operators';
 import {PAGE_LOCK_CONFIG_ITEM_TYPE} from '../../config/configs/page-lock-config.constant';
 import {PageConfigRepositoryService} from '../../config/page-config-repository.service';
 import {IPageViewStore, PageViewStore} from './page-view.store';
 
 @Injectable()
 export class PageViewQuery extends Query<IPageViewStore> {
-    selectedPageId$ = this.select(pageViewStore => pageViewStore.selectedPageId);
+    selectedPageId$ = this.select(pageViewStore => pageViewStore.selectedPageId).pipe(
+      filter((selectedPageId) => Boolean(selectedPageId))
+    );
 
     // receive "isLocked" page config  value
     isPageLocked$: Observable<boolean> = this.selectedPageId$.pipe(

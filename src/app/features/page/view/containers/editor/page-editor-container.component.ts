@@ -103,16 +103,21 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
             this.pageViewQuery.selectedPageId$.pipe(
                 filter((selectedPageId) => Boolean(selectedPageId))
             ).subscribe((pageId) => {
-                Promise.all([
-                    // load selected page config
-                    this.pageConfigRepositoryService.load(pageId),
+                this.pageRepositoryService2.pageIdentity(pageId).then((pageIdentitySnapshot) => {
+                    if (!pageIdentitySnapshot.exists) {
+                        this.navigationService.toPageHome();
+                        return;
+                    }
 
-                    // loading page after selected page was changed
-                    this.pageRepositoryService2.syncIdentityPage(pageId),
-                    this.pageRepositoryService2.syncBodyPage(pageId),
-                    this.pageRepositoryService2.syncTreePageChildren(pageId)
-                ]).catch((e) => {
-                    this.navigationService.toPageHome();
+                    Promise.all([
+                        // load selected page config
+                        this.pageConfigRepositoryService.load(pageId),
+
+                        // loading page after selected page was changed
+                        this.pageRepositoryService2.syncIdentityPage(pageId),
+                        this.pageRepositoryService2.syncBodyPage(pageId),
+                        this.pageRepositoryService2.syncTreePageChildren(pageId)
+                    ]);
                 });
             })
         );
