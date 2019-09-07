@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
-import {Observable} from 'rxjs/internal/Observable';
+import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';

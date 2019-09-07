@@ -154,11 +154,13 @@ class TestScope2 {
 
     hasPageEntities(pageId): Promise<boolean> {
         return Promise.all([
-            this.pageRepositoryService.hasIdentityPage(pageId),
-            this.pageRepositoryService.hasRelationPage(pageId),
-            this.pageRepositoryService.hasBodyPage(pageId)
-        ]).then(([hasIdentityPage, hasRelationPage, hasBodyPage]) => {
-            return Boolean(hasIdentityPage && hasRelationPage && hasBodyPage);
+            this.database.collection('page-identity').doc(pageId).isExists(),
+            this.database.collection('page-body').doc(pageId).isExists(),
+            this.database.collection('page-relation').doc(pageId).isExists()
+        ]).then(() => {
+            return true;
+        }, () => {
+            return Promise.resolve(false);
         });
     }
 
@@ -492,7 +494,7 @@ describe('PageService2', () => {
     });
 
     describe('Remove page 2', () => {
-        fit('should delete page identity, body-editor, relation', async(() => {
+        it('should delete page identity, body-editor, relation', async(() => {
             testScope.service.createPage2().then((pageId) => {
                 testScope.service.removePage2(pageId).then(() => {
                     testScope.database.collection('page-identity').doc(pageId).snapshot().then((snapshot) => {
@@ -510,7 +512,7 @@ describe('PageService2', () => {
             });
         }));
 
-        fit('should delete child page identity, body-editor, relation', async(() => {
+        it('should delete child page identity, body-editor, relation', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     testScope.service.removePage2(parentPageId).then(() => {
@@ -530,7 +532,7 @@ describe('PageService2', () => {
             });
         }));
 
-        fit('should delete all sub child page identity, body-editor, relation', async(() => {
+        it('should delete all sub child page identity, body-editor, relation', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     testScope.service.createPage2(childPageId).then((subChildPageId) => {
@@ -552,7 +554,7 @@ describe('PageService2', () => {
             });
         }));
 
-        fit('should update parent relation children', async(() => {
+        it('should update parent relation children', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     const parentPageRelationDoc = testScope.database.collection('page-relation').doc(parentPageId);
@@ -570,7 +572,7 @@ describe('PageService2', () => {
             });
         }));
 
-        fit('should update parent body-editor', async(() => {
+        it('should update parent body-editor', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     const pageBodies = testScope.database.collection('page-body');
@@ -588,7 +590,7 @@ describe('PageService2', () => {
             });
         }));
 
-        fit('should remove page file resources', async(() => {
+        it('should remove page file resources', async(() => {
             testScope.service.createPage2().then((pageId) => {
                 const FAKE_FILE_PATH = 'https://fake/file.txt';
 
@@ -596,6 +598,154 @@ describe('PageService2', () => {
                     const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
 
                     testScope.service.removePage2(pageId).then(() => {
+                        expect(removeFileSpy).toHaveBeenCalled();
+                        expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                    });
+                });
+            });
+        }));
+
+        it('should remove child page file resources', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                testScope.service.createPage2(parentPageId).then((childPageId) => {
+                    const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                    testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePage2(parentPageId).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+                            expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                        });
+                    });
+                });
+            });
+        }));
+    });
+
+    describe('Remove pages', () => {
+        fit('should remove one page', async(() => {
+            testScope.service.createPage2().then((pageId) => {
+                testScope.hasPageEntities(pageId).then((hasPageEntities) => {
+                    expect(hasPageEntities).toBe(true);
+                });
+
+                testScope.service.removePages2([pageId]).then(() => {
+                    testScope.hasPageEntities(pageId).then((hasPageEntities) => {
+                        expect(hasPageEntities).toBe(false);
+                    });
+                });
+            });
+        }));
+
+        fit('should remove root pages', async(() => {
+            Promise.all([
+                testScope.service.createPage2(),
+                testScope.service.createPage2()
+            ]).then(([pageId1, pageId2]) => {
+                testScope.hasPageEntities(pageId1).then((hasPageEntities) => {
+                    expect(hasPageEntities).toBe(true);
+                });
+
+                testScope.hasPageEntities(pageId2).then((hasPageEntities) => {
+                    expect(hasPageEntities).toBe(true);
+                });
+
+                testScope.service.removePages2([pageId1, pageId2]).then(() => {
+                    testScope.hasPageEntities(pageId1).then((hasPageEntities) => {
+                        expect(hasPageEntities).toBe(false);
+                    });
+
+                    testScope.hasPageEntities(pageId2).then((hasPageEntities) => {
+                        expect(hasPageEntities).toBe(false);
+                    });
+                });
+            });
+        }));
+
+        fit('should remove child pages which are not siblings not root pages', async(() => {
+            testScope.service.createPage2().then((pageId1) => {
+                Promise.all([
+                    testScope.service.createPage2(pageId1),
+                    testScope.service.createPage2(pageId1),
+                ]).then(([pageId2, pageId3]) => {
+                    testScope.service.createPage2(pageId3).then((pageId4) => {
+                        Promise.all([
+                            testScope.hasPageEntities(pageId2),
+                            testScope.hasPageEntities(pageId4)
+                        ]).then(([hasPageEntities2, hasPageEntities4]) => {
+                            expect(hasPageEntities2).toBe(true);
+                            expect(hasPageEntities4).toBe(true);
+
+                            testScope.service.removePages2([pageId2, pageId4]).then(() => {
+                                Promise.all([
+                                    testScope.hasPageEntities(pageId2),
+                                    testScope.hasPageEntities(pageId4)
+                                ]).then(([hasPageEntities2_, hasPageEntities4_]) => {
+                                    expect(hasPageEntities2_).toBe(false);
+                                    expect(hasPageEntities4_).toBe(false);
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should update parent body-editor when removing child siblings pages', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                // have to create children in series cause parallel creation would lead to race condition
+                testScope.service.createPage2(parentPageId).then((childPageId1) => {
+                    testScope.service.createPage2(parentPageId).then((childPageId2) => {
+                        const pageBodies = testScope.database.collection('page-body');
+
+                        pageBodies.doc(parentPageId).snapshot().then((parentBodyPageSnapshot) => {
+                            expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId1)).toBeDefined();
+                            expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId2)).toBeDefined();
+
+                            testScope.service.removePages2([childPageId1, childPageId2]).then(() => {
+                                pageBodies.doc(parentPageId).snapshot().then((updatedParentBodyPageSnapshot) => {
+                                    expect(testScope.findPageBrick(updatedParentBodyPageSnapshot.data().body, childPageId1)).not.toBeDefined();
+                                    expect(testScope.findPageBrick(updatedParentBodyPageSnapshot.data().body, childPageId2)).not.toBeDefined();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should update parent relation when removing child siblings pages', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                // have to create children in series cause parallel creation would lead to race condition
+                testScope.service.createPage2(parentPageId).then((childPageId1) => {
+                    testScope.service.createPage2(parentPageId).then((childPageId2) => {
+                        const pageRelations = testScope.database.collection('page-relation');
+
+                        pageRelations.doc(parentPageId).snapshot().then((parentRelationPageSnapshot) => {
+                            expect(parentRelationPageSnapshot.data().childrenPageId.includes(childPageId1)).toBe(true);
+                            expect(parentRelationPageSnapshot.data().childrenPageId.includes(childPageId2)).toBe(true);
+
+                            testScope.service.removePages2([childPageId1, childPageId2]).then(() => {
+                                pageRelations.doc(parentPageId).snapshot().then((updatedParentRelationPageSnapshot) => {
+                                    expect(updatedParentRelationPageSnapshot.data().childrenPageId.includes(childPageId1)).toBe(false);
+                                    expect(updatedParentRelationPageSnapshot.data().childrenPageId.includes(childPageId2)).toBe(false);
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should remove page file resources', async(() => {
+            testScope.service.createPage2().then((pageId) => {
+                const FAKE_FILE_PATH = 'https://fake/file.txt';
+
+                testScope.addBrick(pageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
+                    const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                    testScope.service.removePages2([pageId]).then(() => {
                         expect(removeFileSpy).toHaveBeenCalled();
                         expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
                     });
@@ -611,9 +761,37 @@ describe('PageService2', () => {
                     testScope.addBrick(childPageId, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH}).then(() => {
                         const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
 
-                        testScope.service.removePage2(parentPageId).then(() => {
+                        testScope.service.removePages2([parentPageId]).then(() => {
                             expect(removeFileSpy).toHaveBeenCalled();
                             expect(removeFileSpy.calls.mostRecent().args[0]).toEqual(FAKE_FILE_PATH);
+                        });
+                    });
+                });
+            });
+        }));
+
+        fit('should remove file resources from siblings pages', async(() => {
+            testScope.service.createPage2().then((parentPageId) => {
+                Promise.all([
+                    testScope.service.createPage2(parentPageId),
+                    testScope.service.createPage2(parentPageId),
+                ]).then(([childPageId1, childPageId2]) => {
+                    const FAKE_FILE_PATH1 = 'https://fake/file1.txt';
+                    const FAKE_FILE_PATH2 = 'https://fake/file2.txt';
+
+                    Promise.all([
+                        testScope.addBrick(childPageId1, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH1}),
+                        testScope.addBrick(childPageId2, FIXTURE_BRICK_SPECIFICATION.tag, {path: FAKE_FILE_PATH2}),
+                    ]).then(() => {
+                        const removeFileSpy = spyOn(testScope.pageFileUploaderService, 'remove');
+
+                        testScope.service.removePages2([childPageId1, childPageId2]).then(() => {
+                            expect(removeFileSpy).toHaveBeenCalled();
+
+                            const removedFileResources = removeFileSpy.calls.allArgs().map((arg) => arg[0]);
+
+                            expect(removedFileResources.includes(FAKE_FILE_PATH1)).toBe(true);
+                            expect(removedFileResources.includes(FAKE_FILE_PATH2)).toBe(true);
                         });
                     });
                 });

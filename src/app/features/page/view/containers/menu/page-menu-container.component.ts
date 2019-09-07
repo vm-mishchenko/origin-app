@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs/internal/Observable';
+import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';

@@ -1,16 +1,15 @@
-import {HashMap} from '@datorama/akita';
+import {QuerySnapshot} from 'cinatabase';
 import {Observable, Subscription} from 'rxjs';
-import {IRelationPage} from '../../../repository/page.types';
 
 export class PageTreeFlatSelection {
     selectedIds: string[] = [];
-    pageRelations: HashMap<IRelationPage>;
+    pageRelationsQuerySnapshot: QuerySnapshot;
 
     pageRelationsSubscription: Subscription;
 
-    constructor(private pageRelations$: Observable<HashMap<IRelationPage>>) {
-        this.pageRelationsSubscription = this.pageRelations$.subscribe((pageRelations) => {
-            this.pageRelations = pageRelations;
+    constructor(private pageRelationsQuerySnapshot$: Observable<QuerySnapshot>) {
+        this.pageRelationsSubscription = this.pageRelationsQuerySnapshot$.subscribe((pageRelationsQuerySnapshot) => {
+            this.pageRelationsQuerySnapshot = pageRelationsQuerySnapshot;
         });
     }
 
@@ -31,11 +30,11 @@ export class PageTreeFlatSelection {
     }
 
     private getAllPageChildrenIds(pageId: string, result = []) {
-        this.pageRelations[pageId].childrenPageId
+        this.pageRelationsQuerySnapshot.getDocWithId(pageId).data().childrenPageId
             .forEach((childPageId) => result.push(childPageId));
 
-        this.pageRelations[pageId].childrenPageId
-            .filter((childPageId) => Boolean(this.pageRelations[childPageId]))
+        this.pageRelationsQuerySnapshot.getDocWithId(pageId).data().childrenPageId
+          .filter((childPageId) => Boolean(this.pageRelationsQuerySnapshot.hasDocWithId(childPageId)))
             .map((childPageId) => this.getAllPageChildrenIds(childPageId, result));
 
         return result;

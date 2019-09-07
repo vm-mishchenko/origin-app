@@ -1,14 +1,13 @@
-import {HashMap} from '@datorama/akita';
-import {IIdentityPage, IRelationPage} from '../../../repository/page.types';
+import {QuerySnapshot} from 'cinatabase';
 import {IPageTreeNode} from './page-tree-flat.types';
 
 const INITIAL_PAGE_LEVEL = 0;
 
 export class PageTreeFlat {
     constructor(
-        private pageRelations: HashMap<IRelationPage>,
-        private pageIdentities: HashMap<IIdentityPage>,
-        private selectedIds: string[]
+      private pageRelations: QuerySnapshot,
+      private pageIdentities: QuerySnapshot,
+      private selectedIds: string[]
     ) {
     }
 
@@ -29,14 +28,14 @@ export class PageTreeFlat {
     }
 
     private buildPageTreeNode(pageId: string, level: number): IPageTreeNode {
-        const pageIdentity = this.pageIdentities[pageId];
-        const pageRelation = this.pageRelations[pageId];
+        const pageIdentitySnapshot = this.pageIdentities.getDocWithId(pageId);
+        const pageRelationSnapshot = this.pageRelations.getDocWithId(pageId);
 
         return {
-            id: pageIdentity.id,
-            title: pageIdentity.title,
+            id: pageIdentitySnapshot.id,
+            title: pageIdentitySnapshot.data().title,
             level: level,
-            expandable: Boolean(pageRelation.childrenPageId.length)
+            expandable: Boolean(pageRelationSnapshot.data().childrenPageId.length)
         };
     }
 
@@ -61,16 +60,19 @@ export class PageTreeFlat {
     }
 
     private getPageChildrenIds(parentPageId: string): string[] {
-        return this.pageRelations[parentPageId].childrenPageId
-            .filter((childPageId) => {
-                return this.pageIdentities[childPageId] && this.pageRelations[childPageId];
-            });
+        return this.pageRelations.getDocWithId(parentPageId).data().childrenPageId.filter((childPageId) => {
+            return this.pageIdentities.hasDocWithId(childPageId) && this.pageRelations.hasDocWithId(childPageId);
+        });
     }
 
     private getRootPageIds(): string[] {
-        return Object.values(this.pageRelations)
-            .filter((pageRelation) => !Boolean(pageRelation.parentPageId))
-            .filter((pageRelation) => Boolean(this.pageIdentities[pageRelation.id]))
-            .map((pageRelation) => pageRelation.id);
+        return this.pageRelations.data()
+          .filter((pageRelationDocSnapshot) => {
+              return !Boolean(pageRelationDocSnapshot.data().parentPageId);
+          })
+          .filter((pageRelationDocSnapshot) => {
+              return this.pageIdentities.hasDocWithId(pageRelationDocSnapshot.id);
+          })
+          .map((pageRelationDocSnapshot) => pageRelationDocSnapshot.id);
     }
 }

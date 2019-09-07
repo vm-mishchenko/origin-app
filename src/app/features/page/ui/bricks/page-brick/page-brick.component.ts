@@ -1,8 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {IOnWallStateChange} from 'ngx-wall';
-import {BehaviorSubject, combineLatest, Observable} from 'rxjs';
-import {filter, map} from 'rxjs/operators';
-import {PageRepositoryService} from '../../../repository';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {map, switchMap} from 'rxjs/operators';
+import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {IPageBrickState} from './page-brick.types';
 
 @Component({
@@ -16,15 +16,13 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
     pageTitle$: Observable<string>;
     pageId$: Observable<string> = new BehaviorSubject<string>('');
 
-    constructor(private pageRepositoryService: PageRepositoryService) {
-        this.pageTitle$ = combineLatest(
-            this.pageId$,
-            this.pageRepositoryService.pageIdentity$,
-        ).pipe(
-            filter(([pageId]) => Boolean(pageId)),
-            map(([pageId, pageIdentities]) => {
-                return pageIdentities[pageId] ? pageIdentities[pageId].title : 'Unknown';
-            })
+    constructor(private pageRepositoryService2: PageRepositoryService2) {
+        this.pageTitle$ = this.pageId$.pipe(
+          switchMap((pageId) => {
+              return this.pageRepositoryService2.selectPageIdentity(pageId).pipe(
+                map((pageIdentitySnapshot) => pageIdentitySnapshot.data().title)
+              );
+          })
         );
     }
 

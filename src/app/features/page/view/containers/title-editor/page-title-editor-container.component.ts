@@ -3,7 +3,8 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {filter, map, shareReplay, switchMap, withLatestFrom} from 'rxjs/operators';
 import {HeaderControlComponent} from '../../../../../components/form-controls/header-control/header-control.component';
-import {PageRepositoryService, PageService} from '../../../repository';
+import {PageService} from '../../../repository';
+import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {PageViewQuery} from '../../state/page-view.query';
 
 @Component({
@@ -25,16 +26,21 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
     constructor(private formBuilder: FormBuilder,
                 private pageService: PageService,
                 public pageViewQuery: PageViewQuery,
-                private pageRepositoryService: PageRepositoryService) {
+                private pageRepositoryService2: PageRepositoryService2) {
         this.pageForm = this.formBuilder.group({
             title: this.formBuilder.control('')
         });
 
         this.selectedPageIdentityTitle$ = this.selectedPageId$.pipe(
             switchMap((selectedPagedId) => {
-                return this.pageRepositoryService.pageIdentity$.pipe(
-                    filter((pageIdentity) => Boolean(pageIdentity[selectedPagedId])),
-                    map((pageIdentity) => pageIdentity[selectedPagedId].title)
+                return this.pageRepositoryService2.selectPageIdentity(selectedPagedId).pipe(
+                  // filter non existing page ids
+                  filter((pageIdentitySnapshot) => {
+                      return pageIdentitySnapshot.exists;
+                  }),
+                  map((pageIdentitySnapshot) => {
+                      return pageIdentitySnapshot.data().title;
+                  }),
                 );
             }),
             shareReplay()
@@ -48,10 +54,7 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
                 withLatestFrom(this.selectedPageIdentityTitle$),
                 filter(([formValues, selectedPageIdentityTitle]) => Boolean(selectedPageIdentityTitle !== formValues.title))
             ).subscribe(([formValues]) => {
-                this.pageService.updatePageIdentity({
-                    id: this.selectedPageId,
-                    title: formValues.title
-                });
+                this.pageService.updatePageIdentity2(this.selectedPageId, formValues.title);
             })
         );
 

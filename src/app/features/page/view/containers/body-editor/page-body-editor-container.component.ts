@@ -2,7 +2,8 @@ import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {IWallDefinition, RemoveBricksEvent, TurnBrickIntoEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {concat, filter, first, map, pairwise, shareReplay, switchMap, tap} from 'rxjs/operators';
-import {PageRepositoryService, PageService} from '../../../repository';
+import {PageService} from '../../../repository';
+import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {PAGE_BRICK_TAG_NAME} from '../../../ui/page-ui.constant';
 import {PageEditorComponent} from '../../components/editor/page-editor.component';
 import {PageViewQuery} from '../../state/page-view.query';
@@ -24,7 +25,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
 
     @ViewChild(PageEditorComponent) pageEditorComponent: PageEditorComponent;
 
-    constructor(private pageRepositoryService: PageRepositoryService,
+    constructor(private pageRepositoryService2: PageRepositoryService2,
                 private pageService: PageService,
                 public pageViewQuery: PageViewQuery,
                 private pageViewStore: PageViewStore) {
@@ -42,33 +43,32 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
             switchMap((selectedPagedId) => {
                 // initial pageBody rendering
                 // emit event as soon as first selected page body-editor is come
-                const initialSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
-                    filter((pageBody) => Boolean(pageBody[selectedPagedId])),
-                    map((pageBody) => pageBody[selectedPagedId]),
-                    first(),
-                    tap((bodyPage) => {
-                        this.updateCurrentBody(bodyPage.body);
-                    }));
+                const initialSelectedPageBodyChange = this.pageRepositoryService2.selectPageBody(selectedPagedId).pipe(
+                  filter((pageBodySnapshot) => pageBodySnapshot.exists),
+                  first(),
+                  tap((bodyPage) => {
+                      this.updateCurrentBody(bodyPage.data().body);
+                  }));
 
                 // listen for following (after first) page body-editor changes
                 // compare previous and current body-editor change to determine
                 // whether new body-editor from the storage should be rendered
-                const nextSelectedPageBodyChange = this.pageRepositoryService.pageBody$.pipe(
-                    filter((pageBody) => Boolean(pageBody[selectedPagedId])),
-                    pairwise(),
-                    filter(([previousPageBody, newPageBody]) => {
-                        const newBody = newPageBody[selectedPagedId].body;
+                const nextSelectedPageBodyChange = this.pageRepositoryService2.selectPageBody(selectedPagedId).pipe(
+                  filter((pageBodySnapshot) => pageBodySnapshot.exists),
+                  pairwise(),
+                  filter(([previousPageBodySnapshot, newPageBodySnapshot]) => {
+                      const newBody = newPageBodySnapshot.data().body;
 
-                        return this.currentBody !== JSON.stringify(newBody);
+                      return this.currentBody !== JSON.stringify(newBody);
                     }),
-                    map(([previousPageBody, currentPageBody]) => currentPageBody[selectedPagedId])
+                  map(([previousPageBodySnapshot, currentPageBodySnapshot]) => currentPageBodySnapshot)
                 );
 
                 return initialSelectedPageBodyChange.pipe(
                     concat(nextSelectedPageBodyChange)
                 );
             }),
-            map((bodyPage) => bodyPage.body),
+          map((bodyPage) => bodyPage.data().body),
             shareReplay()
         );
     }
@@ -77,8 +77,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     pageBodyUpdated(bodyPage: IWallDefinition) {
         this.updateCurrentBody(bodyPage);
 
-        this.pageService.updatePageBody({
-            id: this.selectedPageId,
+        this.pageService.updatePageBody2(this.selectedPageId, {
             body: bodyPage
         });
     }
@@ -88,7 +87,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
             const pageIds = event.bricks.filter((brick) => brick.tag === PAGE_BRICK_TAG_NAME)
                 .map((brick) => brick.state.pageId);
 
-            this.pageService.removePages(pageIds);
+            this.pageService.removePages2(pageIds);
         }
 
         if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {

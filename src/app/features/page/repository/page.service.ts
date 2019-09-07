@@ -12,11 +12,12 @@ import {MovePageAction2} from './action/move-page.action2';
 import {RemovePageAction} from './action/remove-page.action';
 import {RemovePageAction2} from './action/remove-page.action2';
 import {RemovePagesAction} from './action/remove-pages.action';
+import {RemovePagesAction2} from './action/remove-pages.action2';
 import {DeletePageEvent} from './page-events.type';
 import {PageFileUploaderService} from './page-file-uploader.service';
 import {PageRepositoryService} from './page-repository.service';
 import {PageStoragesService} from './page-storages.service';
-import {IBodyPage, IIdentityPage} from './page.types';
+import {IBodyPage} from './page.types';
 
 export interface ICreatePageOption {
     pageBrickId: string;
@@ -138,8 +139,24 @@ export class PageService {
         });
     }
 
-    updatePageIdentity(identityPage: Partial<IIdentityPage>): Promise<Partial<IIdentityPage>> {
-        return this.pageStorages.pageIdentityStorage.update(identityPage.id, identityPage);
+    // it's important to use this API vs iteration over removePage API
+    removePages2(pageIds: string[]): Promise<any> {
+        return new RemovePagesAction2(
+          pageIds,
+          this.wallModelFactory,
+          this.pageFileUploaderService,
+          this.databaseManager
+        ).execute().then(() => {
+            pageIds.forEach((pageId) => {
+                (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
+            });
+        });
+    }
+
+    updatePageIdentity2(pageIdentityId: string, title: string): Promise<any> {
+        return this.databaseManager.collection('page-identity').doc(pageIdentityId).update({
+            title
+        });
     }
 
     updatePageBody(bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
