@@ -4,7 +4,6 @@ import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
-import {PageRepositoryService} from '../repository';
 import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 
 /**
@@ -16,7 +15,6 @@ import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.
 export class PageConfigRepositoryService {
     constructor(private pageConfigStorageService: PageConfigStorageService,
                 private persistentStorageFactory: PersistentStorageFactory,
-                private pageRepositoryService: PageRepositoryService,
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
 

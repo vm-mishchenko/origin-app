@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {PageRepositoryService} from '../../../repository';
 
 @Component({
     selector: 'app-page-base-view-container',

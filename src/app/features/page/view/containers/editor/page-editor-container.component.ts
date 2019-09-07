@@ -10,7 +10,7 @@ import {ShellContainerComponent} from '../../../../shell/view';
 import {ShellStore} from '../../../../shell/view/state/shell.store';
 import {PageConfigRepositoryService} from '../../../config/page-config-repository.service';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';
-import {PageRepositoryService, PageService} from '../../../repository';
+import {PageService} from '../../../repository';
 import {DeletePageEvent} from '../../../repository/page-events.type';
 import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {PageViewQuery} from '../../state/page-view.query';
@@ -37,7 +37,6 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 private navigationService: NavigationService,
                 private pageService: PageService,
                 private wallModelFactory: WallModelFactory,
-                private pageRepositoryService: PageRepositoryService,
                 private pageRepositoryService2: PageRepositoryService2,
                 private deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
@@ -111,7 +110,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                     // loading page after selected page was changed
                     this.pageRepositoryService2.syncIdentityPage(pageId),
                     this.pageRepositoryService2.syncBodyPage(pageId),
-                    // this.pageRepositoryService.loadTreePageChildren(pageId)
+                    this.pageRepositoryService2.syncTreePageChildren(pageId)
                 ]).catch((e) => {
                     this.navigationService.toPageHome();
                 });

@@ -1,13 +1,13 @@
+import {ComponentPortal, Portal} from '@angular/cdk/portal';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
 import {MatSidenav} from '@angular/material';
-import {ShellStore} from '../../state/shell.store';
-import {ShellQuery} from '../../state/shell.query';
-import {PageRepositoryService, PageService} from '../../../../page/repository';
+import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
 import {NavigationService} from '../../../../../modules/navigation';
 import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
-import {ComponentPortal, Portal} from '@angular/cdk/portal';
-import {AuthService} from '../../../../../modules/auth';
+import {PageService} from '../../../../page/repository';
+import {PageRepositoryService2} from '../../../../page/repository/page-repository.service2';
+import {ShellQuery} from '../../state/shell.query';
+import {ShellStore} from '../../state/shell.store';
 
 @Component({
     selector: 'app-shell-container',
@@ -21,15 +21,14 @@ export class ShellContainerComponent implements OnInit {
     secondaryPortal: Portal<any>;
 
     constructor(public deviceLayoutService: DeviceLayoutService,
-                public authService: AuthService,
                 private shellStore: ShellStore,
                 public shellQuery: ShellQuery,
                 private pageService: PageService,
                 private navigationService: NavigationService,
-                private pageRepositoryService: PageRepositoryService,
+                private pageRepositoryService2: PageRepositoryService2,
                 private changeDetectorRef: ChangeDetectorRef,
                 public originPouchDbSyncService: PouchDbSyncService) {
-        this.pageRepositoryService.loadRootPages();
+        this.pageRepositoryService2.syncRootPages();
     }
 
     ngOnInit() {

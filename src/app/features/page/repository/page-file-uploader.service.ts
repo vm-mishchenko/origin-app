@@ -2,8 +2,7 @@ import {Injectable} from '@angular/core';
 import {IWallFileUploaderResult, WallModelFactory} from 'ngx-wall';
 import {FirebaseFileUploaderService} from '../../../infrastructure/firebase-file-uploader/firebase-file-uploader.service';
 import {Guid} from '../../../infrastructure/utils';
-import {PageRepositoryService} from './page-repository.service';
-import {IBodyPage} from './page.types';
+import {PageRepositoryService2} from './page-repository.service2';
 
 type IPathPreProcessor = (path: string) => string;
 
@@ -12,13 +11,13 @@ type IPathPreProcessor = (path: string) => string;
 })
 export class PageFileUploaderService {
     constructor(private guid: Guid, private firebaseFileUploader: FirebaseFileUploaderService,
-                private pageRepositoryService: PageRepositoryService,
+                private pageRepositoryService2: PageRepositoryService2,
                 private wallModelFactory: WallModelFactory) {
     }
 
     upload(pageId: string, brickId: string, file, preProcessor?: IPathPreProcessor): Promise<IWallFileUploaderResult> {
-        return this.pageRepositoryService.getBodyPage(pageId).then((bodyPage: IBodyPage) => {
-            const wallModel = this.wallModelFactory.create({plan: bodyPage.body});
+        return this.pageRepositoryService2.pageBody(pageId).then((bodyPageSnapshot) => {
+            const wallModel = this.wallModelFactory.create({plan: bodyPageSnapshot.data().body});
 
             const brickTag = wallModel.api.core.getBrickTag(brickId);
 

@@ -15,7 +15,6 @@ import {AuthService} from '../../../modules/auth';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
-import {PageRepositoryService} from './page-repository.service';
 import {PageService} from './page.service';
 
 @Component({
@@ -42,7 +41,6 @@ const FIXTURE_BRICK_SPECIFICATION = {
 class TestScope2 {
     database: DatabaseManager;
     service: PageService;
-    pageRepositoryService: PageRepositoryService;
     pageFileUploaderService: PageFileUploaderService;
 
     initialize() {
@@ -52,7 +50,6 @@ class TestScope2 {
         persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
 
         this.service = TestBed.get(PageService);
-        this.pageRepositoryService = TestBed.get(PageRepositoryService);
         this.pageFileUploaderService = TestBed.get(PageFileUploaderService);
         this.database = TestBed.get(DATABASE_MANAGER);
 

@@ -2,7 +2,7 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {Component, OnDestroy} from '@angular/core';
 import {QuerySnapshot} from 'cinatabase';
 import {combineLatest} from 'rxjs';
-import {PageRepositoryService, PageService} from '../../../repository';
+import {PageService} from '../../../repository';
 import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {PageTreeFlatDataSource} from './page-tree-flat-data-source.class';
 import {PageTreeFlatSelection} from './page-tree-flat-selection.class';
@@ -15,21 +15,21 @@ import {IPageTreeNode} from './page-tree-flat.types';
     styleUrls: ['./page-tree-flat-container.component.scss']
 })
 export class PageTreeFlatContainerComponent implements OnDestroy {
-    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRepositoryService2.pageRelations());
+    pageTreeFlatSelection: PageTreeFlatSelection = new PageTreeFlatSelection(this.pageRepositoryService2.selectPageRelations());
     treeControl: FlatTreeControl<IPageTreeNode>;
     dataSource: PageTreeFlatDataSource = new PageTreeFlatDataSource();
 
     private pageRelationsQuerySnapshot: QuerySnapshot;
     private pageIdentitiesQuerySnapshot: QuerySnapshot;
 
-    constructor(private pageService: PageService, private pageRepositoryService: PageRepositoryService,
+    constructor(private pageService: PageService,
                 private pageRepositoryService2: PageRepositoryService2) {
         this.treeControl = new FlatTreeControl<IPageTreeNode>(this.getLevel, this.isExpandable);
 
         // todo: unsubscribe after
         combineLatest(
-          this.pageRepositoryService2.pageIdentities(),
-          this.pageRepositoryService2.pageRelations()
+          this.pageRepositoryService2.selectPageIdentities(),
+          this.pageRepositoryService2.selectPageRelations()
         ).subscribe(([pageIdentities, pageRelations]) => {
             this.pageIdentitiesQuerySnapshot = pageIdentities;
             this.pageRelationsQuerySnapshot = pageRelations;
@@ -42,7 +42,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
             changed.added
                 .map(selectedPageTreeNode => selectedPageTreeNode.id)
                 .forEach((selectedPageId) => {
-                    this.pageRepositoryService.loadTreePageChildren(selectedPageId);
+                    this.pageRepositoryService2.syncTreePageChildren(selectedPageId);
                     this.pageTreeFlatSelection.addSelectedPageId(selectedPageId);
                 });
 

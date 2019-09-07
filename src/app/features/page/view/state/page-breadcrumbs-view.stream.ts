@@ -14,8 +14,8 @@ export class PageBreadcrumbStream {
     breadcrumbs$: Observable<IBreadcrumbItem[]> = this.pageViewQuery.selectedPageId$.pipe(
         switchMap((selectedPageId) => {
             return combineLatest(
-              this.pageRepositoryService2.pageIdentities(),
-              this.pageRepositoryService2.pageRelations(),
+              this.pageRepositoryService2.selectPageIdentities(),
+              this.pageRepositoryService2.selectPageRelations(),
             ).pipe(
                 map(([pageIdentity, pageRelation]) => this.buildBreadcrumbItem(selectedPageId, pageIdentity, pageRelation))
             );

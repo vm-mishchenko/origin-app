@@ -10,12 +10,20 @@ export class PageRepositoryService2 {
   constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
   }
 
-  pageIdentities() {
+  selectPageIdentities() {
     return this.databaseManager.collection('page-identity').query().onSnapshot();
   }
 
-  pageRelations() {
+  selectPageRelations() {
     return this.databaseManager.collection('page-relation').query().onSnapshot();
+  }
+
+  allPageIdentities() {
+    return this.databaseManager.collection('page-identity').query().snapshot({source: 'remote'});
+  }
+
+  pageBody(pageId: string) {
+    return this.databaseManager.collection('page-body').doc(pageId).snapshot();
   }
 
   selectPageIdentity(pageId: string) {
@@ -34,7 +42,11 @@ export class PageRepositoryService2 {
     return this.databaseManager.collection('page-body').doc(pageId).sync();
   }
 
-  loadRootPages() {
+  syncRelationPage(pageId: string) {
+    return this.databaseManager.collection('page-relation').doc(pageId).sync();
+  }
+
+  syncRootPages() {
     const rootPagesQuery = this.databaseManager.collection('page-relation').query({
       parentPageId: null
     });
@@ -48,5 +60,20 @@ export class PageRepositoryService2 {
         }));
       });
     });
+  }
+
+  syncTreePageChildren(pageId: string) {
+    this.databaseManager.collection('page-relation').doc(pageId).snapshot().then((pageRelationSnapshot) => {
+      return Promise.all(pageRelationSnapshot.data().childrenPageId.map((childPageId) => {
+        return Promise.all([
+          this.syncIdentityPage(childPageId),
+          this.syncRelationPage(childPageId),
+        ]);
+      }));
+    });
+  }
+
+  sync() {
+    // todo: when remote server is synced need to update all page collection
   }
 }
