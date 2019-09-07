@@ -11,7 +11,6 @@ import {RemovePageAction2} from './action/remove-page.action2';
 import {RemovePagesAction2} from './action/remove-pages.action2';
 import {DeletePageEvent} from './page-events.type';
 import {PageFileUploaderService} from './page-file-uploader.service';
-import {PageStoragesService} from './page-storages.service';
 import {IBodyPage} from './page.types';
 
 export interface ICreatePageOption {
@@ -34,8 +33,7 @@ export class PageService {
     // todo - replace any type
     events$: Observable<any> = new Subject<any>();
 
-    constructor(private pageStorages: PageStoragesService,
-                private wallModelFactory: WallModelFactory,
+    constructor(private wallModelFactory: WallModelFactory,
                 private pageFileUploaderService: PageFileUploaderService,
                 private guid: Guid,
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
