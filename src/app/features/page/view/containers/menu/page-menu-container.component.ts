@@ -56,7 +56,7 @@ export class PageMenuContainerComponent implements OnInit {
                 map((result) => result.pageId)
             ).subscribe((pageId) => {
 
-            this.pageService.moveBricks(this.pageViewQuery.getSelectedPageId(),
+            this.pageService.moveBricks2(this.pageViewQuery.getSelectedPageId(),
                 selectedBrickIds,
                 pageId);
         });

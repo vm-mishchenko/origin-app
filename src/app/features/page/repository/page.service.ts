@@ -6,12 +6,9 @@ import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {Guid} from '../../../infrastructure/utils';
 import {CreatePageAction} from './action/create-page.action';
 import {CreatePageAction2} from './action/create-page.action2';
-import {MoveBricksAction} from './action/move-bricks.action';
-import {MovePageAction} from './action/move-page.action';
+import {MoveBricksAction2} from './action/move-bricks.action2';
 import {MovePageAction2} from './action/move-page.action2';
-import {RemovePageAction} from './action/remove-page.action';
 import {RemovePageAction2} from './action/remove-page.action2';
-import {RemovePagesAction} from './action/remove-pages.action';
 import {RemovePagesAction2} from './action/remove-pages.action2';
 import {DeletePageEvent} from './page-events.type';
 import {PageFileUploaderService} from './page-file-uploader.service';
@@ -47,18 +44,6 @@ export class PageService {
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
 
-    createPage(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
-        return new CreatePageAction(
-            parentPageId,
-            this.pageStorages.pageIdentityStorage,
-            this.pageStorages.pageBodyStorage,
-            this.pageStorages.pageRelationStorage,
-            this.guid,
-            this.wallModelFactory,
-            options
-        ).execute();
-    }
-
     createPage2(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
         return new CreatePageAction2(
           parentPageId,
@@ -67,16 +52,6 @@ export class PageService {
           options,
           this.databaseManager
         ).execute();
-    }
-
-    movePage(movedPageId: string, targetPageId: string = null): Promise<any> {
-        return (new MovePageAction(
-            movedPageId,
-            targetPageId,
-            this.pageStorages,
-            this.pageRepositoryService,
-            this.wallModelFactory
-        )).execute();
     }
 
     movePage2(movedPageId: string, targetPageId: string = null): Promise<any> {
@@ -88,28 +63,14 @@ export class PageService {
         )).execute();
     }
 
-    moveBricks(sourcePageId: string, brickIds: string[], targetPageId: string): Promise<any> {
-        return (new MoveBricksAction(
-            sourcePageId,
-            brickIds,
-            targetPageId,
-            this.pageRepositoryService,
-            this.wallModelFactory,
-            this.pageStorages
+    moveBricks2(sourcePageId: string, brickIds: string[], targetPageId: string): Promise<any> {
+        return (new MoveBricksAction2(
+          sourcePageId,
+          brickIds,
+          targetPageId,
+          this.wallModelFactory,
+          this.databaseManager
         )).execute();
-    }
-
-    removePage(pageId: string): Promise<any> {
-        return new RemovePageAction(
-            pageId,
-            this.pageStorages.pageIdentityStorage,
-            this.pageStorages.pageBodyStorage,
-            this.pageStorages.pageRelationStorage,
-            this.wallModelFactory,
-            this.pageFileUploaderService
-        ).execute().then(() => {
-            (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
-        });
     }
 
     removePage2(pageId: string): Promise<any> {
@@ -120,22 +81,6 @@ export class PageService {
           this.databaseManager
         ).execute().then(() => {
             (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
-        });
-    }
-
-    // it's important to use this API vs iteration over removePage API
-    removePages(pageIds: string[]): Promise<any> {
-        return new RemovePagesAction(
-            pageIds,
-            this.pageStorages.pageIdentityStorage,
-            this.pageStorages.pageBodyStorage,
-            this.pageStorages.pageRelationStorage,
-            this.wallModelFactory,
-            this.pageFileUploaderService
-        ).execute().then(() => {
-            pageIds.forEach((pageId) => {
-                (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
-            });
         });
     }
 
@@ -157,10 +102,6 @@ export class PageService {
         return this.databaseManager.collection('page-identity').doc(pageIdentityId).update({
             title
         });
-    }
-
-    updatePageBody(bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
-        return this.pageStorages.pageBodyStorage.update(bodyPage.id, bodyPage);
     }
 
     updatePageBody2(bodyPageId: string, bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
