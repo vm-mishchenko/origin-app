@@ -17,7 +17,7 @@ export class PouchdbStorageFactory {
     private entityStorePouchDbMap: Map<string, EntityStorePouchDb<IPouchdbStorageEntity>> = new Map();
 
     constructor() {
-        this.initializeDatabase();
+        // this.initializeDatabase();
     }
 
     createPouchDB<M extends IPouchdbStorageEntity>(options: IPouchDbCreateOptions) {

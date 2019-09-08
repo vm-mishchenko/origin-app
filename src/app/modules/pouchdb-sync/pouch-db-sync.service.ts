@@ -1,12 +1,14 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {AngularFireDatabase} from '@angular/fire/database';
+import {MatSnackBar} from '@angular/material';
+import {DatabaseManager, PouchDbRemoteProvider} from 'cinatabase';
+import {Observable, Subject} from 'rxjs';
 import {filter, first} from 'rxjs/operators';
-import {AuthService} from '../auth';
 import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
 import {PouchdbStorageSync} from '../../infrastructure/pouchdb/pouchdb-storage/pouchdb-storage-sync.service';
+import {DATABASE_MANAGER, REMOTE_PROVIDER_INJECTION_TOKEN} from '../../infrastructure/storage/storage.module';
+import {AuthService} from '../auth';
 import {IPouchDbConfig} from './pouchdb-sync.types';
-import {MatSnackBar} from '@angular/material';
-import {Observable, Subject} from 'rxjs';
 
 /*
 * Knowledge:
@@ -30,6 +32,8 @@ export class PouchDbSyncService {
                 private angularFireDatabase: AngularFireDatabase,
                 private pouchdbStorageFactory: PouchdbStorageFactory,
                 private pouchdbStorageSync: PouchdbStorageSync,
+                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager,
+                @Inject(REMOTE_PROVIDER_INJECTION_TOKEN) private remoteProvider: PouchDbRemoteProvider,
                 private snackBar: MatSnackBar) {
         this.googleSignService.user$.pipe(
             first(),
@@ -68,9 +72,13 @@ export class PouchDbSyncService {
     syncPouchDb() {
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
+        this.remoteProvider.configure({
+            remoteDatabaseUrl
+        });
+
         // cache promise to avoid unnecessary double sync call
         if (!this.syncPromise) {
-            this.syncPromise = this.pouchdbStorageSync.sync(remoteDatabaseUrl).then(() => {
+            this.syncPromise = this.databaseManager.syncWithServer().then(() => {
                 (this.synced$ as Subject<any>).next();
 
                 this.snackBar.open('App is synced', '', {
