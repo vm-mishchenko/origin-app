@@ -26,21 +26,26 @@ export class PageBreadcrumbStream {
                 private pageRepositoryService2: PageRepositoryService2) {
     }
 
-    private buildBreadcrumbItem(pageId: string, pageIdentities, pageRelations, result = []): IBreadcrumbItem[] {
-        const pageIdentity = pageIdentities[pageId];
-        const pageRelation = pageRelations[pageId];
+    private buildBreadcrumbItem(pageId: string, pageIdentitiesSnapshot, pageRelationsSnapshot, result = []): IBreadcrumbItem[] {
+        const pageIdentitySnapshot = pageIdentitiesSnapshot.getDocWithId(pageId);
+        const pageRelationSnapshot = pageRelationsSnapshot.getDocWithId(pageId);
 
-        if (pageIdentity) {
+        if (pageIdentitySnapshot) {
             const breadcrumbItem: IBreadcrumbItem = {
-                pageId: pageIdentity.id,
-                pageTitle: pageIdentity.title
+                pageId: pageIdentitySnapshot.id,
+                pageTitle: pageIdentitySnapshot.data().title
             };
 
             result.unshift(breadcrumbItem);
         }
 
-        if (pageRelation && pageRelation.parentPageId) {
-            return this.buildBreadcrumbItem(pageRelation.parentPageId, pageIdentities, pageRelations, result);
+        if (pageRelationSnapshot && pageRelationSnapshot.data().parentPageId) {
+            return this.buildBreadcrumbItem(
+              pageRelationSnapshot.data().parentPageId,
+              pageIdentitiesSnapshot,
+              pageRelationsSnapshot,
+              result
+            );
         }
 
         return result;
