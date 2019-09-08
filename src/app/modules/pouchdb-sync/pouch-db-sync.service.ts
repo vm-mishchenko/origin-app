@@ -51,7 +51,7 @@ export class PouchDbSyncService {
         this.googleSignService.signOut$.subscribe(() => {
             // user log out
             this.pouchDbConfig = null;
-            this.pouchdbStorageFactory.resetDatabase();
+            this.databaseManager.removeAllData();
         });
     }
 
