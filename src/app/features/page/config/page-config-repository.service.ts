@@ -2,7 +2,6 @@ import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
-import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 
@@ -14,7 +13,6 @@ import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.
 })
 export class PageConfigRepositoryService {
     constructor(private pageConfigStorageService: PageConfigStorageService,
-                private persistentStorageFactory: PersistentStorageFactory,
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
 

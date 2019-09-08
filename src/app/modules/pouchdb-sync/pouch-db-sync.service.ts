@@ -4,8 +4,6 @@ import {MatSnackBar} from '@angular/material';
 import {DatabaseManager, PouchDbRemoteProvider} from 'cinatabase';
 import {Observable, Subject} from 'rxjs';
 import {filter, first} from 'rxjs/operators';
-import {PouchdbStorageFactory} from '../../infrastructure/pouchdb/pouchdb-storage';
-import {PouchdbStorageSync} from '../../infrastructure/pouchdb/pouchdb-storage/pouchdb-storage-sync.service';
 import {DATABASE_MANAGER, REMOTE_PROVIDER_INJECTION_TOKEN} from '../../infrastructure/storage/storage.module';
 import {AuthService} from '../auth';
 import {IPouchDbConfig} from './pouchdb-sync.types';
@@ -30,8 +28,6 @@ export class PouchDbSyncService {
 
     constructor(private googleSignService: AuthService,
                 private angularFireDatabase: AngularFireDatabase,
-                private pouchdbStorageFactory: PouchdbStorageFactory,
-                private pouchdbStorageSync: PouchdbStorageSync,
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager,
                 @Inject(REMOTE_PROVIDER_INJECTION_TOKEN) private remoteProvider: PouchDbRemoteProvider,
                 private snackBar: MatSnackBar) {
@@ -70,6 +66,12 @@ export class PouchDbSyncService {
     }
 
     syncPouchDb() {
+        if (!this.pouchDbConfig) {
+            // pouchDbConfig is not received from firebase,
+            // because we are offline or is just in process of loading
+            return Promise.resolve();
+        }
+
         const remoteDatabaseUrl = `https://${this.pouchDbConfig.key}:${this.pouchDbConfig.password}@${this.pouchDbConfig.domain}/${this.pouchDbConfig.name}`;
 
         this.remoteProvider.configure({

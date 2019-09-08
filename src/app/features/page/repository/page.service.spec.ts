@@ -7,9 +7,6 @@ import {DatabaseManager, InMemoryRemoteProvider, MemoryDb, RemoteDb} from 'cinat
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
 import {of} from 'rxjs';
 import {environment} from '../../../../environments/environment';
-import {PersistentStorageFactory} from '../../../infrastructure/persistent-storage';
-import {PouchdbStorageFactory} from '../../../infrastructure/pouchdb/pouchdb-storage';
-import {EntityStorePouchDbMock} from '../../../infrastructure/pouchdb/pouchdb-storage/test/entity-store-pouchdb-mock';
 import {DATABASE_MANAGER, StoreModule} from '../../../infrastructure/storage/storage.module';
 import {AuthService} from '../../../modules/auth';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
@@ -44,11 +41,6 @@ class TestScope2 {
     pageFileUploaderService: PageFileUploaderService;
 
     initialize() {
-        // its important to instantiate PersistentStorageFactory before PageService
-        // since we can configure storage before page starts using it
-        const persistentStorageFactory: PersistentStorageFactory = TestBed.get(PersistentStorageFactory);
-        persistentStorageFactory.setOptions({pouchDbSavingDebounceTime: 0});
-
         this.service = TestBed.get(PageService);
         this.pageFileUploaderService = TestBed.get(PageFileUploaderService);
         this.database = TestBed.get(DATABASE_MANAGER);
@@ -105,7 +97,6 @@ class TestScope2 {
 }
 
 describe('PageService', () => {
-    const mockPouchDb = new EntityStorePouchDbMock();
     let testScope: TestScope2;
 
     beforeEach(() => TestBed.configureTestingModule({
@@ -122,12 +113,6 @@ describe('PageService', () => {
                     const memoryDb = new MemoryDb();
                     const remoteDb = new RemoteDb(new InMemoryRemoteProvider());
                     return new DatabaseManager(memoryDb, remoteDb);
-                }
-            },
-            {
-                provide: PouchdbStorageFactory,
-                useValue: {
-                    createPouchDB: () => mockPouchDb
                 }
             },
             // mock for easier firebase and google account configuration

@@ -50,6 +50,7 @@ export class AuthService {
     }
 
     signOut(): Promise<any> {
+        // todo: should sign out even when we are offline
         return this.initGapiClient().then(() => {
             return gapi.auth2.getAuthInstance().isSignedIn.get() ?
                 this.signOutUser() :
