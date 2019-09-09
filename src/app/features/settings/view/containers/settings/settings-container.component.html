@@ -21,7 +21,7 @@
             <div *ngIf="authService.user$ | async">
                 <h3>Sync data</h3>
                 <p>Your pages will be automatically synced every time you open the app.</p>
-                <button color="accent" (click)="pouchDbSyncService.syncPouchDb()" mat-flat-button>Sync it now
+                <button color="accent" (click)="pouchDbSyncService.sync()" mat-flat-button>Sync it now
                 </button>
             </div>
         </div>

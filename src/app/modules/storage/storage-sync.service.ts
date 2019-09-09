@@ -51,11 +51,11 @@ export class StorageSyncService {
             .subscribe((couchDbConfig) => {
                 this.pouchDbConfig = couchDbConfig as IPouchDbConfig;
 
-                this.syncPouchDb();
+                this.sync();
             });
     }
 
-    syncPouchDb() {
+    sync() {
         if (!this.pouchDbConfig) {
             // pouchDbConfig is not received from firebase,
             // because we are offline or is just in process of loading

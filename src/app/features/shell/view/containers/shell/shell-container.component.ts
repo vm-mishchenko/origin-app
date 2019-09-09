@@ -64,7 +64,7 @@ export class ShellContainerComponent implements OnInit {
     }
 
     sync() {
-        this.originPouchDbSyncService.syncPouchDb();
+        this.originPouchDbSyncService.sync();
     }
 
     setMainPortalComponent(componentPortal: ComponentPortal<any>) {

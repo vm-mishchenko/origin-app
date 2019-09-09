@@ -3,6 +3,7 @@ import {Injectable, NgZone} from '@angular/core';
 import * as Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 import {NavigationService} from '../navigation';
+import {StorageSyncService} from '../storage/storage-sync.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class Hotkey {
   isHotkeyTimer: number;
 
   constructor(private navigationService: NavigationService,
+              private storageSyncService: StorageSyncService,
               private zone: NgZone) {
     Mousetrap.prototype.stopCallback = function (e, element, combo) {
       return false;
@@ -27,15 +29,17 @@ export class Hotkey {
 
     const globalHotKeys = [
       {
-        keys: 'o',
+        keys: 'p',
         callback: () => {
           this.navigationService.toSearch();
         }
       },
+
+      // sync with remote database
       {
         keys: 's',
         callback: () => {
-          this.navigationService.toSettings();
+          this.storageSyncService.sync();
         }
       }
     ];
