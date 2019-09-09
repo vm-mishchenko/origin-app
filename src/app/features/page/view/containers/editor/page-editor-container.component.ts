@@ -111,12 +111,12 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
 
                     Promise.all([
                         // load selected page config
-                        this.pageConfigRepositoryService.load(pageId),
+                        this.pageConfigRepositoryService.syncConfig(pageId),
 
                         // loading page after selected page was changed
-                        this.pageRepositoryService2.syncIdentityPage(pageId),
                         this.pageRepositoryService2.syncBodyPage(pageId),
-                        this.pageRepositoryService2.syncTreePageChildren(pageId)
+                        this.pageRepositoryService2.syncPageChildrenIdentity(pageId),
+                        this.pageRepositoryService2.syncRecursiveParentPages(pageId),
                     ]);
                 });
             })

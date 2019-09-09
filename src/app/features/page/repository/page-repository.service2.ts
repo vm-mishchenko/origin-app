@@ -35,6 +35,10 @@ export class PageRepositoryService2 {
     return this.pageBodies.doc(pageId).snapshot();
   }
 
+  pageRelation(pageId: string) {
+    return this.pageRelations.doc(pageId).snapshot();
+  }
+
   selectPageIdentity(pageId: string) {
     return this.pageIdentities.doc(pageId).onSnapshot();
   }
@@ -69,16 +73,29 @@ export class PageRepositoryService2 {
     });
   }
 
-  syncTreePageChildren(pageId: string) {
+  syncPageChildrenIdentity(pageId: string) {
     this.pageRelations.doc(pageId).snapshot().then((pageRelationSnapshot) => {
       if (pageRelationSnapshot.exists) {
         return Promise.all(pageRelationSnapshot.data().childrenPageId.map((childPageId) => {
           return Promise.all([
             this.syncIdentityPage(childPageId),
-            this.syncRelationPage(childPageId),
+            this.syncRelationPage(childPageId)
           ]);
         }));
       }
+    });
+  }
+
+  syncRecursiveParentPages(pageId: string) {
+    return Promise.all([
+      this.syncIdentityPage(pageId),
+      this.syncRelationPage(pageId)
+    ]).then(() => {
+      return this.pageRelation(pageId).then((pageRelationSnapshot) => {
+        if (pageRelationSnapshot.exists && pageRelationSnapshot.data().parentPageId) {
+          return this.syncRecursiveParentPages(pageRelationSnapshot.data().parentPageId);
+        }
+      });
     });
   }
 }

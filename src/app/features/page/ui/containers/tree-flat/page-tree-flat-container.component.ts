@@ -43,7 +43,7 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
             changed.added
                 .map(selectedPageTreeNode => selectedPageTreeNode.id)
                 .forEach((selectedPageId) => {
-                    this.pageRepositoryService2.syncTreePageChildren(selectedPageId);
+                    this.pageRepositoryService2.syncPageChildrenIdentity(selectedPageId);
                     this.pageTreeFlatSelection.addSelectedPageId(selectedPageId);
                 });
 

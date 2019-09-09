@@ -22,7 +22,7 @@ export class PageConfigRepositoryService {
     /**
      * Load into the memory Page Config by id.
      */
-    load(pageId: string): Promise<any> {
+    syncConfig(pageId: string): Promise<any> {
       const pageConfigDocRef = this.pageConfigs.doc(pageId);
 
       // the tricky part that Page Config might not exists, because Page could be already created before.
