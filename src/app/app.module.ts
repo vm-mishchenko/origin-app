@@ -14,8 +14,9 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
-import {StoreModule} from './modules/storage/storage.module';
+import {Hotkey} from './modules/hotkey/hotkey';
 import {NavigationModule} from './modules/navigation';
+import {StoreModule} from './modules/storage/storage.module';
 
 @NgModule({
     declarations: [
@@ -53,4 +54,6 @@ import {NavigationModule} from './modules/navigation';
     bootstrap: [AppComponent]
 })
 export class AppModule {
+    constructor(private hotkey: Hotkey) {
+    }
 }
