@@ -3,7 +3,7 @@ import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {MatSidenav} from '@angular/material';
 import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
 import {NavigationService} from '../../../../../modules/navigation';
-import {PouchDbSyncService} from '../../../../../modules/pouchdb-sync/pouch-db-sync.service';
+import {StorageSyncService} from '../../../../../modules/storage/storage-sync.service';
 import {PageService} from '../../../../page/repository';
 import {PageRepositoryService2} from '../../../../page/repository/page-repository.service2';
 import {ShellQuery} from '../../state/shell.query';
@@ -27,7 +27,7 @@ export class ShellContainerComponent implements OnInit {
                 private navigationService: NavigationService,
                 private pageRepositoryService2: PageRepositoryService2,
                 private changeDetectorRef: ChangeDetectorRef,
-                public originPouchDbSyncService: PouchDbSyncService) {
+                public originPouchDbSyncService: StorageSyncService) {
         this.pageRepositoryService2.syncRootPages();
     }
 

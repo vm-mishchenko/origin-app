@@ -1,7 +1,7 @@
 import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager, IDocSnapshot} from 'cinatabase';
 import {Observable} from 'rxjs';
-import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
+import {DATABASE_MANAGER} from '../../../modules/storage/storage.module';
 import {IPageBody, IPageIdentity, IPageRelation} from './interfaces';
 
 @Injectable({
@@ -36,10 +36,6 @@ export class PageRepositoryService2 {
   }
 
   selectPageIdentity(pageId: string) {
-    this.databaseManager.collection<IPageIdentity>('page-identity').doc(pageId).onSnapshot().subscribe((s) => {
-      s.data().title;
-    });
-
     return this.pageIdentities.doc(pageId).onSnapshot();
   }
 

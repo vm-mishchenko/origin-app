@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
-import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
+import {DATABASE_MANAGER} from '../../../modules/storage/storage.module';
 import {PageLockConfigChange} from './configs/page-lock-config.constant';
 import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 import {PageConfig} from './page.config.class';

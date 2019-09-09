@@ -2,7 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
-import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
+import {DATABASE_MANAGER} from '../../../modules/storage/storage.module';
 import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
 import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 

@@ -7,7 +7,7 @@ import {DatabaseManager, InMemoryRemoteProvider, MemoryDb, RemoteDb} from 'cinat
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
 import {of} from 'rxjs';
 import {environment} from '../../../../environments/environment';
-import {DATABASE_MANAGER, StoreModule} from '../../../infrastructure/storage/storage.module';
+import {DATABASE_MANAGER, StoreModule} from '../../../modules/storage/storage.module';
 import {AuthService} from '../../../modules/auth';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';

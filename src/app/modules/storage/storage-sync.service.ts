@@ -4,26 +4,16 @@ import {MatSnackBar} from '@angular/material';
 import {DatabaseManager, PouchDbRemoteProvider} from 'cinatabase';
 import {Observable, Subject} from 'rxjs';
 import {filter, first} from 'rxjs/operators';
-import {DATABASE_MANAGER, REMOTE_PROVIDER_INJECTION_TOKEN} from '../../infrastructure/storage/storage.module';
 import {AuthService} from '../auth';
-import {IPouchDbConfig} from './pouchdb-sync.types';
-
-/*
-* Knowledge:
-* 1. how to retrieve CouchDb credentials
-*
-* Responsibilities:
-* 1. initial database sync
-* 2. database sync from Settings page
-* */
+import {IPouchDbConfig} from './pouchdb-config';
+import {DATABASE_MANAGER, REMOTE_PROVIDER_INJECTION_TOKEN} from './storage.module';
 
 @Injectable({
     providedIn: 'root'
 })
-export class PouchDbSyncService {
-    private syncPromise: Promise<any>;
-
+export class StorageSyncService {
     synced$: Observable<any> = new Subject();
+    private syncPromise: Promise<any>;
     private pouchDbConfig: IPouchDbConfig;
 
     constructor(private googleSignService: AuthService,

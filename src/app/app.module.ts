@@ -14,7 +14,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {PageRepositoryModule} from './features/page/repository';
 import {ShellViewModule} from './features/shell/view';
-import {StoreModule} from './infrastructure/storage/storage.module';
+import {StoreModule} from './modules/storage/storage.module';
 import {NavigationModule} from './modules/navigation';
 
 @NgModule({
