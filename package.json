@@ -42,7 +42,7 @@
     "firebase": "5.8.2",
     "ngx-sticky-modal": "^0.0.4",
     "ngx-wall": "^1.1.19",
-    "cinatabase": "^0.0.1",
+    "cinatabase": "^0.0.6",
     "open-iconic": "1.1.1",
     "pouchdb": "^7.0.0",
     "pouchdb-find": "^7.0.0",
