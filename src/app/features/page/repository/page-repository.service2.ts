@@ -1,45 +1,54 @@
 import {Inject, Injectable} from '@angular/core';
-import {DatabaseManager, DocSnapshot} from 'cinatabase';
+import {DatabaseManager, IDocSnapshot} from 'cinatabase';
 import {Observable} from 'rxjs';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
+import {IPageBody, IPageIdentity, IPageRelation} from './interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PageRepositoryService2 {
+  private pageIdentities = this.databaseManager.collection<IPageIdentity>('page-identity');
+  private pageBodies = this.databaseManager.collection<IPageBody>('page-body');
+  private pageRelations = this.databaseManager.collection<IPageRelation>('page-relation');
+
   constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
   }
 
   selectPageIdentities() {
-    return this.databaseManager.collection('page-identity').query().onSnapshot();
+    return this.pageIdentities.query().onSnapshot();
   }
 
   selectPageRelations() {
-    return this.databaseManager.collection('page-relation').query().onSnapshot();
+    return this.pageRelations.query().onSnapshot();
   }
 
   allPageIdentities() {
-    return this.databaseManager.collection('page-identity').query().snapshot({source: 'remote'});
+    return this.pageIdentities.query().snapshot({source: 'remote'});
   }
 
   pageIdentity(pageId: string) {
-    return this.databaseManager.collection('page-body').doc(pageId).snapshot();
+    return this.pageBodies.doc(pageId).snapshot();
   }
 
   pageBody(pageId: string) {
-    return this.databaseManager.collection('page-body').doc(pageId).snapshot();
+    return this.pageBodies.doc(pageId).snapshot();
   }
 
   selectPageIdentity(pageId: string) {
-    return this.databaseManager.collection('page-identity').doc(pageId).onSnapshot();
+    this.databaseManager.collection<IPageIdentity>('page-identity').doc(pageId).onSnapshot().subscribe((s) => {
+      s.data().title;
+    });
+
+    return this.pageIdentities.doc(pageId).onSnapshot();
   }
 
-  selectPageBody(pageId: string): Observable<DocSnapshot> {
-    return this.databaseManager.collection('page-body').doc(pageId).onSnapshot();
+  selectPageBody(pageId: string): Observable<IDocSnapshot<IPageBody>> {
+    return this.pageBodies.doc(pageId).onSnapshot();
   }
 
   syncIdentityPage(pageId: string) {
-    return this.databaseManager.collection('page-identity').doc(pageId).sync();
+    return this.pageIdentities.doc(pageId).sync();
   }
 
   syncBodyPage(pageId: string) {
@@ -47,27 +56,25 @@ export class PageRepositoryService2 {
   }
 
   syncRelationPage(pageId: string) {
-    return this.databaseManager.collection('page-relation').doc(pageId).sync();
+    return this.pageRelations.doc(pageId).sync();
   }
 
   syncRootPages() {
-    const rootPagesQuery = this.databaseManager.collection('page-relation').query({
+    const rootPagesQuery = this.pageRelations.query({
       parentPageId: null
     });
 
     return rootPagesQuery.sync().then(() => {
       return rootPagesQuery.snapshot().then((rootPagesQuerySnapshot) => {
-        const pageIdentities = this.databaseManager.collection('page-identity');
-
         return Promise.all(rootPagesQuerySnapshot.data().map((docSnapshot) => {
-          return pageIdentities.doc(docSnapshot.id).sync();
+          return this.pageIdentities.doc(docSnapshot.id).sync();
         }));
       });
     });
   }
 
   syncTreePageChildren(pageId: string) {
-    this.databaseManager.collection('page-relation').doc(pageId).snapshot().then((pageRelationSnapshot) => {
+    this.pageRelations.doc(pageId).snapshot().then((pageRelationSnapshot) => {
       if (pageRelationSnapshot.exists) {
         return Promise.all(pageRelationSnapshot.data().childrenPageId.map((childPageId) => {
           return Promise.all([
@@ -77,9 +84,5 @@ export class PageRepositoryService2 {
         }));
       }
     });
-  }
-
-  sync() {
-    // todo: when remote server is synced need to update all page collection
   }
 }

@@ -1,12 +1,12 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PAGE_BRICK_TAG_NAME} from '../../ui/page-ui.constant';
+import {PageStoragesService2} from '../page-storages.service2';
 
 export class MovePageAction2 {
   constructor(private movedPageId: string,
               private targetPageId: string,
               private wallModelFactory: WallModelFactory,
-              private database: DatabaseManager,
+              private pageStoragesService2: PageStoragesService2,
   ) {
   }
 
@@ -16,7 +16,7 @@ export class MovePageAction2 {
       return Promise.resolve();
     }
 
-    const movedPageRelationDoc = this.database.collection('page-relation').doc(this.movedPageId);
+    const movedPageRelationDoc = this.pageStoragesService2.pageRelations.doc(this.movedPageId);
 
     return movedPageRelationDoc.snapshot().then((movedRelationPageSnapshot) => {
       // moved page already in target page
@@ -44,11 +44,8 @@ export class MovePageAction2 {
       return Promise.resolve();
     }
 
-    const pageRelations = this.database.collection('page-relation');
-    const pageBodies = this.database.collection('page-body');
-
-    return pageRelations.doc(this.targetPageId).snapshot().then((targetRelationPageSnapshot) => {
-      return pageBodies.doc(this.targetPageId).snapshot().then((targetPageBodyPageSnapshot) => {
+    return this.pageStoragesService2.pageRelations.doc(this.targetPageId).snapshot().then((targetRelationPageSnapshot) => {
+      return this.pageStoragesService2.pageBodies.doc(this.targetPageId).snapshot().then((targetPageBodyPageSnapshot) => {
         const targetParentPromises = [];
         // update new parent body-editor
         // todo: duplicated code
@@ -56,14 +53,14 @@ export class MovePageAction2 {
         targetWallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: this.movedPageId});
 
         targetParentPromises.push(
-          pageBodies.doc(targetPageBodyPageSnapshot.id).update({
+          this.pageStoragesService2.pageBodies.doc(targetPageBodyPageSnapshot.id).update({
             body: targetWallModel.api.core.getPlan()
           })
         );
 
         // update new parent relation
         targetParentPromises.push(
-          pageRelations.doc(targetRelationPageSnapshot.id).update({
+          this.pageStoragesService2.pageRelations.doc(targetRelationPageSnapshot.id).update({
             childrenPageId: targetRelationPageSnapshot.data().childrenPageId.concat([this.movedPageId])
           })
         );
@@ -74,7 +71,7 @@ export class MovePageAction2 {
   }
 
   private updateMovedPage(): Promise<any> {
-    return this.database.collection('page-relation').doc(this.movedPageId).update({
+    return this.pageStoragesService2.pageRelations.doc(this.movedPageId).update({
       parentPageId: this.targetPageId
     });
   }
@@ -84,20 +81,17 @@ export class MovePageAction2 {
       return Promise.resolve();
     }
 
-    const pageRelations = this.database.collection('page-relation');
-    const pageBodies = this.database.collection('page-body');
-
     // update old parent page
     return Promise.all([
-      pageRelations.doc(oldParentPageId).snapshot(),
-      pageBodies.doc(oldParentPageId).snapshot()
+      this.pageStoragesService2.pageRelations.doc(oldParentPageId).snapshot(),
+      this.pageStoragesService2.pageBodies.doc(oldParentPageId).snapshot()
     ]).then(([oldPageRelationPageSnapshot, oldPageBodyPageSnapshot]) => {
       const promises = [];
 
       // update old parent relation
       const movedPageChildIndex = oldPageRelationPageSnapshot.data().childrenPageId.indexOf(this.movedPageId);
       promises.push(
-        pageRelations.doc(oldPageRelationPageSnapshot.id).update({
+        this.pageStoragesService2.pageRelations.doc(oldPageRelationPageSnapshot.id).update({
           childrenPageId: [
             ...oldPageRelationPageSnapshot.data().childrenPageId.slice(0, movedPageChildIndex),
             ...oldPageRelationPageSnapshot.data().childrenPageId.slice(movedPageChildIndex + 1),
@@ -115,7 +109,7 @@ export class MovePageAction2 {
         });
 
       promises.push(
-        pageBodies.doc(oldPageBodyPageSnapshot.id).update({
+        this.pageStoragesService2.pageBodies.doc(oldPageBodyPageSnapshot.id).update({
           body: oldWallModel.api.core.getPlan()
         })
       );
@@ -127,7 +121,7 @@ export class MovePageAction2 {
 
   // guards
   private targetPageIsNotChildOfMovedPageGuard(pageId: string = this.targetPageId): Promise<any> {
-    return this.database.collection('page-relation').doc(pageId).snapshot().then((targetRelationSnapshot) => {
+    return this.pageStoragesService2.pageRelations.doc(pageId).snapshot().then((targetRelationSnapshot) => {
       if (!targetRelationSnapshot.data().parentPageId) {
         return Promise.resolve();
       }

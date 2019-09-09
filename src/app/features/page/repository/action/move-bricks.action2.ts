@@ -1,6 +1,6 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PAGE_BRICK_TAG_NAME} from '../../ui/page-ui.constant';
+import {PageStoragesService2} from '../page-storages.service2';
 import {MovePageAction2} from './move-page.action2';
 
 export class MoveBricksAction2 {
@@ -9,7 +9,7 @@ export class MoveBricksAction2 {
     private brickIds: string[],
     private targetPageId: string,
     private wallModelFactory: WallModelFactory,
-    private database: DatabaseManager,
+    private pageStoragesService2: PageStoragesService2
   ) {
   }
 
@@ -18,11 +18,9 @@ export class MoveBricksAction2 {
       return Promise.resolve();
     }
 
-    const pageBodies = this.database.collection('page-body');
-
     return Promise.all([
-      pageBodies.doc(this.sourcePageId).snapshot(),
-      pageBodies.doc(this.targetPageId).snapshot(),
+      this.pageStoragesService2.pageBodies.doc(this.sourcePageId).snapshot(),
+      this.pageStoragesService2.pageBodies.doc(this.targetPageId).snapshot()
     ]).then(([sourcePageBodySnapshot, targetPageBodySnapshot]) => {
       const sourcePageWallModel = this.wallModelFactory.create({plan: sourcePageBodySnapshot.data().body});
       const targetPageWallModel = this.wallModelFactory.create({plan: targetPageBodySnapshot.data().body});
@@ -40,8 +38,8 @@ export class MoveBricksAction2 {
         });
 
       return Promise.all([
-        pageBodies.doc(sourcePageBodySnapshot.id).update({body: sourcePageWallModel.api.core.getPlan()}),
-        pageBodies.doc(targetPageBodySnapshot.id).update({body: targetPageWallModel.api.core.getPlan()})
+        this.pageStoragesService2.pageBodies.doc(sourcePageBodySnapshot.id).update({body: sourcePageWallModel.api.core.getPlan()}),
+        this.pageStoragesService2.pageBodies.doc(targetPageBodySnapshot.id).update({body: targetPageWallModel.api.core.getPlan()})
       ]).then(() => {
         const pageBrickSnapshots = brickSnapshots
           .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME);
@@ -53,7 +51,7 @@ export class MoveBricksAction2 {
               pageBrickSnapshot.state.pageId,
               this.targetPageId,
               this.wallModelFactory,
-              this.database
+              this.pageStoragesService2
             )).execute();
           });
         }, Promise.resolve());

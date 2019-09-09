@@ -2,6 +2,7 @@ import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {PageLockConfigChange} from './configs/page-lock-config.constant';
+import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 import {PageConfig} from './page.config.class';
 
 export interface IPageConfigData {
@@ -30,7 +31,7 @@ export class PageConfigStorageService {
         // instantiate page config instance
         // call changes
         // save page config data
-      const pageConfigDocRef = this.databaseManager.collection('page-config').doc(change.pageId);
+      const pageConfigDocRef = this.databaseManager.collection<IPageConfigData>(PAGE_CONFIG_COLLECTION_NAME).doc(change.pageId);
 
       return pageConfigDocRef.snapshot()
         .then((configSnapshot) => {

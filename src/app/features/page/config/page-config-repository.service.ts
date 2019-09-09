@@ -3,7 +3,8 @@ import {DatabaseManager} from 'cinatabase';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
-import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
+import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
+import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 
 /**
  * Read-only page config storage.
@@ -12,6 +13,8 @@ import {IPageConfigItems, PageConfigStorageService} from './page-config-storage.
     providedIn: 'root'
 })
 export class PageConfigRepositoryService {
+  private pageConfigs = this.databaseManager.collection<IPageConfigData>(PAGE_CONFIG_COLLECTION_NAME);
+
     constructor(private pageConfigStorageService: PageConfigStorageService,
                 @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
@@ -20,7 +23,7 @@ export class PageConfigRepositoryService {
      * Load into the memory Page Config by id.
      */
     load(pageId: string): Promise<any> {
-      const pageConfigDocRef = this.databaseManager.collection('page-config').doc(pageId);
+      const pageConfigDocRef = this.pageConfigs.doc(pageId);
 
       // the tricky part that Page Config might not exists, because Page could be already created before.
       return pageConfigDocRef.snapshot()
@@ -36,7 +39,7 @@ export class PageConfigRepositoryService {
     }
 
     get$(id: string): Observable<IPageConfigItems> {
-      return this.databaseManager.collection('page-config').doc(id)
+      return this.pageConfigs.doc(id)
         .onSnapshot().pipe(
           filter((pageConfigSnapshot: any) => {
             return pageConfigSnapshot.exists;

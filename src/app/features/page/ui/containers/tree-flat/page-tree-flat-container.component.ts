@@ -3,6 +3,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {QuerySnapshot} from 'cinatabase';
 import {combineLatest} from 'rxjs';
 import {PageService} from '../../../repository';
+import {IPageIdentity, IPageRelation} from '../../../repository/interfaces';
 import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {PageTreeFlatDataSource} from './page-tree-flat-data-source.class';
 import {PageTreeFlatSelection} from './page-tree-flat-selection.class';
@@ -19,8 +20,8 @@ export class PageTreeFlatContainerComponent implements OnDestroy {
     treeControl: FlatTreeControl<IPageTreeNode>;
     dataSource: PageTreeFlatDataSource = new PageTreeFlatDataSource();
 
-    private pageRelationsQuerySnapshot: QuerySnapshot;
-    private pageIdentitiesQuerySnapshot: QuerySnapshot;
+    private pageRelationsQuerySnapshot: QuerySnapshot<IPageRelation>;
+    private pageIdentitiesQuerySnapshot: QuerySnapshot<IPageIdentity>;
 
     constructor(private pageService: PageService,
                 private pageRepositoryService2: PageRepositoryService2) {

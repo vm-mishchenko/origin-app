@@ -1,16 +1,16 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PageFileUploaderService} from '../page-file-uploader.service';
+import {PageStoragesService2} from '../page-storages.service2';
 
 export class RemovePageFilesAction2 {
   constructor(private pageId: string,
-              private database: DatabaseManager,
+              private pageStoragesService2: PageStoragesService2,
               private wallModelFactory: WallModelFactory,
               private pageFileUploaderService: PageFileUploaderService) {
   }
 
   execute(): Promise<any> {
-    return this.database.collection('page-body').doc(this.pageId).snapshot().then((pageBodySnapshot) => {
+    return this.pageStoragesService2.pageBodies.doc(this.pageId).snapshot().then((pageBodySnapshot) => {
       const wallModel = this.wallModelFactory.create({
         plan: pageBodySnapshot.data().body
       });

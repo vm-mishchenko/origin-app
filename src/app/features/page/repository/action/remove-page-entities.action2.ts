@@ -1,17 +1,17 @@
-import {DatabaseManager} from 'cinatabase';
+import {PageStoragesService2} from '../page-storages.service2';
 
 export class RemovePageEntitiesAction2 {
   constructor(
     private pageId: string,
-    private database: DatabaseManager
+    private pageStoragesService2: PageStoragesService2,
   ) {
   }
 
   execute(): Promise<any> {
     return Promise.all([
-      this.database.collection('page-identity').doc(this.pageId).remove(),
-      this.database.collection('page-body').doc(this.pageId).remove(),
-      this.database.collection('page-relation').doc(this.pageId).remove(),
+      this.pageStoragesService2.pageIdentities.doc(this.pageId).remove(),
+      this.pageStoragesService2.pageBodies.doc(this.pageId).remove(),
+      this.pageStoragesService2.pageRelations.doc(this.pageId).remove(),
     ]);
   }
 }

@@ -12,6 +12,7 @@ import {AuthService} from '../../../modules/auth';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
+import {PageStoragesService2} from './page-storages.service2';
 import {PageService} from './page.service';
 
 @Component({
@@ -36,14 +37,14 @@ const FIXTURE_BRICK_SPECIFICATION = {
 };
 
 class TestScope2 {
-    database: DatabaseManager;
+    pageStoragesService2: PageStoragesService2;
     service: PageService;
     pageFileUploaderService: PageFileUploaderService;
 
     initialize() {
         this.service = TestBed.get(PageService);
         this.pageFileUploaderService = TestBed.get(PageFileUploaderService);
-        this.database = TestBed.get(DATABASE_MANAGER);
+        this.pageStoragesService2 = TestBed.get(PageStoragesService2);
 
         const brickRegistry: BrickRegistry = TestBed.get(BrickRegistry);
 
@@ -73,9 +74,9 @@ class TestScope2 {
 
     hasPageEntities(pageId): Promise<boolean> {
         return Promise.all([
-            this.database.collection('page-identity').doc(pageId).isExists(),
-            this.database.collection('page-body').doc(pageId).isExists(),
-            this.database.collection('page-relation').doc(pageId).isExists()
+            this.pageStoragesService2.pageIdentities.doc(pageId).isExists(),
+            this.pageStoragesService2.pageBodies.doc(pageId).isExists(),
+            this.pageStoragesService2.pageRelations.doc(pageId).isExists()
         ]).then(() => {
             return true;
         }, () => {
@@ -84,7 +85,7 @@ class TestScope2 {
     }
 
     addBrick(pageId: string, tag: string, state = {}): Promise<IBrickSnapshot> {
-        return this.database.collection('page-body').doc(pageId).snapshot().then((pageBodySnapshot) => {
+        return this.pageStoragesService2.pageBodies.doc(pageId).snapshot().then((pageBodySnapshot) => {
             const wallModel = this.createWallModel(pageBodySnapshot.data().body);
 
             const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
@@ -146,11 +147,11 @@ describe('PageService', () => {
 
         it('should create page identity, body-editor', async(() => {
             testScope.service.createPage2().then((id) => {
-                testScope.database.collection('page-identity').doc(id).snapshot().then((snapshot) => {
+                testScope.pageStoragesService2.pageIdentities.doc(id).snapshot().then((snapshot) => {
                     expect(snapshot.exists).toBe(true);
                 });
 
-                testScope.database.collection('page-body').doc(id).snapshot().then((snapshot) => {
+                testScope.pageStoragesService2.pageBodies.doc(id).snapshot().then((snapshot) => {
                     expect(snapshot.exists).toBe(true);
                 });
             });
@@ -158,7 +159,7 @@ describe('PageService', () => {
 
         it('should create page relation', async(() => {
             testScope.service.createPage2().then((id) => {
-                testScope.database.collection('page-relation').doc(id).snapshot().then((pageRelation) => {
+                testScope.pageStoragesService2.pageRelations.doc(id).snapshot().then((pageRelation) => {
                     expect(pageRelation.exists).toBe(true);
                     expect(pageRelation.data().parentPageId).toBe(null);
                     expect(pageRelation.data().childrenPageId.length).toBe(0);
@@ -169,7 +170,7 @@ describe('PageService', () => {
         it('should create child page', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    testScope.database.collection('page-identity').doc(childPageId).snapshot().then((pageIdentity) => {
+                    testScope.pageStoragesService2.pageIdentities.doc(childPageId).snapshot().then((pageIdentity) => {
                         expect(pageIdentity.exists).toBe(true);
                     });
                 });
@@ -179,7 +180,7 @@ describe('PageService', () => {
         it('should create child page relation', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    testScope.database.collection('page-relation').doc(childPageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageRelations.doc(childPageId).snapshot().then((snapshot) => {
                         expect(snapshot.data().parentPageId).toBe(parentPageId);
                     });
                 });
@@ -189,7 +190,7 @@ describe('PageService', () => {
         it('should update parent relation', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    testScope.database.collection('page-relation').doc(parentPageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageRelations.doc(parentPageId).snapshot().then((snapshot) => {
                         expect(snapshot.data().childrenPageId.length).toBe(1);
                         expect(snapshot.data().childrenPageId[0]).toBe(childPageId);
                     });
@@ -200,7 +201,7 @@ describe('PageService', () => {
         it('should add page brick to parent body-editor', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    testScope.database.collection('page-body').doc(parentPageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageBodies.doc(parentPageId).snapshot().then((snapshot) => {
                         expect(testScope.findPageBrick(snapshot.data().body, childPageId)).toBeDefined();
                     });
                 });
@@ -209,7 +210,7 @@ describe('PageService', () => {
 
         it('should update brick state in parent body-editor when pageBrickId is defined', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
-                const parentPageBodyDoc = testScope.database.collection('page-body').doc(parentPageId);
+                const parentPageBodyDoc = testScope.pageStoragesService2.pageBodies.doc(parentPageId);
 
                 parentPageBodyDoc.snapshot().then((parentPageBodySnapshot) => {
                     let parentPageModel = testScope.createWallModel(parentPageBodySnapshot.data().body);
@@ -246,7 +247,7 @@ describe('PageService', () => {
         it('should handle correctly move page inside itself', async(() => {
             testScope.service.createPage2().then((pageId) => {
                 testScope.service.movePage2(pageId, pageId).then(() => {
-                    testScope.database.collection('page-relation').doc(pageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageRelations.doc(pageId).snapshot().then((snapshot) => {
                         expect(snapshot.data().parentPageId).toBe(null);
                     });
                 });
@@ -256,7 +257,7 @@ describe('PageService', () => {
         it('should not move page to root if it already at root level', async(() => {
             testScope.service.createPage2().then((pageId) => {
                 testScope.service.movePage2(pageId, null).then(() => {
-                    testScope.database.collection('page-relation').doc(pageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageRelations.doc(pageId).snapshot().then((snapshot) => {
                         expect(snapshot.data().parentPageId).toBe(null);
                     });
                 });
@@ -269,8 +270,8 @@ describe('PageService', () => {
                     testScope.service.movePage2(childPageId, parentPageId).then(() => {
 
                         Promise.all([
-                            testScope.database.collection('page-relation').doc(parentPageId).snapshot(),
-                            testScope.database.collection('page-relation').doc(childPageId).snapshot()
+                            testScope.pageStoragesService2.pageRelations.doc(parentPageId).snapshot(),
+                            testScope.pageStoragesService2.pageRelations.doc(childPageId).snapshot()
                         ]).then(([parentPageRelationSnapshot, childPageRelationSnapshot]) => {
                             expect(childPageRelationSnapshot.data().parentPageId).toEqual(parentPageId);
                             expect(parentPageRelationSnapshot.data().childrenPageId.includes(childPageId)).toBe(true);
@@ -288,7 +289,7 @@ describe('PageService', () => {
                 testScope.service.movePage2(childPageId, parentPageId).then(() => {
                     // test action
                     testScope.service.movePage2(parentPageId, childPageId).then(() => {
-                        const pageRelationCollection = testScope.database.collection('page-relation');
+                        const pageRelationCollection = testScope.pageStoragesService2.pageRelations;
 
                         pageRelationCollection.doc(parentPageId).snapshot().then((parentPageRelationSnapshot) => {
                             expect(parentPageRelationSnapshot.data().childrenPageId.includes(childPageId)).toBe(true);
@@ -311,7 +312,7 @@ describe('PageService', () => {
                     testScope.service.createPage2()
                 ]).then(([parentPageId, childPageId]) => {
                     testScope.service.movePage2(childPageId, parentPageId).then(() => {
-                        testScope.database.collection('page-relation').doc(parentPageId).snapshot().then((parentPageRelationSnapshot) => {
+                        testScope.pageStoragesService2.pageRelations.doc(parentPageId).snapshot().then((parentPageRelationSnapshot) => {
                             expect(parentPageRelationSnapshot.data().childrenPageId.includes(childPageId)).toBe(true);
                         });
                     });
@@ -324,7 +325,7 @@ describe('PageService', () => {
                     testScope.service.createPage2()
                 ]).then(([parentPageId, childPageId]) => {
                     testScope.service.movePage2(childPageId, parentPageId).then(() => {
-                        testScope.database.collection('page-body').doc(parentPageId).snapshot().then((parentPageBodySnapshot) => {
+                        testScope.pageStoragesService2.pageBodies.doc(parentPageId).snapshot().then((parentPageBodySnapshot) => {
                             expect(Boolean(testScope.findPageBrick(parentPageBodySnapshot.data().body, childPageId))).toBe(true);
                         });
                     });
@@ -340,7 +341,7 @@ describe('PageService', () => {
                     testScope.service.createPage2()
                 ]).then(([childPageId, targetPageId, oldParentPageId]) => {
                     testScope.service.movePage2(childPageId, oldParentPageId).then(() => {
-                        const pageRelations = testScope.database.collection('page-relation');
+                        const pageRelations = testScope.pageStoragesService2.pageRelations;
 
                         // make sure that old parent has child page in relation
                         pageRelations.doc(oldParentPageId).snapshot().then((oldParentPageRelationSnapshot) => {
@@ -364,7 +365,7 @@ describe('PageService', () => {
                 ]).then(([childPageId, targetPageId, oldParentPageId]) => {
                     testScope.service.movePage2(childPageId, oldParentPageId).then(() => {
                         // make sure that old parent has child page in body-editor
-                        const pageBodies = testScope.database.collection('page-body');
+                        const pageBodies = testScope.pageStoragesService2.pageBodies;
 
                         pageBodies.doc(oldParentPageId).snapshot().then((oldParentPageBodySnapshot) => {
                             expect(Boolean(testScope.findPageBrick(oldParentPageBodySnapshot.data().body, childPageId))).toBe(true);
@@ -389,7 +390,7 @@ describe('PageService', () => {
                     testScope.service.createPage2()
                 ]).then(([childPageId, targetPageId]) => {
                     // make sure that child page id does not have a parent
-                    const pageRelations = testScope.database.collection('page-relation');
+                    const pageRelations = testScope.pageStoragesService2.pageRelations;
 
                     pageRelations.doc(childPageId).snapshot().then((movedPageRelationSnapshot) => {
                         expect(movedPageRelationSnapshot.data().parentPageId).toBe(null);
@@ -409,15 +410,15 @@ describe('PageService', () => {
         it('should delete page identity, body-editor, relation', async(() => {
             testScope.service.createPage2().then((pageId) => {
                 testScope.service.removePage2(pageId).then(() => {
-                    testScope.database.collection('page-identity').doc(pageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageIdentities.doc(pageId).snapshot().then((snapshot) => {
                         expect(snapshot.exists).toBe(false);
                     });
 
-                    testScope.database.collection('page-body').doc(pageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageBodies.doc(pageId).snapshot().then((snapshot) => {
                         expect(snapshot.exists).toBe(false);
                     });
 
-                    testScope.database.collection('page-relation').doc(pageId).snapshot().then((snapshot) => {
+                    testScope.pageStoragesService2.pageRelations.doc(pageId).snapshot().then((snapshot) => {
                         expect(snapshot.exists).toBe(false);
                     });
                 });
@@ -428,15 +429,15 @@ describe('PageService', () => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     testScope.service.removePage2(parentPageId).then(() => {
-                        testScope.database.collection('page-identity').doc(childPageId).snapshot().then((snapshot) => {
+                        testScope.pageStoragesService2.pageIdentities.doc(childPageId).snapshot().then((snapshot) => {
                             expect(snapshot.exists).toBe(false);
                         });
 
-                        testScope.database.collection('page-body').doc(childPageId).snapshot().then((snapshot) => {
+                        testScope.pageStoragesService2.pageBodies.doc(childPageId).snapshot().then((snapshot) => {
                             expect(snapshot.exists).toBe(false);
                         });
 
-                        testScope.database.collection('page-relation').doc(childPageId).snapshot().then((snapshot) => {
+                        testScope.pageStoragesService2.pageRelations.doc(childPageId).snapshot().then((snapshot) => {
                             expect(snapshot.exists).toBe(false);
                         });
                     });
@@ -449,15 +450,15 @@ describe('PageService', () => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
                     testScope.service.createPage2(childPageId).then((subChildPageId) => {
                         testScope.service.removePage2(parentPageId).then(() => {
-                            testScope.database.collection('page-identity').doc(subChildPageId).snapshot().then((snapshot) => {
+                            testScope.pageStoragesService2.pageIdentities.doc(subChildPageId).snapshot().then((snapshot) => {
                                 expect(snapshot.exists).toBe(false);
                             });
 
-                            testScope.database.collection('page-body').doc(subChildPageId).snapshot().then((snapshot) => {
+                            testScope.pageStoragesService2.pageBodies.doc(subChildPageId).snapshot().then((snapshot) => {
                                 expect(snapshot.exists).toBe(false);
                             });
 
-                            testScope.database.collection('page-relation').doc(subChildPageId).snapshot().then((snapshot) => {
+                            testScope.pageStoragesService2.pageRelations.doc(subChildPageId).snapshot().then((snapshot) => {
                                 expect(snapshot.exists).toBe(false);
                             });
                         });
@@ -469,7 +470,7 @@ describe('PageService', () => {
         it('should update parent relation children', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    const parentPageRelationDoc = testScope.database.collection('page-relation').doc(parentPageId);
+                    const parentPageRelationDoc = testScope.pageStoragesService2.pageRelations.doc(parentPageId);
 
                     parentPageRelationDoc.snapshot().then((parentPageRelationSnapshot) => {
                         expect(parentPageRelationSnapshot.data().childrenPageId.includes(childPageId)).toBeTruthy();
@@ -487,7 +488,7 @@ describe('PageService', () => {
         it('should update parent body-editor', async(() => {
             testScope.service.createPage2().then((parentPageId) => {
                 testScope.service.createPage2(parentPageId).then((childPageId) => {
-                    const pageBodies = testScope.database.collection('page-body');
+                    const pageBodies = testScope.pageStoragesService2.pageBodies;
 
                     pageBodies.doc(parentPageId).snapshot().then((parentBodyPageSnapshot) => {
                         expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId)).toBeDefined();
@@ -609,7 +610,7 @@ describe('PageService', () => {
                 // have to create children in series cause parallel creation would lead to race condition
                 testScope.service.createPage2(parentPageId).then((childPageId1) => {
                     testScope.service.createPage2(parentPageId).then((childPageId2) => {
-                        const pageBodies = testScope.database.collection('page-body');
+                        const pageBodies = testScope.pageStoragesService2.pageBodies;
 
                         pageBodies.doc(parentPageId).snapshot().then((parentBodyPageSnapshot) => {
                             expect(testScope.findPageBrick(parentBodyPageSnapshot.data().body, childPageId1)).toBeDefined();
@@ -632,7 +633,7 @@ describe('PageService', () => {
                 // have to create children in series cause parallel creation would lead to race condition
                 testScope.service.createPage2(parentPageId).then((childPageId1) => {
                     testScope.service.createPage2(parentPageId).then((childPageId2) => {
-                        const pageRelations = testScope.database.collection('page-relation');
+                        const pageRelations = testScope.pageStoragesService2.pageRelations;
 
                         pageRelations.doc(parentPageId).snapshot().then((parentRelationPageSnapshot) => {
                             expect(parentRelationPageSnapshot.data().childrenPageId.includes(childPageId1)).toBe(true);
@@ -717,7 +718,7 @@ describe('PageService', () => {
                 testScope.service.createPage2(),
                 testScope.service.createPage2()
             ]).then(([sourcePageId, targetPageId]) => {
-                const pageBodies = testScope.database.collection('page-body');
+                const pageBodies = testScope.pageStoragesService2.pageBodies;
 
                 pageBodies.doc(sourcePageId).snapshot().then((sourcePageBodySnapshot) => {
                     let sourcePageWallModel = testScope.createWallModel(sourcePageBodySnapshot.data().body);
@@ -769,8 +770,8 @@ describe('PageService', () => {
                 testScope.service.createPage2(sourcePageId)
                   .then((childPageId1) => {
                       testScope.service.createPage2(sourcePageId).then((childPageId2) => {
-                          const pageBodies = testScope.database.collection('page-body');
-                          const pageRelations = testScope.database.collection('page-relation');
+                          const pageBodies = testScope.pageStoragesService2.pageBodies;
+                          const pageRelations = testScope.pageStoragesService2.pageRelations;
 
                           pageBodies.doc(sourcePageId).snapshot().then((sourcePageBodySnapshot) => {
                               // add couple non page bricks to source page

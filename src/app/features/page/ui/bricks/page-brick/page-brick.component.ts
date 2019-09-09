@@ -21,7 +21,9 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
           switchMap((pageId) => {
               return this.pageRepositoryService2.selectPageIdentity(pageId).pipe(
                 filter((pageIdentitySnapshot) => pageIdentitySnapshot.exists),
-                map((pageIdentitySnapshot) => pageIdentitySnapshot.data().title)
+                map((pageIdentitySnapshot) => {
+                    return pageIdentitySnapshot.data().title;
+                })
               );
           })
         );

@@ -1,21 +1,16 @@
 import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
 import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
-import {AuthService} from '../../../modules/auth';
+import {IPageBody, IPageIdentity, IPageRelation} from './interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PageStoragesService2 {
-  constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager,
-              private authService: AuthService) {
-    this.authService.signOut$.subscribe(() => {
-      // user log out
-      this.reset();
-    });
-  }
+  pageIdentities = this.databaseManager.collection<IPageIdentity>('page-identity');
+  pageBodies = this.databaseManager.collection<IPageBody>('page-body');
+  pageRelations = this.databaseManager.collection<IPageRelation>('page-relation');
 
-  reset() {
-    // todo: somehow reset the data
+  constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
   }
 }

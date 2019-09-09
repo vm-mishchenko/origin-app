@@ -1,8 +1,6 @@
-import {Inject, Injectable} from '@angular/core';
-import {DatabaseManager} from 'cinatabase';
+import {Injectable} from '@angular/core';
 import {WallModelFactory} from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
-import {DATABASE_MANAGER} from '../../../infrastructure/storage/storage.module';
 import {Guid} from '../../../infrastructure/utils';
 import {CreatePageAction2} from './action/create-page.action2';
 import {MoveBricksAction2} from './action/move-bricks.action2';
@@ -11,6 +9,8 @@ import {RemovePageAction2} from './action/remove-page.action2';
 import {RemovePagesAction2} from './action/remove-pages.action2';
 import {DeletePageEvent} from './page-events.type';
 import {PageFileUploaderService} from './page-file-uploader.service';
+import {PageRepositoryService2} from './page-repository.service2';
+import {PageStoragesService2} from './page-storages.service2';
 import {IBodyPage} from './page.types';
 
 export interface ICreatePageOption {
@@ -35,8 +35,9 @@ export class PageService {
 
     constructor(private wallModelFactory: WallModelFactory,
                 private pageFileUploaderService: PageFileUploaderService,
+                private pageRepositoryService2: PageRepositoryService2,
                 private guid: Guid,
-                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
+                private pageStoragesService2: PageStoragesService2) {
     }
 
     createPage2(parentPageId: string = null, options: ICreatePageOption = DEFAULT_CREATE_PAGE_OPTIONS): Promise<string> {
@@ -45,7 +46,7 @@ export class PageService {
           this.guid,
           this.wallModelFactory,
           options,
-          this.databaseManager
+          this.pageStoragesService2
         ).execute();
     }
 
@@ -54,7 +55,7 @@ export class PageService {
           movedPageId,
           targetPageId,
           this.wallModelFactory,
-          this.databaseManager
+          this.pageStoragesService2
         )).execute();
     }
 
@@ -64,7 +65,7 @@ export class PageService {
           brickIds,
           targetPageId,
           this.wallModelFactory,
-          this.databaseManager
+          this.pageStoragesService2
         )).execute();
     }
 
@@ -73,7 +74,7 @@ export class PageService {
           pageId,
           this.wallModelFactory,
           this.pageFileUploaderService,
-          this.databaseManager
+          this.pageStoragesService2
         ).execute().then(() => {
             (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
         });
@@ -85,7 +86,7 @@ export class PageService {
           pageIds,
           this.wallModelFactory,
           this.pageFileUploaderService,
-          this.databaseManager
+          this.pageStoragesService2
         ).execute().then(() => {
             pageIds.forEach((pageId) => {
                 (this.events$ as Subject<any>).next(new DeletePageEvent(pageId));
@@ -94,12 +95,12 @@ export class PageService {
     }
 
     updatePageIdentity2(pageIdentityId: string, title: string): Promise<any> {
-        return this.databaseManager.collection('page-identity').doc(pageIdentityId).update({
+        return this.pageStoragesService2.pageIdentities.doc(pageIdentityId).update({
             title
         });
     }
 
     updatePageBody2(bodyPageId: string, bodyPage: Partial<IBodyPage>): Promise<Partial<IBodyPage>> {
-        return this.databaseManager.collection('page-body').doc(bodyPageId).update(bodyPage);
+        return this.pageStoragesService2.pageBodies.doc(bodyPageId).update(bodyPage);
     }
 }

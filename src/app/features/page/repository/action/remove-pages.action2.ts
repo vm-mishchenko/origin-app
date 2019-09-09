@@ -1,6 +1,6 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PageFileUploaderService} from '../page-file-uploader.service';
+import {PageStoragesService2} from '../page-storages.service2';
 import {IRelationPage} from '../page.types';
 import {RemovePageAction2} from './remove-page.action2';
 import {RemoveSiblingsPageAction2} from './remove-siblings-page.action2';
@@ -25,7 +25,7 @@ export class RemovePagesAction2 {
   constructor(private pageIds: string[],
               private wallModelFactory: WallModelFactory,
               private pageFileUploaderService: PageFileUploaderService,
-              private database: DatabaseManager,
+              private pageStoragesService2: PageStoragesService2,
   ) {
   }
 
@@ -37,14 +37,14 @@ export class RemovePagesAction2 {
             pageIdSibling[0],
             this.wallModelFactory,
             this.pageFileUploaderService,
-            this.database
+            this.pageStoragesService2
           ).execute();
         } else if (pageIdSibling.length > 1) {
           return new RemoveSiblingsPageAction2(
             pageIdSibling,
             this.wallModelFactory,
             this.pageFileUploaderService,
-            this.database
+            this.pageStoragesService2
           ).execute();
         }
 
@@ -63,7 +63,7 @@ export class RemovePagesAction2 {
   private getPageIdsSiblingsList(): Promise<Array<string[]>> {
     // Get all page relations for page ids
     return Promise.all(
-      this.pageIds.map((pageId) => this.database.collection('page-relation').doc(pageId).snapshot())
+      this.pageIds.map((pageId) => this.pageStoragesService2.pageRelations.doc(pageId).snapshot())
     ).then((pageRelationSnapshots) => {
       const KEY_NULL_PARENT_ID = 'Relation without parent id';
       const pageRelationMapByParentId = new Map<string, IRelationPage[]>();

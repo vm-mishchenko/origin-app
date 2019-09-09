@@ -1,7 +1,7 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PAGE_BRICK_TAG_NAME} from '../../ui/page-ui.constant';
 import {PageFileUploaderService} from '../page-file-uploader.service';
+import {PageStoragesService2} from '../page-storages.service2';
 import {RemovePageEntitiesAction2} from './remove-page-entities.action2';
 import {RemovePageFilesAction2} from './remove-page-files.action2';
 
@@ -9,7 +9,7 @@ export class RemovePageAction2 {
   constructor(private pageId: string,
               private wallModelFactory: WallModelFactory,
               private pageFileUploaderService: PageFileUploaderService,
-              private database: DatabaseManager,
+              private pageStoragesService2: PageStoragesService2,
   ) {
   }
 
@@ -36,7 +36,7 @@ export class RemovePageAction2 {
   }
 
   private removePageTreeEntities(removedPageId: string): Promise<any> {
-    return this.database.collection('page-relation').doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
+    return this.pageStoragesService2.pageRelations.doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
       const childRemovePromises = pageRelationSnapshot.data().childrenPageId
         .map((childrenPageId) => this.removePageTreeEntities(childrenPageId));
 
@@ -44,7 +44,7 @@ export class RemovePageAction2 {
     }).then(() => {
       return (new RemovePageEntitiesAction2(
         removedPageId,
-        this.database
+        this.pageStoragesService2
       )).execute();
     });
   }
@@ -52,14 +52,14 @@ export class RemovePageAction2 {
   private removePageTreeFiles(rootPageId: string): Promise<any> {
     const removePageFilesAction = new RemovePageFilesAction2(
       rootPageId,
-      this.database,
+      this.pageStoragesService2,
       this.wallModelFactory,
       this.pageFileUploaderService);
 
     return removePageFilesAction
       .execute()
       .then(() => {
-        return this.database.collection('page-relation').doc(rootPageId).snapshot().then((pageRelationSnapshot) => {
+        return this.pageStoragesService2.pageRelations.doc(rootPageId).snapshot().then((pageRelationSnapshot) => {
           const childRemovePromises = pageRelationSnapshot.data().childrenPageId
             .map((childrenPageId) => this.removePageTreeFiles(childrenPageId));
 
@@ -69,16 +69,13 @@ export class RemovePageAction2 {
   }
 
   private updateParentPageBody(removedPageId: string): Promise<any> {
-    const pageRelations = this.database.collection('page-relation');
-
-    return pageRelations.doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
+    return this.pageStoragesService2.pageRelations.doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
       if (!pageRelationSnapshot.data().parentPageId) {
         return Promise.resolve();
       }
 
-      const pageBodies = this.database.collection('page-body');
-
-      return pageBodies.doc(pageRelationSnapshot.data().parentPageId).snapshot().then((parentBodySnapshot) => {
+      return this.pageStoragesService2.pageBodies.doc(pageRelationSnapshot.data().parentPageId).snapshot()
+        .then((parentBodySnapshot) => {
         const wallModel = this.wallModelFactory.create({plan: parentBodySnapshot.data().body});
 
         wallModel.api.core
@@ -87,7 +84,7 @@ export class RemovePageAction2 {
             wallModel.api.core.removeBrick(pageBrick.id);
           });
 
-        return pageBodies.doc(parentBodySnapshot.id).update({
+          return this.pageStoragesService2.pageBodies.doc(parentBodySnapshot.id).update({
           body: wallModel.api.core.getPlan()
         }).then(() => {
         });
@@ -96,19 +93,18 @@ export class RemovePageAction2 {
   }
 
   private updateParentRelation(removedPageId: string): Promise<any> {
-    const pageRelations = this.database.collection('page-relation');
-
-    return pageRelations.doc(removedPageId).snapshot()
+    return this.pageStoragesService2.pageRelations.doc(removedPageId).snapshot()
       .then((removedPageRelationSnapshot) => {
         if (!removedPageRelationSnapshot.data().parentPageId) {
           return Promise.resolve();
         }
 
-        return pageRelations.doc(removedPageRelationSnapshot.data().parentPageId).snapshot().then((parentPageRelationSnapshot) => {
+        return this.pageStoragesService2.pageRelations.doc(removedPageRelationSnapshot.data().parentPageId).snapshot()
+          .then((parentPageRelationSnapshot) => {
           // remove page from children
           const removedChildIndex = parentPageRelationSnapshot.data().childrenPageId.indexOf(removedPageId);
 
-          return pageRelations.doc(parentPageRelationSnapshot.id).update({
+            return this.pageStoragesService2.pageRelations.doc(parentPageRelationSnapshot.id).update({
             childrenPageId: [
               ...parentPageRelationSnapshot.data().childrenPageId.slice(0, removedChildIndex),
               ...parentPageRelationSnapshot.data().childrenPageId.slice(removedChildIndex + 1)

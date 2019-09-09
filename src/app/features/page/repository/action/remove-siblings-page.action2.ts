@@ -1,7 +1,7 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {PAGE_BRICK_TAG_NAME} from '../../ui/page-ui.constant';
 import {PageFileUploaderService} from '../page-file-uploader.service';
+import {PageStoragesService2} from '../page-storages.service2';
 import {RemovePageEntitiesAction2} from './remove-page-entities.action2';
 import {RemovePageFilesAction2} from './remove-page-files.action2';
 
@@ -9,7 +9,7 @@ export class RemoveSiblingsPageAction2 {
   constructor(private pageIds: string[],
               private wallModelFactory: WallModelFactory,
               private pageFileUploaderService: PageFileUploaderService,
-              private database: DatabaseManager) {
+              private pageStoragesService2: PageStoragesService2,) {
   }
 
   execute(): Promise<any> {
@@ -26,15 +26,13 @@ export class RemoveSiblingsPageAction2 {
   * Last remove top level page entities
   * */
   private removePageTreeEntities(pageIds: string[]): Promise<any> {
-    const pageRelations = this.database.collection('page-relation');
-
     const removePromises = pageIds.map((removedPageId) => {
-      return pageRelations.doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
+      return this.pageStoragesService2.pageRelations.doc(removedPageId).snapshot().then((pageRelationSnapshot) => {
         return this.removePageTreeEntities(pageRelationSnapshot.data().childrenPageId);
       }).then(() => {
         return (new RemovePageEntitiesAction2(
           removedPageId,
-          this.database
+          this.pageStoragesService2
         )).execute();
       });
     });
@@ -46,14 +44,14 @@ export class RemoveSiblingsPageAction2 {
     const removePromises = pageIds.map((pageId) => {
       const removePageFilesAction = new RemovePageFilesAction2(
         pageId,
-        this.database,
+        this.pageStoragesService2,
         this.wallModelFactory,
         this.pageFileUploaderService);
 
       return removePageFilesAction
         .execute()
         .then(() => {
-          return this.database.collection('page-relation').doc(pageId).snapshot().then((pageRelationSnapshot) => {
+          return this.pageStoragesService2.pageRelations.doc(pageId).snapshot().then((pageRelationSnapshot) => {
             return this.removePageTreeFiles(pageRelationSnapshot.data().childrenPageId);
           });
         });
@@ -63,15 +61,14 @@ export class RemoveSiblingsPageAction2 {
   }
 
   private updateParentRelation(): Promise<any> {
-    const pageRelations = this.database.collection('page-relation');
-
-    return pageRelations.doc(this.pageIds[0]).snapshot()
+    return this.pageStoragesService2.pageRelations.doc(this.pageIds[0]).snapshot()
       .then((removedPageRelationSnapshot) => {
         if (!removedPageRelationSnapshot.data().parentPageId) {
           throw new Error('Siblings page ids supposed to have common parent');
         }
 
-        return pageRelations.doc(removedPageRelationSnapshot.data().parentPageId).snapshot().then((parentPageRelationSnapshot) => {
+        return this.pageStoragesService2.pageRelations.doc(removedPageRelationSnapshot.data().parentPageId).snapshot()
+          .then((parentPageRelationSnapshot) => {
           const parentChildrenPageId = parentPageRelationSnapshot.data().childrenPageId.slice(0);
 
           // remove page from children
@@ -81,7 +78,7 @@ export class RemoveSiblingsPageAction2 {
             parentChildrenPageId.splice(removedChildIndex, 1);
           });
 
-          return pageRelations.doc(parentPageRelationSnapshot.id).update({
+            return this.pageStoragesService2.pageRelations.doc(parentPageRelationSnapshot.id).update({
             childrenPageId: parentChildrenPageId
           });
         });
@@ -89,15 +86,13 @@ export class RemoveSiblingsPageAction2 {
   }
 
   private updateParentPageBody(): Promise<any> {
-    const pageRelations = this.database.collection('page-relation');
-    const pageBodies = this.database.collection('page-body');
-
-    return pageRelations.doc(this.pageIds[0]).snapshot().then((removedPageRelationSnapshot) => {
+    return this.pageStoragesService2.pageRelations.doc(this.pageIds[0]).snapshot().then((removedPageRelationSnapshot) => {
       if (!removedPageRelationSnapshot.data().parentPageId) {
         throw new Error('Siblings page ids supposed to have common parent');
       }
 
-      return pageBodies.doc(removedPageRelationSnapshot.data().parentPageId).snapshot().then((parentBodySnapshot) => {
+      return this.pageStoragesService2.pageBodies.doc(removedPageRelationSnapshot.data().parentPageId).snapshot()
+        .then((parentBodySnapshot) => {
         const wallModel = this.wallModelFactory.create({plan: parentBodySnapshot.data().body});
 
         wallModel.api.core.filterBricks((brick) => {
@@ -106,7 +101,7 @@ export class RemoveSiblingsPageAction2 {
           wallModel.api.core.removeBrick(pageBrick.id);
         });
 
-        return pageBodies.doc(parentBodySnapshot.id).update({
+          return this.pageStoragesService2.pageBodies.doc(parentBodySnapshot.id).update({
           body: wallModel.api.core.getPlan()
         });
       });

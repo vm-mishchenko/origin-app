@@ -1,13 +1,14 @@
 import {QuerySnapshot} from 'cinatabase';
 import {Observable, Subscription} from 'rxjs';
+import {IPageRelation} from '../../../repository/interfaces';
 
 export class PageTreeFlatSelection {
     selectedIds: string[] = [];
-    pageRelationsQuerySnapshot: QuerySnapshot;
+    pageRelationsQuerySnapshot: QuerySnapshot<IPageRelation>;
 
     pageRelationsSubscription: Subscription;
 
-    constructor(private pageRelationsQuerySnapshot$: Observable<QuerySnapshot>) {
+    constructor(private pageRelationsQuerySnapshot$: Observable<QuerySnapshot<IPageRelation>>) {
         this.pageRelationsSubscription = this.pageRelationsQuerySnapshot$.subscribe((pageRelationsQuerySnapshot) => {
             this.pageRelationsQuerySnapshot = pageRelationsQuerySnapshot;
         });

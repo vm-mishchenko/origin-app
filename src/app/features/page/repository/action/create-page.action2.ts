@@ -1,7 +1,7 @@
-import {DatabaseManager} from 'cinatabase';
 import {WallModelFactory} from 'ngx-wall';
 import {Guid} from '../../../../infrastructure/utils';
 import {PAGE_BRICK_TAG_NAME} from '../../ui/page-ui.constant';
+import {PageStoragesService2} from '../page-storages.service2';
 import {ICreatePageOption} from '../page.service';
 
 export class CreatePageAction2 {
@@ -10,15 +10,15 @@ export class CreatePageAction2 {
     private guid: Guid,
     private wallModelFactory: WallModelFactory,
     private options: ICreatePageOption,
-    private database: DatabaseManager
+    private pageStoragesService2: PageStoragesService2,
   ) {
   }
 
   execute(): Promise<string> {
     const newPageId = this.guid.generate();
-    const pageIdentityDoc = this.database.collection('page-identity').doc(newPageId);
-    const pageBodyDoc = this.database.collection('page-body').doc(newPageId);
-    const pageRelationDoc = this.database.collection('page-relation').doc(newPageId);
+    const pageIdentityDoc = this.pageStoragesService2.pageIdentities.doc(newPageId);
+    const pageBodyDoc = this.pageStoragesService2.pageBodies.doc(newPageId);
+    const pageRelationDoc = this.pageStoragesService2.pageRelations.doc(newPageId);
 
     /* If parent exists we should update parent relations as well */
     const updateParentPageRelation = new Promise((resolve, reject) => {
@@ -27,7 +27,7 @@ export class CreatePageAction2 {
         return;
       }
 
-      const parentRelationDoc = this.database.collection('page-relation').doc(this.parentPageId);
+      const parentRelationDoc = this.pageStoragesService2.pageRelations.doc(this.parentPageId);
 
       parentRelationDoc.snapshot()
         .then((parentRelationSnapshot) => {
@@ -47,7 +47,7 @@ export class CreatePageAction2 {
         return;
       }
 
-      const parentBodyDoc = this.database.collection('page-body').doc(this.parentPageId);
+      const parentBodyDoc = this.pageStoragesService2.pageBodies.doc(this.parentPageId);
 
       parentBodyDoc.snapshot().then((parentBodyDocSnapshot) => {
         const wallModel = this.wallModelFactory.create({plan: parentBodyDocSnapshot.data().body});

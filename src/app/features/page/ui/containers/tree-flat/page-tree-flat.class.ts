@@ -1,12 +1,13 @@
 import {QuerySnapshot} from 'cinatabase';
+import {IPageIdentity, IPageRelation} from '../../../repository/interfaces';
 import {IPageTreeNode} from './page-tree-flat.types';
 
 const INITIAL_PAGE_LEVEL = 0;
 
 export class PageTreeFlat {
     constructor(
-      private pageRelations: QuerySnapshot,
-      private pageIdentities: QuerySnapshot,
+      private pageRelations: QuerySnapshot<IPageRelation>,
+      private pageIdentities: QuerySnapshot<IPageIdentity>,
       private selectedIds: string[]
     ) {
     }
