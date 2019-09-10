@@ -32,7 +32,7 @@ export class Hotkey {
 
     const globalHotKeys = [
       {
-        keys: 'o',
+        keys: ['o', 'ctrl+o'],
         callback: () => {
           this.navigationService.toSearch();
         }
