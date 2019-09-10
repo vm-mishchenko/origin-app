@@ -5,6 +5,7 @@ import {WallModelFactory} from 'ngx-wall';
 import {Subscription} from 'rxjs';
 import {filter, map, tap, withLatestFrom} from 'rxjs/operators';
 import {DeviceLayoutService} from '../../../../../infrastructure/device-layout/device-layout.service';
+import {Hotkey} from '../../../../../modules/hotkey/hotkey';
 import {NavigationService} from '../../../../../modules/navigation';
 import {ShellContainerComponent} from '../../../../shell/view';
 import {ShellStore} from '../../../../shell/view/state/shell.store';
@@ -19,6 +20,7 @@ import {PageBodyEditorContainerComponent} from '../body-editor/page-body-editor-
 import {PageEditorMainMenuComponent} from '../editor-main-menu/page-editor-main-menu.component';
 import {PageMenuContainerComponent} from '../menu/page-menu-container.component';
 
+const LOCK_PAGE_HOTKEY = ['l', 'ctrl+l'];
 
 /**
  * Container around page title and body editors.
@@ -31,6 +33,8 @@ import {PageMenuContainerComponent} from '../menu/page-menu-container.component'
 export class PageEditorContainerComponent implements OnInit, OnDestroy {
     subscriptions: Subscription[] = [];
 
+  private lockPageHotkey: MousetrapInstance;
+
     @ViewChild(PageBodyEditorContainerComponent) bodyPageEditorContainer: PageBodyEditorContainerComponent;
 
     constructor(private route: ActivatedRoute,
@@ -40,12 +44,17 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
                 private pageRepositoryService2: PageRepositoryService2,
                 private deviceLayoutService: DeviceLayoutService,
                 private shellStore: ShellStore,
+                private hotkey: Hotkey,
                 private pageViewStore: PageViewStore,
                 private shellContainerComponent: ShellContainerComponent,
                 private componentFactoryResolver: ComponentFactoryResolver,
                 private pageConfigStorageService: PageConfigStorageService,
                 private pageConfigRepositoryService: PageConfigRepositoryService,
                 public pageViewQuery: PageViewQuery) {
+      this.lockPageHotkey = this.hotkey.registerHotkey(LOCK_PAGE_HOTKEY, () => {
+        return this.pageConfigStorageService.switchLockPage(this.pageViewQuery.getSelectedPageId());
+      });
+
         this.shellContainerComponent.setMainPortalComponent(
             new ComponentPortal(
                 PageEditorMainMenuComponent,
@@ -139,5 +148,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
         this.shellContainerComponent.clearSecondaryPortal();
 
         this.pageViewStore.setSelectedPageId(null);
+
+        this.lockPageHotkey.unbind(LOCK_PAGE_HOTKEY);
     }
 }

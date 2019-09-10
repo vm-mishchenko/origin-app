@@ -3,7 +3,7 @@ import {DatabaseManager} from 'cinatabase';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {DATABASE_MANAGER} from '../../../modules/storage/storage.module';
-import {IPageConfigData, IPageConfigItems, PageConfigStorageService} from './page-config-storage.service';
+import {IPageConfigData, IPageConfigItems} from './page-config-storage.service';
 import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 
 /**
@@ -15,8 +15,7 @@ import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 export class PageConfigRepositoryService {
   private pageConfigs = this.databaseManager.collection<IPageConfigData>(PAGE_CONFIG_COLLECTION_NAME);
 
-    constructor(private pageConfigStorageService: PageConfigStorageService,
-                @Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
+  constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
     }
 
     /**
@@ -37,6 +36,10 @@ export class PageConfigRepositoryService {
           }
         }).then(() => pageConfigDocRef.sync());
     }
+
+  getPageConfig(pageId: string) {
+    return this.pageConfigs.doc(pageId).snapshot();
+  }
 
     get$(id: string): Observable<IPageConfigItems> {
       return this.pageConfigs.doc(id)

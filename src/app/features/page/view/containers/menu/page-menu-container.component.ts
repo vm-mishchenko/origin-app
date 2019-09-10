@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
-import {PageLockConfigChange} from '../../../config/configs/page-lock-config.constant';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';
 import {PageService} from '../../../repository';
 import {DialogWrapperService} from '../../services/dialog-wrapper.service';
@@ -77,7 +76,10 @@ export class PageMenuContainerComponent implements OnInit {
     }
 
     private setPageIsLockConfig(isPageLocked: boolean): Promise<any> {
-        const changeEvent = new PageLockConfigChange(this.pageViewQuery.getSelectedPageId(), isPageLocked);
-        return this.pageConfigStorageService.changeConfig(changeEvent);
+        if (isPageLocked) {
+            return this.pageConfigStorageService.lockPage(this.pageViewQuery.getSelectedPageId());
+        } else {
+            return this.pageConfigStorageService.unlockPage(this.pageViewQuery.getSelectedPageId());
+        }
     }
 }

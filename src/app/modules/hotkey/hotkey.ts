@@ -65,7 +65,7 @@ export class Hotkey {
   }
 
   registerHotkey(keys: string | string[], callback) {
-    Mousetrap.bind(keys, (e) => {
+    return Mousetrap.bind(keys, (e) => {
       if (this.isHotkeyTimer) {
         e.preventDefault();
 

@@ -1,7 +1,8 @@
 import {Inject, Injectable} from '@angular/core';
 import {DatabaseManager} from 'cinatabase';
 import {DATABASE_MANAGER} from '../../../modules/storage/storage.module';
-import {PageLockConfigChange} from './configs/page-lock-config.constant';
+import {PAGE_LOCK_CONFIG_ITEM_TYPE, PageLockConfigChange} from './configs/page-lock-config.constant';
+import {PageConfigRepositoryService} from './page-config-repository.service';
 import {PAGE_CONFIG_COLLECTION_NAME} from './page-config.constant';
 import {PageConfig} from './page.config.class';
 
@@ -23,7 +24,8 @@ export interface IPageConfigItems {
     providedIn: 'root'
 })
 export class PageConfigStorageService {
-  constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager) {
+  constructor(@Inject(DATABASE_MANAGER) private databaseManager: DatabaseManager,
+              private pageConfigRepositoryService: PageConfigRepositoryService) {
     }
 
     changeConfig(change: PageLockConfigChange): Promise<any> {
@@ -52,4 +54,26 @@ export class PageConfigStorageService {
           });
         });
     }
+
+  lockPage(pageId: string) {
+    const changeEvent = new PageLockConfigChange(pageId, true);
+    return this.changeConfig(changeEvent);
+  }
+
+  unlockPage(pageId: string) {
+    const changeEvent = new PageLockConfigChange(pageId, false);
+    return this.changeConfig(changeEvent);
+  }
+
+  switchLockPage(pageId: string) {
+    return this.pageConfigRepositoryService.getPageConfig(pageId).then((pageConfigSnapshot) => {
+      const isPageLocked = pageConfigSnapshot.data().configs[PAGE_LOCK_CONFIG_ITEM_TYPE];
+
+      if (isPageLocked) {
+        return this.unlockPage(pageId);
+      } else {
+        return this.lockPage(pageId);
+      }
+    });
+  }
 }
