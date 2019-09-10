@@ -6,6 +6,6 @@
 <!--Edit mode-->
 <div [formGroup]="pageForm"
      [ngClass]="{'hidden': pageViewQuery.isPageLocked$ | async}">
-    <o-header-control (enter)="onHeaderEnterHandler()" formControlName="title"
+    <o-header-control (unfocus)="onHeaderUnfocusHandler()" formControlName="title"
                       placeholder="Untitled"></o-header-control>
 </div>

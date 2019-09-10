@@ -15,7 +15,7 @@ import {PageViewQuery} from '../../state/page-view.query';
 export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild(HeaderControlComponent) headerControlComponent: HeaderControlComponent;
     @Input() selectedPageId: string;
-    @Output() enter: EventEmitter<any> = new EventEmitter();
+    @Output() unfocus: EventEmitter<any> = new EventEmitter();
 
     selectedPageId$: Observable<string> = new BehaviorSubject<string>('');
     selectedPageIdentityTitle$: Observable<string>;
@@ -81,8 +81,8 @@ export class PageTitleEditorContainerComponent implements OnInit, OnChanges, OnD
         }
     }
 
-    onHeaderEnterHandler() {
-        this.enter.emit();
+    onHeaderUnfocusHandler() {
+        this.unfocus.emit();
     }
 
     ngOnDestroy() {

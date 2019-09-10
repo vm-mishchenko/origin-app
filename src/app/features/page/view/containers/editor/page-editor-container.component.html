@@ -5,7 +5,7 @@
             col-md-10 offset-md-1
             col-lg-8 offset-lg-2
             col-xl-8 offset-xl-2">
-                <app-title-page-editor-container (enter)="onHeaderEnterHandler()"
+                <app-title-page-editor-container (unfocus)="onHeaderEnterHandler()"
                                                  [selectedPageId]="pageViewQuery.selectedPageId$ | async">
                 </app-title-page-editor-container>
             </div>

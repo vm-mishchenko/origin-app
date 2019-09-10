@@ -21,23 +21,19 @@ import {ValueAccessor} from '../value-accessor';
     ]
 })
 export class HeaderControlComponent extends ValueAccessor<string> {
-    @Output() enter: EventEmitter<any> = new EventEmitter();
+    @Output() unfocus: EventEmitter<any> = new EventEmitter();
 
     @ViewChild('editor') editor: ElementRef;
 
     placeholder = 'Untitled';
 
-    @HostListener('keypress', ['$event'])
-    onKeyUpHandler(e: KeyboardEvent) {
-        const ENTER_KEY = 13;
-
-        // todo: fix keyCode
-        if (e.keyCode === ENTER_KEY) {
+    @HostListener('keydown', ['$event'])
+    onKeyDownHandler(e: KeyboardEvent) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter') {
             e.preventDefault();
 
             this.editor.nativeElement.blur();
-
-            this.enter.emit();
+            this.unfocus.emit();
         }
     }
 
