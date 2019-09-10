@@ -2,18 +2,24 @@ import {Injectable, NgZone} from '@angular/core';
 
 import * as Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
+import {RecentlyViewedPagesService} from '../../features/page/recently-viewed/recently-viewed.service';
 import {NavigationService} from '../navigation';
 import {StorageSyncService} from '../storage/storage-sync.service';
+
+const HOTKEY_MODE_LIVE_TIME = 500;
 
 @Injectable({
   providedIn: 'root'
 })
 export class Hotkey {
+  // setTimeout timer - while exist allow to run hotkey
   isHotkeyTimer: number;
 
   constructor(private navigationService: NavigationService,
               private storageSyncService: StorageSyncService,
+              private recentlyViewedPagesService: RecentlyViewedPagesService,
               private zone: NgZone) {
+    // allow shortcut when focus inside input elements
     Mousetrap.prototype.stopCallback = function (e, element, combo) {
       return false;
     };
@@ -21,15 +27,12 @@ export class Hotkey {
     // enable hot key mode
     Mousetrap.bind('ctrl+/', (e) => {
       e.preventDefault();
-      this.disableHotKeyMode();
-      this.isHotkeyTimer = setTimeout(() => {
-        this.disableHotKeyMode();
-      }, 500);
+      this.enableHotKeyMode();
     });
 
     const globalHotKeys = [
       {
-        keys: 'p',
+        keys: 'o',
         callback: () => {
           this.navigationService.toSearch();
         }
@@ -41,25 +44,27 @@ export class Hotkey {
         callback: () => {
           this.storageSyncService.sync();
         }
+      },
+      {
+        keys: ['[', 'ctrl+['],
+        callback: () => {
+          this.recentlyViewedPagesService.goToPreviousPage();
+        }
+      },
+      {
+        keys: [']', 'ctrl+]'],
+        callback: () => {
+          this.recentlyViewedPagesService.goToNextPage();
+        }
       }
     ];
 
     globalHotKeys.forEach((config) => {
       this.registerHotkey(config.keys, config.callback);
     });
-
-    /*
-    *
-    * Sync databases.
-    * Open search page.
-    * Open dialog - search page.
-    * Open dialog - latest edited pages.
-    * Open command palette.
-    *
-    * */
   }
 
-  registerHotkey(keys: string, callback) {
+  registerHotkey(keys: string | string[], callback) {
     Mousetrap.bind(keys, (e) => {
       if (this.isHotkeyTimer) {
         e.preventDefault();
@@ -73,9 +78,16 @@ export class Hotkey {
     });
   }
 
+  private enableHotKeyMode() {
+    this.disableHotKeyMode();
+
+    this.isHotkeyTimer = setTimeout(() => {
+      this.disableHotKeyMode();
+    }, HOTKEY_MODE_LIVE_TIME);
+  }
+
   private disableHotKeyMode() {
     if (this.isHotkeyTimer) {
-      console.log(`disableHotKeyMode`);
       clearTimeout(this.isHotkeyTimer);
       this.isHotkeyTimer = null;
     }
