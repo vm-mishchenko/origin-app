@@ -40,7 +40,7 @@ export class Hotkey {
 
       // sync with remote database
       {
-        keys: 's',
+        keys: ['s', 'ctrl+s'],
         callback: () => {
           this.storageSyncService.sync();
         }
