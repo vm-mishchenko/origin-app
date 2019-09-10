@@ -1,8 +1,8 @@
 import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
-import {IPageSearchItem, PageSearchService} from '../../../search/page-search.service';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {Observable, of} from 'rxjs';
 import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
+import {IPageSearchItem, PageSearchService} from '../../../search/page-search.service';
 
 @Component({
     selector: 'app-page-search-container',

@@ -4,12 +4,10 @@
     </mat-form-field>
 </div>
 
-<mat-action-list>
-    <button *ngFor="let pageSearchItem of (pageSearchItems$ | async)" mat-list-item
-            (click)="selectSearchItem(pageSearchItem)">
-        {{pageSearchItem.pageTitle}}
-    </button>
-</mat-action-list>
+<mat-nav-list>
+    <a mat-list-item [routerLink]="['/page/', pageSearchItem.pageId]"
+       *ngFor="let pageSearchItem of (pageSearchItems$ | async)"> {{ pageSearchItem.pageTitle }} </a>
+</mat-nav-list>
 
 <div class="empty" *ngIf="(pageSearchItems$ | async)?.length === 0">
     <i>{{emptyText$ | async}}</i>
