@@ -81,11 +81,11 @@ export class RemovePageAction2 {
         wallModel.api.core
           .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === removedPageId)
           .forEach((pageBrick) => {
-            wallModel.api.core.removeBrick(pageBrick.id);
+            wallModel.api.core2.removeBrick(pageBrick.id);
           });
 
           return this.pageStoragesService2.pageBodies.doc(parentBodySnapshot.id).update({
-          body: wallModel.api.core.getPlan()
+          body: wallModel.api.core2.getPlan()
         }).then(() => {
         });
       });

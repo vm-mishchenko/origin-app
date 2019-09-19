@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs';
-import {Observable} from 'rxjs/internal/Observable';
+import {Subject, Observable} from 'rxjs';
 
 /**
  * Provides common for all modules bus for event dispatching and listening

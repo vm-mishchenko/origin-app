@@ -1,11 +1,11 @@
-import {IWallDefinition} from 'ngx-wall';
+import {IWallDefinition2} from 'ngx-wall';
 
 export interface IPageIdentity {
   title: string;
 }
 
 export interface IPageBody {
-  body: IWallDefinition;
+  body: IWallDefinition2;
 }
 
 export interface IPageRelation {

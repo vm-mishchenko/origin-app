@@ -15,8 +15,8 @@ export class RemovePageFilesAction2 {
         plan: pageBodySnapshot.data().body
       });
 
-      const pageResources = wallModel.api.core.getBrickIds().reduce((result, brickId) => {
-        result = result.concat(wallModel.api.core.getBrickResourcePaths(brickId));
+      const pageResources = wallModel.api.core2.getBrickIds().reduce((result, brickId) => {
+        result = result.concat(wallModel.api.core2.getBrickResourcePaths(brickId));
 
         return result;
       }, []);

@@ -25,7 +25,7 @@ export class MoveBricksAction2 {
       const sourcePageWallModel = this.wallModelFactory.create({plan: sourcePageBodySnapshot.data().body});
       const targetPageWallModel = this.wallModelFactory.create({plan: targetPageBodySnapshot.data().body});
       const brickSnapshots = this.brickIds.map((brickId) => {
-        return sourcePageWallModel.api.core.getBrickSnapshot(brickId);
+        return sourcePageWallModel.api.core2.getBrickSnapshot(brickId);
       });
 
       // process non page bricks
@@ -33,13 +33,13 @@ export class MoveBricksAction2 {
         .filter((brickSnapshot) => brickSnapshot.tag !== PAGE_BRICK_TAG_NAME)
         .reverse()
         .forEach((nonPageBrickSnapshot) => {
-          sourcePageWallModel.api.core.removeBrick(nonPageBrickSnapshot.id);
-          targetPageWallModel.api.core.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
+          sourcePageWallModel.api.core2.removeBrick(nonPageBrickSnapshot.id);
+          targetPageWallModel.api.core2.addBrickAtStart(nonPageBrickSnapshot.tag, nonPageBrickSnapshot.state);
         });
 
       return Promise.all([
-        this.pageStoragesService2.pageBodies.doc(sourcePageBodySnapshot.id).update({body: sourcePageWallModel.api.core.getPlan()}),
-        this.pageStoragesService2.pageBodies.doc(targetPageBodySnapshot.id).update({body: targetPageWallModel.api.core.getPlan()})
+        this.pageStoragesService2.pageBodies.doc(sourcePageBodySnapshot.id).update({body: sourcePageWallModel.api.core2.getPlan()}),
+        this.pageStoragesService2.pageBodies.doc(targetPageBodySnapshot.id).update({body: targetPageWallModel.api.core2.getPlan()})
       ]).then(() => {
         const pageBrickSnapshots = brickSnapshots
           .filter((brickSnapshot) => brickSnapshot.tag === PAGE_BRICK_TAG_NAME);

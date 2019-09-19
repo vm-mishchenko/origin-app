@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {filter} from 'rxjs/internal/operators';
+import {filter} from 'rxjs/operators';
 import {EventBus} from '../../../modules/event-bus/event-bus';
 import {NavigationService} from '../../../modules/navigation';
 import {PageOpened} from '../view/state/events';

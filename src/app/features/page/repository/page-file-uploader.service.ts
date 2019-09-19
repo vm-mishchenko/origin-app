@@ -19,7 +19,7 @@ export class PageFileUploaderService {
         return this.pageRepositoryService2.pageBody(pageId).then((bodyPageSnapshot) => {
             const wallModel = this.wallModelFactory.create({plan: bodyPageSnapshot.data().body});
 
-            const brickTag = wallModel.api.core.getBrickTag(brickId);
+            const brickTag = wallModel.api.core2.getBrickTag(brickId);
 
             let path = `${pageId}/${brickTag}/${brickId}/${this.guid.generate()}`;
 

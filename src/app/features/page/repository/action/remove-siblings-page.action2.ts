@@ -95,14 +95,14 @@ export class RemoveSiblingsPageAction2 {
         .then((parentBodySnapshot) => {
         const wallModel = this.wallModelFactory.create({plan: parentBodySnapshot.data().body});
 
-        wallModel.api.core.filterBricks((brick) => {
+        wallModel.api.core2.filterBricks((brick) => {
           return brick.tag === PAGE_BRICK_TAG_NAME && this.pageIds.includes(brick.state.pageId);
         }).forEach((pageBrick) => {
-          wallModel.api.core.removeBrick(pageBrick.id);
+          wallModel.api.core2.removeBrick(pageBrick.id);
         });
 
           return this.pageStoragesService2.pageBodies.doc(parentBodySnapshot.id).update({
-          body: wallModel.api.core.getPlan()
+          body: wallModel.api.core2.getPlan()
         });
       });
     });

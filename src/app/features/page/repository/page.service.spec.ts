@@ -7,8 +7,8 @@ import {DatabaseManager, InMemoryRemoteProvider, MemoryDb, RemoteDb} from 'cinat
 import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
 import {of} from 'rxjs';
 import {environment} from '../../../../environments/environment';
-import {DATABASE_MANAGER, StoreModule} from '../../../modules/storage/storage.module';
 import {AuthService} from '../../../modules/auth';
+import {DATABASE_MANAGER, StoreModule} from '../../../modules/storage/storage.module';
 import {PageBrickComponent} from '../ui/bricks/page-brick/page-brick.component';
 import {PAGE_BRICK_TAG_NAME} from '../ui/page-ui.constant';
 import {PageFileUploaderService} from './page-file-uploader.service';
@@ -67,7 +67,7 @@ class TestScope2 {
     findPageBrick(wallDefinition: IWallDefinition, pageId: string): IBrickSnapshot {
         const wallModel = this.createWallModel(wallDefinition);
 
-        return wallModel.api.core.filterBricks((brick) => {
+        return wallModel.api.core2.filterBricks((brick) => {
             return brick.tag === 'page' && brick.state.pageId === pageId;
         })[0];
     }
@@ -88,10 +88,10 @@ class TestScope2 {
         return this.pageStoragesService2.pageBodies.doc(pageId).snapshot().then((pageBodySnapshot) => {
             const wallModel = this.createWallModel(pageBodySnapshot.data().body);
 
-            const newBrick = wallModel.api.core.addBrickAtStart(tag, state);
+            const newBrick = wallModel.api.core2.addBrickAtStart(tag, state);
 
             return this.service.updatePageBody2(pageBodySnapshot.id, {
-                body: wallModel.api.core.getPlan()
+                body: wallModel.api.core2.getPlan()
             }).then(() => newBrick);
         });
     }
@@ -214,10 +214,10 @@ describe('PageService', () => {
 
                 parentPageBodyDoc.snapshot().then((parentPageBodySnapshot) => {
                     let parentPageModel = testScope.createWallModel(parentPageBodySnapshot.data().body);
-                    const newPageBrick = parentPageModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: null});
+                    const newPageBrick = parentPageModel.api.core2.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: null});
 
                     parentPageBodyDoc.update({
-                        body: parentPageModel.api.core.getPlan()
+                        body: parentPageModel.api.core2.getPlan()
                     }).then(() => {
                         // test action
                         testScope.service.createPage2(parentPageId, {pageBrickId: newPageBrick.id}).then((childPageId) => {
@@ -226,14 +226,14 @@ describe('PageService', () => {
                                 parentPageModel = testScope.createWallModel(parentPageBodySnapshotUpdated.data().body);
 
                                 // make sure that "createPage" API does not create additional page
-                                expect(parentPageModel.api.core.getBricksCount()).toBe(1);
+                                expect(parentPageModel.api.core2.getBricksCount()).toBe(1);
 
                                 // make sure that in body-editor there is only one brick that was created previously
-                                const actualPageBrickId = parentPageModel.api.core.getBrickIds()[0];
+                                const actualPageBrickId = parentPageModel.api.core2.getBrickIds()[0];
                                 expect(actualPageBrickId).toBe(newPageBrick.id);
 
                                 // make sure that state of previously created page was populated by child page id
-                                const pageBrickSnapshot = parentPageModel.api.core.getBrickSnapshot(actualPageBrickId);
+                                const pageBrickSnapshot = parentPageModel.api.core2.getBrickSnapshot(actualPageBrickId);
                                 expect(pageBrickSnapshot.state.pageId).toBe(childPageId);
                             });
                         });
@@ -725,11 +725,11 @@ describe('PageService', () => {
 
                     const fixtureState1 = {fixture: 1};
                     const fixtureState2 = {fixture: 2};
-                    const brickSnapshot1 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState1);
-                    const brickSnapshot2 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState2);
+                    const brickSnapshot1 = sourcePageWallModel.api.core2.addBrickAtStart('fixture-brick', fixtureState1);
+                    const brickSnapshot2 = sourcePageWallModel.api.core2.addBrickAtStart('fixture-brick', fixtureState2);
 
                     testScope.service.updatePageBody2(sourcePageId, {
-                        body: sourcePageWallModel.api.core.getPlan()
+                        body: sourcePageWallModel.api.core2.getPlan()
                     }).then(() => {
                         // test action
                         testScope.service.moveBricks2(sourcePageId, [brickSnapshot1.id, brickSnapshot2.id], targetPageId).then(() => {
@@ -740,19 +740,19 @@ describe('PageService', () => {
                                 sourcePageWallModel = testScope.createWallModel(sourcePageBodyUpdatedSnapshot.data().body);
 
                                 // test assertion: bricks was removed from source page
-                                expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
-                                expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
+                                expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
+                                expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
 
 
                                 const targetPageWallModel = testScope.createWallModel(targetPageBodySnapshot.data().body);
-                                const targetBrickIds = targetPageWallModel.api.core.getBrickIds();
+                                const targetBrickIds = targetPageWallModel.api.core2.getBrickIds();
 
                                 // bricks was added to target page
                                 expect(targetBrickIds.length).toEqual(2);
 
                                 // bricks was added in right order
-                                expect(targetPageWallModel.api.core.getBrickSnapshot(targetBrickIds[0]).state.fixture).toBe(fixtureState1.fixture);
-                                expect(targetPageWallModel.api.core.getBrickSnapshot(targetBrickIds[1]).state.fixture).toBe(fixtureState2.fixture);
+                                expect(targetPageWallModel.api.core2.getBrickSnapshot(targetBrickIds[0]).state.fixture).toBe(fixtureState1.fixture);
+                                expect(targetPageWallModel.api.core2.getBrickSnapshot(targetBrickIds[1]).state.fixture).toBe(fixtureState2.fixture);
                             });
                         });
                     });
@@ -779,13 +779,13 @@ describe('PageService', () => {
 
                               const fixtureState1 = {fixture: 1};
                               const fixtureState2 = {fixture: 2};
-                              const brickSnapshot1 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState1);
-                              const brickSnapshot2 = sourcePageWallModel.api.core.addBrickAtStart('fixture-brick', fixtureState2);
+                              const brickSnapshot1 = sourcePageWallModel.api.core2.addBrickAtStart('fixture-brick', fixtureState1);
+                              const brickSnapshot2 = sourcePageWallModel.api.core2.addBrickAtStart('fixture-brick', fixtureState2);
                               const pageBrickId1 = testScope.findPageBrick(sourcePageBodySnapshot.data().body, childPageId1).id;
                               const pageBrickId2 = testScope.findPageBrick(sourcePageBodySnapshot.data().body, childPageId2).id;
 
                               testScope.service.updatePageBody2(sourcePageId, {
-                                  body: sourcePageWallModel.api.core.getPlan()
+                                  body: sourcePageWallModel.api.core2.getPlan()
                               }).then(() => {
                                   const movedBrickIds = [
                                       pageBrickId1,
@@ -809,21 +809,21 @@ describe('PageService', () => {
                                           sourcePageWallModel = testScope.createWallModel(sourcePageBodyUpdatedSnapshot.data().body);
 
                                           // test assertion: non page bricks was removed from source page
-                                          expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
-                                          expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
+                                          expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(brickSnapshot1.id))).toBe(false);
+                                          expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(brickSnapshot2.id))).toBe(false);
 
                                           // test assertion:page bricks was removed from source page
-                                          expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(pageBrickId1))).toBe(false);
-                                          expect(Boolean(sourcePageWallModel.api.core.getBrickSnapshot(pageBrickId2))).toBe(false);
+                                          expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(pageBrickId1))).toBe(false);
+                                          expect(Boolean(sourcePageWallModel.api.core2.getBrickSnapshot(pageBrickId2))).toBe(false);
 
                                           const targetPageWallModel = testScope.createWallModel(targetPageBodySnapshot.data().body);
-                                          const targetBrickIds = targetPageWallModel.api.core.getBrickIds();
+                                          const targetBrickIds = targetPageWallModel.api.core2.getBrickIds();
 
                                           // bricks was added to target page
                                           expect(targetBrickIds.length).toEqual(4);
 
                                           const tagetBrickSnapshots = targetBrickIds
-                                            .map((targetBrickId) => targetPageWallModel.api.core.getBrickSnapshot(targetBrickId));
+                                            .map((targetBrickId) => targetPageWallModel.api.core2.getBrickSnapshot(targetBrickId));
 
                                           // fixture bricks was added to target body-editor page
                                           const fixtureBrickSnapshots = tagetBrickSnapshots

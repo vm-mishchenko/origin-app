@@ -53,15 +53,15 @@ export class CreatePageAction2 {
         const wallModel = this.wallModelFactory.create({plan: parentBodyDocSnapshot.data().body});
 
         if (this.options.pageBrickId) {
-          wallModel.api.core.updateBrickState(this.options.pageBrickId, {
+          wallModel.api.core2.updateBrickState(this.options.pageBrickId, {
             pageId: newPageId
           });
         } else {
-          wallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
+          wallModel.api.core2.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: newPageId});
         }
 
         parentBodyDoc.update({
-          body: wallModel.api.core.getPlan()
+          body: wallModel.api.core2.getPlan()
         }).then(resolve, reject);
       });
     });
@@ -73,7 +73,7 @@ export class CreatePageAction2 {
         title: 'Default title'
       }),
       pageBodyDoc.set({
-        body: this.wallModelFactory.create().api.core.getPlan()
+        body: this.wallModelFactory.create().api.core2.getPlan()
       }),
       pageRelationDoc.set({
         parentPageId: this.parentPageId,

@@ -1,13 +1,10 @@
 import {Component, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import {
-    BeforeChangeEvent,
     CopyPlugin,
-    IWallDefinition,
+    IWallDefinition2,
     IWallModel,
     IWallUiApi,
-    SelectedBrickEvent,
     SelectionPlugin,
-    SetPlanEvent,
     UNDO_REDO_API_NAME,
     UndoRedoPlugin,
     WallModelFactory
@@ -23,12 +20,12 @@ import {Observable, Subscription} from 'rxjs';
     styleUrls: ['./page-editor.component.scss']
 })
 export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
-    @Input() pageBody: IWallDefinition;
+    @Input() pageBody: IWallDefinition2;
     @Input() isPageLocked$: Observable<boolean>;
     @Input() scrollableContainer: HTMLElement;
 
     @Output() wallEvents: EventEmitter<any> = new EventEmitter();
-    @Output() pageBodyUpdated: EventEmitter<IWallDefinition> = new EventEmitter();
+    @Output() pageBodyUpdated: EventEmitter<IWallDefinition2> = new EventEmitter();
     @Output() selectedBrickIds: EventEmitter<string[]> = new EventEmitter();
 
     wallModel: IWallModel;
@@ -51,23 +48,20 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
         });
 
         // proxy all wall model events to parent
+        // todo: replace to destroy$
         this.subscriptions.push(
-            this.wallModel.api.core.subscribe((event) => {
-                if (!(event instanceof SetPlanEvent) && !(event instanceof BeforeChangeEvent)) {
-                    this.pageBodyUpdated.emit(this.wallModel.api.core.getPlan());
-                }
-
-                this.wallEvents.emit(event);
+          this.wallModel.api.core2.events$.subscribe((event) => {
+              this.pageBodyUpdated.emit(this.wallModel.api.core2.getPlan());
+              this.wallEvents.emit(event);
             })
         );
 
-        // todo: fix that
+        // todo: fix set timeout
         setTimeout(() => {
+            // todo: replace to destroy$
             this.subscriptions.push(
-                (this.wallModel.api.ui as IWallUiApi).subscribe((uiEvent) => {
-                    if (uiEvent instanceof SelectedBrickEvent) {
-                        this.selectedBrickIds.emit(uiEvent.selectedBrickIds);
-                    }
+              (this.wallModel.api.ui as IWallUiApi).mode.navigation.selectedBricks$.subscribe((selectedBrickIds) => {
+                  this.selectedBrickIds.emit(selectedBrickIds);
                 })
             );
         });
@@ -78,9 +72,9 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
         this.subscriptions.push(
             this.isPageLocked$.subscribe((isPageLocked) => {
                 if (isPageLocked) {
-                    this.wallModel.api.core.enableReadOnly();
+                    this.wallModel.api.core2.enableReadOnly();
                 } else {
-                    this.wallModel.api.core.disableReadOnly();
+                    this.wallModel.api.core2.disableReadOnly();
                 }
             })
         );
@@ -91,10 +85,10 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     focusOnPageEditor() {
         let firstEmptyTextBrickId;
 
-        const brickIds = this.wallModel.api.core.getBrickIds();
+        const brickIds = this.wallModel.api.core2.getBrickIds();
 
         if (brickIds.length) {
-            const firstBrickSnapshot = this.wallModel.api.core.getBrickSnapshot(brickIds[0]);
+            const firstBrickSnapshot = this.wallModel.api.core2.getBrickSnapshot(brickIds[0]);
 
             if (firstBrickSnapshot.tag === 'text' && !Boolean(firstBrickSnapshot.state.text)) {
                 firstEmptyTextBrickId = firstBrickSnapshot.id;
@@ -102,18 +96,18 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         if (!firstEmptyTextBrickId) {
-            firstEmptyTextBrickId = this.wallModel.api.core.addBrickAtStart('text').id;
+            firstEmptyTextBrickId = this.wallModel.api.core2.addBrickAtStart('text').id;
         }
 
         setTimeout(() => {
-            (this.wallModel.api.ui as IWallUiApi).focusOnBrickId(firstEmptyTextBrickId);
+            (this.wallModel.api.ui as IWallUiApi).mode.edit.focusOnBrickId(firstEmptyTextBrickId);
         });
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.pageBody && changes.pageBody.currentValue) {
             this.wallModel.api[UNDO_REDO_API_NAME].clear();
-            this.wallModel.api.core.setPlan(changes.pageBody.currentValue);
+            this.wallModel.api.core2.setPlan(changes.pageBody.currentValue);
         }
     }
 

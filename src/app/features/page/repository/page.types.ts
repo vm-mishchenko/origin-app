@@ -1,4 +1,4 @@
-import {IWallDefinition} from 'ngx-wall';
+import {IWallDefinition2} from 'ngx-wall';
 
 export interface IIdentityPage {
     id: string;
@@ -7,7 +7,7 @@ export interface IIdentityPage {
 
 export interface IBodyPage {
     id: string;
-    body: IWallDefinition;
+    body: IWallDefinition2;
 }
 
 export interface IRelationPage {

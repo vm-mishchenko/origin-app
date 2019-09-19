@@ -50,11 +50,11 @@ export class MovePageAction2 {
         // update new parent body-editor
         // todo: duplicated code
         const targetWallModel = this.wallModelFactory.create({plan: targetPageBodyPageSnapshot.data().body});
-        targetWallModel.api.core.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: this.movedPageId});
+        targetWallModel.api.core2.addBrickAtStart(PAGE_BRICK_TAG_NAME, {pageId: this.movedPageId});
 
         targetParentPromises.push(
           this.pageStoragesService2.pageBodies.doc(targetPageBodyPageSnapshot.id).update({
-            body: targetWallModel.api.core.getPlan()
+            body: targetWallModel.api.core2.getPlan()
           })
         );
 
@@ -105,12 +105,12 @@ export class MovePageAction2 {
       oldWallModel.api.core
         .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === this.movedPageId)
         .forEach((pageBrick) => {
-          oldWallModel.api.core.removeBrick(pageBrick.id);
+          oldWallModel.api.core2.removeBrick(pageBrick.id);
         });
 
       promises.push(
         this.pageStoragesService2.pageBodies.doc(oldPageBodyPageSnapshot.id).update({
-          body: oldWallModel.api.core.getPlan()
+          body: oldWallModel.api.core2.getPlan()
         })
       );
 

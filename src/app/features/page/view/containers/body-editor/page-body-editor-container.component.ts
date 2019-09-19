@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {IWallDefinition, RemoveBricksEvent, TurnBrickIntoEvent} from 'ngx-wall';
+import {IWallDefinition2, TransactionEvent} from 'ngx-wall';
 import {Observable, Subscription} from 'rxjs';
 import {concat, filter, first, map, pairwise, shareReplay, switchMap, tap} from 'rxjs/operators';
 import {PageService} from '../../../repository';
@@ -17,7 +17,7 @@ import {PageViewStore} from '../../state/page-view.store';
 export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     @Input() scrollableContainer: HTMLElement;
 
-    pageBody$: Observable<IWallDefinition>;
+    pageBody$: Observable<IWallDefinition2>;
 
     private currentBody: string = null;
     private selectedPageId: string;
@@ -74,7 +74,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     }
 
     // editor -> database
-    pageBodyUpdated(bodyPage: IWallDefinition) {
+    pageBodyUpdated(bodyPage: IWallDefinition2) {
         this.updateCurrentBody(bodyPage);
 
         this.pageService.updatePageBody2(this.selectedPageId, {
@@ -82,19 +82,24 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    wallEvents(event: any) {
-        if (event instanceof RemoveBricksEvent) {
-            const pageIds = event.bricks.filter((brick) => brick.tag === PAGE_BRICK_TAG_NAME)
-                .map((brick) => brick.state.pageId);
+    onWallEvents(event: TransactionEvent) {
+        const removedPageBrickIds = event.changes.removed.filter((removedChange) => {
+            return removedChange.brickSnapshot.tag === PAGE_BRICK_TAG_NAME;
+        }).map((pageRemovedChange) => {
+            return pageRemovedChange.brickSnapshot.id;
+        });
 
-            this.pageService.removePages2(pageIds);
-        }
+        this.pageService.removePages2(removedPageBrickIds);
 
-        if (event instanceof TurnBrickIntoEvent && event.newTag === PAGE_BRICK_TAG_NAME) {
+        event.changes.turned.filter((turnedBrickChange) => {
+            return turnedBrickChange.newTag === PAGE_BRICK_TAG_NAME;
+        }).map((turnedToPageBrickChange) => {
+            return turnedToPageBrickChange.brickId;
+        }).forEach((newPageBrick) => {
             this.pageService.createPage2(this.selectedPageId, {
-                pageBrickId: event.brickId
+                pageBrickId: newPageBrick
             });
-        }
+        });
     }
 
     ngOnDestroy() {
@@ -112,7 +117,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
         this.pageEditorComponent.focusOnPageEditor();
     }
 
-    private updateCurrentBody(body: IWallDefinition) {
+    private updateCurrentBody(body: IWallDefinition2) {
         this.currentBody = JSON.stringify(body);
     }
 }
