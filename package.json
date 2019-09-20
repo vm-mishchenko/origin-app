@@ -10,12 +10,12 @@
     "test:cli": "ng test --watch=false  --code-coverage --no-progress --browsers=ChromeNoSandbox",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "release": "npm run test:once && npm run build:prod && npm run deploy",
-    "build:prod": "ng build --stats-json --prod --preserve-symlinks",
-    "deploy": "firebase deploy",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "ngx-wall-dev": "./scripts/ngx-wall-dev.sh",
-    "cinatabase-dev": "./scripts/cinatabase-dev.sh"
+    "cinatabase-dev": "./scripts/cinatabase-dev.sh",
+    "build:prod": "ng build --stats-json --prod --preserve-symlinks",
+    "deploy": "firebase deploy",
+    "release": "npm run test:once && npm run build:prod && npm run deploy"
   },
   "private": true,
   "dependencies": {
