@@ -102,7 +102,7 @@ export class MovePageAction2 {
       // update old parent body-editor
       // todo: duplicated code
       const oldWallModel = this.wallModelFactory.create({plan: oldPageBodyPageSnapshot.data().body});
-      oldWallModel.api.core
+      oldWallModel.api.core2
         .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === this.movedPageId)
         .forEach((pageBrick) => {
           oldWallModel.api.core2.removeBrick(pageBrick.id);

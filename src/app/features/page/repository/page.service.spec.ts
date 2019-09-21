@@ -4,7 +4,7 @@ import {FirebaseOptionsToken} from '@angular/fire';
 import {AngularFireAuthModule} from '@angular/fire/auth';
 import {AngularFireStorageModule} from '@angular/fire/storage';
 import {DatabaseManager, InMemoryRemoteProvider, MemoryDb, RemoteDb} from 'cinatabase';
-import {BrickRegistry, IBrickSnapshot, IWallDefinition, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
+import {BrickRegistry, IBrickSnapshot, IWallDefinition2, IWallModel, WallModelFactory, WallModule} from 'ngx-wall';
 import {of} from 'rxjs';
 import {environment} from '../../../../environments/environment';
 import {AuthService} from '../../../modules/auth';
@@ -58,13 +58,13 @@ class TestScope2 {
         brickRegistry.register(FIXTURE_BRICK_SPECIFICATION);
     }
 
-    createWallModel(plan: IWallDefinition): IWallModel {
+    createWallModel(plan: IWallDefinition2): IWallModel {
         const wallModelFactory: WallModelFactory = TestBed.get(WallModelFactory);
 
         return wallModelFactory.create({plan});
     }
 
-    findPageBrick(wallDefinition: IWallDefinition, pageId: string): IBrickSnapshot {
+    findPageBrick(wallDefinition: IWallDefinition2, pageId: string): IBrickSnapshot {
         const wallModel = this.createWallModel(wallDefinition);
 
         return wallModel.api.core2.filterBricks((brick) => {

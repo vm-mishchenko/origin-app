@@ -78,7 +78,7 @@ export class RemovePageAction2 {
         .then((parentBodySnapshot) => {
         const wallModel = this.wallModelFactory.create({plan: parentBodySnapshot.data().body});
 
-        wallModel.api.core
+        wallModel.api.core2
           .filterBricks((brick) => brick.tag === PAGE_BRICK_TAG_NAME && brick.state.pageId === removedPageId)
           .forEach((pageBrick) => {
             wallModel.api.core2.removeBrick(pageBrick.id);
