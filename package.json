@@ -41,7 +41,7 @@
     "core-js": "^2.5.4",
     "firebase": "5.8.2",
     "ngx-sticky-modal": "^0.0.4",
-    "ngx-wall": "^1.1.39",
+    "ngx-wall": "^1.1.42",
     "cinatabase": "^0.0.6",
     "open-iconic": "1.1.1",
     "pouchdb": "^7.0.0",
