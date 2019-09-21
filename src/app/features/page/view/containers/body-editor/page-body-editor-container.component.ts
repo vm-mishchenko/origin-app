@@ -83,7 +83,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
     }
 
     onWallEvents(event: TransactionEvent) {
-        const removedPageBrickIds = event.changes.removed.filter((removedChange) => {
+        const removedPageBrickIds = event.transaction.change.removed.filter((removedChange) => {
             return removedChange.brickSnapshot.tag === PAGE_BRICK_TAG_NAME;
         }).map((pageRemovedChange) => {
             return pageRemovedChange.brickSnapshot.id;
@@ -91,7 +91,7 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
 
         this.pageService.removePages2(removedPageBrickIds);
 
-        event.changes.turned.filter((turnedBrickChange) => {
+        event.transaction.change.turned.filter((turnedBrickChange) => {
             return turnedBrickChange.newTag === PAGE_BRICK_TAG_NAME;
         }).map((turnedToPageBrickChange) => {
             return turnedToPageBrickChange.brickId;
