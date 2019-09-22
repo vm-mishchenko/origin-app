@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {IOnWallStateChange} from 'ngx-wall';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {filter, map, switchMap} from 'rxjs/operators';
+import {NavigationService} from '../../../../../modules/navigation';
 import {PageRepositoryService2} from '../../../repository/page-repository.service2';
 import {IPageBrickState} from './page-brick.types';
 
@@ -16,7 +17,8 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
     pageTitle$: Observable<string>;
     pageId$: Observable<string> = new BehaviorSubject<string>('');
 
-    constructor(private pageRepositoryService2: PageRepositoryService2) {
+    constructor(private pageRepositoryService2: PageRepositoryService2,
+                private navigationService: NavigationService,) {
         this.pageTitle$ = this.pageId$.pipe(
           switchMap((pageId) => {
               return this.pageRepositoryService2.selectPageIdentity(pageId).pipe(
@@ -35,6 +37,14 @@ export class PageBrickComponent implements IOnWallStateChange, OnInit {
 
     onWallStateChange() {
         this.triggerCurrentPageId();
+    }
+
+    onPrimaryAction() {
+        const pageId = (this.pageId$ as BehaviorSubject<string>).getValue();
+
+        if (pageId) {
+            this.navigationService.toPage(pageId);
+        }
     }
 
     private triggerCurrentPageId() {
