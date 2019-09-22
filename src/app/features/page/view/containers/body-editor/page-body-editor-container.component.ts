@@ -86,10 +86,12 @@ export class PageBodyEditorContainerComponent implements OnInit, OnDestroy {
         const removedPageBrickIds = event.transaction.change.removed.filter((removedChange) => {
             return removedChange.brickSnapshot.tag === PAGE_BRICK_TAG_NAME;
         }).map((pageRemovedChange) => {
-            return pageRemovedChange.brickSnapshot.id;
+          return pageRemovedChange.brickSnapshot.state.pageId;
         });
 
+      if (removedPageBrickIds.length) {
         this.pageService.removePages2(removedPageBrickIds);
+      }
 
         event.transaction.change.turned.filter((turnedBrickChange) => {
             return turnedBrickChange.newTag === PAGE_BRICK_TAG_NAME;
