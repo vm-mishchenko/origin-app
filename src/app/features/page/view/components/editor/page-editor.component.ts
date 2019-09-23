@@ -10,7 +10,7 @@ import {
     WallModelFactory
 } from 'ngx-wall';
 import {Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/internal/operators';
+import {takeUntil} from 'rxjs/operators';
 
 /**
  * Dump component responsible for rendering Wall model.
@@ -109,12 +109,15 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.pageBody && changes.pageBody.currentValue) {
+            // new page is loaded
             this.wallModel.api[UNDO_REDO_API_NAME].clear();
             this.wallModel.api.core2.setPlan(changes.pageBody.currentValue);
+            this.wallModel.api.ui.mode.switchToEditMode(false);
         }
     }
 
     ngOnDestroy() {
+        this.wallModel.destroy();
         this.destroyed$.next(true);
     }
 
