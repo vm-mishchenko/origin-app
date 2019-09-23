@@ -9,7 +9,8 @@ import {
     UndoRedoPlugin,
     WallModelFactory
 } from 'ngx-wall';
-import {Observable, Subscription} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/internal/operators';
 
 /**
  * Dump component responsible for rendering Wall model.
@@ -30,7 +31,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     wallModel: IWallModel;
 
-    private subscriptions: Subscription[] = [];
+    private destroyed$ = new Subject();
 
     constructor(private wallModelFactory: WallModelFactory,
                 private injector: Injector) {
@@ -49,35 +50,37 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         // proxy all wall model events to parent
         // todo: replace to destroy$
-        this.subscriptions.push(
-          this.wallModel.api.core2.events$.subscribe((event) => {
-              this.pageBodyUpdated.emit(this.wallModel.api.core2.getPlan());
-              this.wallEvents.emit(event);
-            })
-        );
+        this.wallModel.api.core2.events$.pipe(
+          takeUntil(this.destroyed$)
+        ).subscribe((event) => {
+            this.pageBodyUpdated.emit(this.wallModel.api.core2.getPlan());
+            this.wallEvents.emit(event);
+        });
 
         // todo: fix set timeout
         setTimeout(() => {
             // todo: replace to destroy$
-            this.subscriptions.push(
-              (this.wallModel.api.ui as IWallUiApi).mode.navigation.selectedBricks$.subscribe((selectedBrickIds) => {
+            (this.wallModel.api.ui as IWallUiApi).mode.navigation.selectedBricks$
+              .pipe(
+                takeUntil(this.destroyed$)
+              )
+              .subscribe((selectedBrickIds) => {
                   this.selectedBrickIds.emit(selectedBrickIds);
-                })
-            );
+              });
         });
     }
 
     ngOnInit() {
         // update wall model "readonly" mode
-        this.subscriptions.push(
-            this.isPageLocked$.subscribe((isPageLocked) => {
-                if (isPageLocked) {
-                    this.wallModel.api.core2.enableReadOnly();
-                } else {
-                    this.wallModel.api.core2.disableReadOnly();
-                }
-            })
-        );
+        this.isPageLocked$.pipe(
+          takeUntil(this.destroyed$)
+        ).subscribe((isPageLocked) => {
+            if (isPageLocked) {
+                this.wallModel.api.core2.enableReadOnly();
+            } else {
+                this.wallModel.api.core2.disableReadOnly();
+            }
+        });
     }
 
     // public API
@@ -112,9 +115,7 @@ export class PageEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscriptions.forEach((subscription) => {
-            subscription.unsubscribe();
-        });
+        this.destroyed$.next(true);
     }
 
     private isMenuButton(targetElement: HTMLElement): boolean {
