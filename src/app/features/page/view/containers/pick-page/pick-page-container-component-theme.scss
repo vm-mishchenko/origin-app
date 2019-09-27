@@ -1,0 +1,23 @@
+@mixin page-pick-page-container-component-theme($theme, $typography) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, accent);
+  $foreground: map-get($theme, foreground);
+  $background: map-get($theme, background);
+
+  pick-page-container {
+    .title {
+      color: mat-color($foreground, secondary-text)
+    }
+
+    .active {
+      background-color: mat-color($background, hover);
+    }
+
+    .pick-item {
+      &:hover {
+        background-color: mat-color($background, hover);
+      }
+    }
+  }
+}

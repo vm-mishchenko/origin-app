@@ -8,11 +8,7 @@ import {PageSearchService} from '../../../search/page-search.service';
 @Component({
     selector: 'pick-page-container',
     templateUrl: 'pick-page-container.component.html',
-    styles: [`
-        ::ng-deep .active {
-            background-color: #ececec;
-        }
-    `],
+    styleUrls: ['./pick-page-container.component.scss']
 })
 export class PickPageContainerComponent implements OnInit {
     @ViewChild('input') input: ElementRef;

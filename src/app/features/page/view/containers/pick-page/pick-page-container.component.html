@@ -7,13 +7,13 @@
 <input-projection [keyStream$]="keyStream$" (value)="onValue($event)">
     <!-- Register Recently viewed pages. -->
     <ng-container cdkInputProjectionDef [stream]="pageSearch$">
-        <p *cdkPanelItemTitle>Pages</p>
-        <span *cdkPanelItem="let item">{{item.title}}</span>
+        <p class="title" *cdkPanelItemTitle>Pages</p>
+        <div class="pick-item" *cdkPanelItem="let item">{{item.title}}</div>
     </ng-container>
 
     <!-- Register Recently viewed pages. -->
     <ng-container cdkInputProjectionDef [stream]="recentlyViewedPages$">
-        <p *cdkPanelItemTitle>Recently viewed</p>
-        <span *cdkPanelItem="let item">{{item.title}}</span>
+        <p class="title" *cdkPanelItemTitle>Recently viewed</p>
+        <div class="pick-item" *cdkPanelItem="let item">{{item.title}}</div>
     </ng-container>
 </input-projection>

@@ -1,0 +1,26 @@
+mat-form-field {
+  width: 100%;
+}
+
+::ng-deep {
+  list-renderer {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  list-renderer:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.title {
+  margin-bottom: 10px;
+}
+
+.pick-item {
+  padding: 10px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
