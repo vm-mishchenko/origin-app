@@ -1,9 +1,29 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, Directive, ElementRef, EventEmitter, forwardRef, Inject, OnInit, Output, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {combineLatest, from, of, Subject} from 'rxjs';
 import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
+import {NavigationService} from '../../../../../modules/navigation';
 import {RecentlyViewedPagesService} from '../../../recently-viewed/recently-viewed.service';
 import {PageSearchService} from '../../../search/page-search.service';
+
+@Directive({
+    selector: 'pick-page-container[page-navigate]'
+})
+export class PageNavigateDirective {
+    // todo: read more about that case
+    // https://blog.angularindepth.com/a-curios-case-of-the-host-decorator-and-element-injectors-in-angular-582562abcf0a
+    constructor(@Inject(forwardRef(() => PickPageContainerComponent)) private pickPageContainerComponent: PickPageContainerComponent,
+                private navigationService: NavigationService) {
+        this.pickPageContainerComponent.selectedPage.subscribe((selectedPage) => {
+            this.navigationService.toPage(selectedPage.id);
+        });
+    }
+}
+
+export interface ISelectedPage {
+    id: string;
+    title: string;
+}
 
 @Component({
     selector: 'pick-page-container',
@@ -12,6 +32,7 @@ import {PageSearchService} from '../../../search/page-search.service';
 })
 export class PickPageContainerComponent implements OnInit {
     @ViewChild('input') input: ElementRef;
+    @Output() selectedPage: EventEmitter<ISelectedPage> = new EventEmitter<ISelectedPage>();
 
     searchForm = this.formBuilder.group({
         search: this.formBuilder.control('')
@@ -64,7 +85,7 @@ export class PickPageContainerComponent implements OnInit {
         this.keyStream$.next(event);
     }
 
-    onValue(value) {
-        console.log(value);
+    onValue(value: ISelectedPage) {
+        this.selectedPage.emit(value);
     }
 }

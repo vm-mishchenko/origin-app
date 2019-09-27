@@ -5,7 +5,8 @@ import {
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
-    MatIconModule, MatInputModule,
+    MatIconModule,
+    MatInputModule,
     MatListModule,
     MatMenuModule,
     MatSidenavModule
@@ -41,7 +42,7 @@ import {PageEditorContainerComponent} from './containers/editor/page-editor-cont
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
-import {PickPageContainerComponent} from './containers/pick-page/pick-page-container.component';
+import {PageNavigateDirective, PickPageContainerComponent} from './containers/pick-page/pick-page-container.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
 import {PageViewFileUploaderService} from './page-view-file-uploader.service';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
@@ -82,6 +83,7 @@ const routes: Routes = [
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
         PickPageContainerComponent,
+        PageNavigateDirective,
 
         //test
         FirstDialog
