@@ -1,0 +1,19 @@
+<form [formGroup]=searchForm>
+    <mat-form-field class="example-full-width">
+        <input #input matInput autocomplete="off" type="text" formControlName="search" (keydown)="onKeydown($event)">
+    </mat-form-field>
+</form>
+
+<input-projection [keyStream$]="keyStream$" (value)="onValue($event)">
+    <!-- Register Recently viewed pages. -->
+    <ng-container cdkInputProjectionDef [stream]="pageSearch$">
+        <p *cdkPanelItemTitle>Pages</p>
+        <span *cdkPanelItem="let item">{{item.title}}</span>
+    </ng-container>
+
+    <!-- Register Recently viewed pages. -->
+    <ng-container cdkInputProjectionDef [stream]="recentlyViewedPages$">
+        <p *cdkPanelItemTitle>Recently viewed</p>
+        <span *cdkPanelItem="let item">{{item.title}}</span>
+    </ng-container>
+</input-projection>

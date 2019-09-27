@@ -28,7 +28,7 @@ export class PageRepositoryService2 {
   }
 
   pageIdentity(pageId: string) {
-    return this.pageBodies.doc(pageId).snapshot();
+    return this.pageIdentities.doc(pageId).snapshot();
   }
 
   pageBody(pageId: string) {

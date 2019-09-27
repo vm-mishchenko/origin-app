@@ -1,7 +1,15 @@
 import {CommonModule} from '@angular/common';
 import {NgModule} from '@angular/core';
-import {ReactiveFormsModule} from '@angular/forms';
-import {MatButtonModule, MatCardModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule} from '@angular/material';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule, MatInputModule,
+    MatListModule,
+    MatMenuModule,
+    MatSidenavModule
+} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
 import {NgxInputProjectionModule} from 'ngx-input-projection';
 import {
@@ -33,6 +41,7 @@ import {PageEditorContainerComponent} from './containers/editor/page-editor-cont
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
+import {PickPageContainerComponent} from './containers/pick-page/pick-page-container.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
 import {PageViewFileUploaderService} from './page-view-file-uploader.service';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
@@ -72,6 +81,7 @@ const routes: Routes = [
         PickPageDialogComponent,
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
+        PickPageContainerComponent,
 
         //test
         FirstDialog
@@ -96,6 +106,9 @@ const routes: Routes = [
         FormControlsModule,
         NavigationModule,
 
+        FormsModule,
+        ReactiveFormsModule,
+
         // wall main module
         WallModule,
 
@@ -118,7 +131,9 @@ const routes: Routes = [
         MatSidenavModule,
         MatButtonModule,
         MatMenuModule,
-        MatIconModule
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
     providers: [
         PageBreadcrumbStream,
