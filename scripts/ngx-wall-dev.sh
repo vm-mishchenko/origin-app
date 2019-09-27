@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 cd ~/experients/ngx-wall
 
-# connect ngx-wall dist folder to origin project
-#  share ngx-wall dist folder
-mkdir -p dist/ngx-wall
+# connect $LIB dist folder to origin project
+# share $LIB dist folder
+mkdir -p dist/$LIB
 
-#  create fake file because if dist/ngx-wall is empty
-#  npm link parent ngx-wall folder instead of dist/ngx-wall
-cd dist/ngx-wall
-touch README.md
+#  create fake file because if dist/$LIB is empty
+#  npm link parent $LIB folder instead of dist/$LIB
+cp projects/$LIB/package.json dist/$LIB/package.json
+cd dist/$LIB
 npm link
 
-#  link ngx-wall dist folder to origin-app
+#  link $LIB dist folder to origin-app
 cd ~/experients/origin-app
-npm link ngx-wall
+npm link $LIB
 
 # launch ngx-wall dev process
+# I have to run it at the end because it has the "watch flag"
 cd ~/experients/ngx-wall
 npm run build-for-origin
+

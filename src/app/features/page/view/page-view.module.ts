@@ -3,6 +3,7 @@ import {NgModule} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule, MatCardModule, MatIconModule, MatListModule, MatMenuModule, MatSidenavModule} from '@angular/material';
 import {RouterModule, Routes} from '@angular/router';
+import {NgxInputProjectionModule} from 'ngx-input-projection';
 import {
     CodeBrickModule,
     DividerBrickModule,
@@ -86,6 +87,7 @@ const routes: Routes = [
         FirstDialog
     ],
     imports: [
+        NgxInputProjectionModule,
         CommonModule,
         PageUiModule,
         ShellViewModule,

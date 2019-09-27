@@ -9,11 +9,9 @@ import {FirstDialog} from './first-dialog';
 })
 export class PageBaseContainerComponent implements OnInit, OnDestroy {
     constructor(public dialogWrapperService: DialogWrapperService) {
-
     }
 
     ngOnInit() {
-
     }
 
     ngOnDestroy(): void {
@@ -21,8 +19,5 @@ export class PageBaseContainerComponent implements OnInit, OnDestroy {
 
     openDialog() {
         this.dialogWrapperService.open(FirstDialog);
-        console.log(`openDialog`);
-
-
     }
 }
