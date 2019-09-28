@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs/internal/Observable';
 import {filter, switchMap} from 'rxjs/operators';
 import {UniqueSortedList} from '../../../infrastructure/utils/unique-sorted-list';
 import {EventBus} from '../../../modules/event-bus/event-bus';
@@ -16,7 +17,7 @@ export interface IRecentlyViewedPage {
 })
 export class RecentlyViewedPagesService {
   private recentlyViewedPages = new UniqueSortedList<IRecentlyViewedPage>();
-  recentlyViewed$ = this.recentlyViewedPages.list$;
+  recentlyViewed$: Observable<IRecentlyViewedPage[]> = this.recentlyViewedPages.list$;
 
   constructor(private eventBus: EventBus,
               private navigationService: NavigationService,

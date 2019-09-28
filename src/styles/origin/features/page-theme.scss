@@ -1,12 +1,12 @@
 @import "../../../app/features/page/view/containers/breadcrumbs/page-breadcrumbs-container-theme.component";
 @import "../../../app/features/page/view/containers/mini-breadcrumbs/page-mini-breadcrumbs-container-theme.component";
-@import "../../../app/features/page/view/containers/pick-page/pick-page-container-component-theme";
+@import "../../../app/features/page/view/containers/pick-page/components/list/page-pick-list-component-theme";
 @import "../../../app/features/page/ui/containers/search/page-search-container-theme.component";
 
 @mixin page-theme($theme, $typography) {
   @include page-breadcrumbs-container-theme($theme, $typography);
   @include page-mini-breadcrumbs-container-theme($theme, $typography);
-  @include page-pick-page-container-component-theme($theme, $typography);
+  @include page-pick-list-component-theme($theme, $typography);
   @include page-search-container-theme($theme, $typography);
 }
 

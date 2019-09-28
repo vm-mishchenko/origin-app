@@ -4,7 +4,8 @@
             col-md-10 offset-md-1
             col-lg-6 offset-lg-3
             col-xl-6 offset-xl-3">
-            <pick-page-container page-navigate></pick-page-container>
+            <page-pick-input #pagePickInputComponent="pagePickInput"></page-pick-input>
+            <page-pick-list [pagePickInput]="pagePickInputComponent" page-pick-navigate></page-pick-list>
         </div>
     </div>
 </div>

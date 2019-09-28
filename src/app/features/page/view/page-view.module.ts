@@ -42,7 +42,8 @@ import {PageEditorContainerComponent} from './containers/editor/page-editor-cont
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
-import {PageNavigateDirective, PickPageContainerComponent} from './containers/pick-page/pick-page-container.component';
+import {PagePickInputComponent} from './containers/pick-page/components/input/page-pick-input.component';
+import {PagePickListComponent, PagePickNavigateDirective} from './containers/pick-page/components/list/page-pick-list.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
 import {PageViewFileUploaderService} from './page-view-file-uploader.service';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
@@ -82,8 +83,9 @@ const routes: Routes = [
         PickPageDialogComponent,
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
-        PickPageContainerComponent,
-        PageNavigateDirective,
+        PagePickInputComponent,
+        PagePickListComponent,
+        PagePickNavigateDirective,
 
         //test
         FirstDialog
