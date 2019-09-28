@@ -41,6 +41,7 @@ import {PageEditorMainMenuComponent} from './containers/editor-main-menu/page-ed
 import {PageEditorContainerComponent} from './containers/editor/page-editor-container.component';
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
+import {PickPageDialogComponent2} from './containers/pick-page-dialog-2/pick-page-dialog.component2';
 import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
 import {PagePickInputComponent} from './containers/pick-page/components/input/page-pick-input.component';
 import {PagePickListComponent, PagePickNavigateDirective} from './containers/pick-page/components/list/page-pick-list.component';
@@ -81,6 +82,7 @@ const routes: Routes = [
         PageBreadcrumbsContainerComponent,
         PageMenuContainerComponent,
         PickPageDialogComponent,
+        PickPageDialogComponent2,
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
         PagePickInputComponent,
@@ -92,6 +94,7 @@ const routes: Routes = [
     ],
     entryComponents: [
         PickPageDialogComponent,
+        PickPageDialogComponent2,
         PageMenuContainerComponent,
         PageBreadcrumbsContainerComponent,
         PageMiniBreadcrumbsContainerComponent,

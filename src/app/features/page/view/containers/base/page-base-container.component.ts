@@ -1,5 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Dialog} from '../../services/dialog-wrapper.service';
+import {PickPageDialogComponent2} from '../pick-page-dialog-2/pick-page-dialog.component2';
 import {FirstDialog} from './first-dialog';
 
 @Component({
@@ -18,6 +19,6 @@ export class PageBaseContainerComponent implements OnInit, OnDestroy {
     }
 
     openDialog() {
-        this.dialog.openResizable(FirstDialog);
+        this.dialog.openResizable(PickPageDialogComponent2);
     }
 }
