@@ -1,4 +1,9 @@
 @mixin dialog() {
+  .default-screen {
+    min-width: 50vh;
+    max-height: 50vh;
+  }
+
   .full-screen {
     width: 100%;
     max-width: 100% !important;

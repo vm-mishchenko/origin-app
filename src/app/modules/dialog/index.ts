@@ -16,10 +16,12 @@ export class ResizableDialog<T, R> {
     }
 
     switchToFullScreen() {
+        this.dialog.removePanelClass('default-screen');
         this.dialog.addPanelClass('full-screen');
     }
 
     switchToDefaultScreen() {
         this.dialog.removePanelClass('full-screen');
+        this.dialog.addPanelClass('default-screen');
     }
 }

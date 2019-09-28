@@ -17,9 +17,6 @@ export class DialogWrapperService extends MatDialog {
 @Injectable()
 export class Dialog {
     constructor(private dialogWrapperService: DialogWrapperService, private deviceLayoutService: DeviceLayoutService) {
-        this.deviceLayoutService.isNarrowLayout$.subscribe((isMobilelayout) => {
-            // console.log(isMobilelayout);
-        });
     }
 
     openResizable<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): ResizableDialog<T, R> {
