@@ -18,3 +18,5 @@
         <div class="pick-item" *cdkPanelItem="let item">{{item.title}}</div>
     </ng-container>
 </input-projection>
+
+<i class="empty" *ngIf="showEmptyText$ | async">{{emptyText$ | async}}</i>

@@ -19,5 +19,9 @@
         background-color: mat-color($background, hover);
       }
     }
+
+    .empty {
+      color: mat-color($foreground, secondary-text)
+    }
   }
 }

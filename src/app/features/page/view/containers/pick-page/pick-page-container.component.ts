@@ -1,7 +1,8 @@
 import {Component, Directive, ElementRef, EventEmitter, forwardRef, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
-import {combineLatest, from, of, Subject} from 'rxjs';
+import {combineLatest, from, Observable, of, Subject} from 'rxjs';
 import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
+import {RandomReactiveListItem} from '../../../../../infrastructure/utils/random-reactive-list-item';
 import {NavigationService} from '../../../../../modules/navigation';
 import {RecentlyViewedPagesService} from '../../../recently-viewed/recently-viewed.service';
 import {PageSearchService} from '../../../search/page-search.service';
@@ -25,6 +26,15 @@ export interface ISelectedPage {
     title: string;
 }
 
+const EMPTY_MESSAGES = [
+    'Nothing here',
+    'I remember, it definitely has that name!',
+    'Hm, seems empty',
+    'No results',
+    ':( I agree, remember page name is not always easy',
+    'Good try, keep going'
+];
+
 @Component({
     selector: 'pick-page-container',
     templateUrl: 'pick-page-container.component.html',
@@ -39,6 +49,8 @@ export class PickPageContainerComponent implements OnInit {
         search: this.formBuilder.control('')
     });
 
+    searchQuery$ = this.searchForm.get('search').valueChanges;
+
     recentlyViewedPages$ = combineLatest([
         this.searchForm.get('search').valueChanges.pipe(startWith('')),
         this.recentlyViewedPagesService.recentlyViewed$
@@ -50,7 +62,7 @@ export class PickPageContainerComponent implements OnInit {
       })
     );
 
-    pageSearch$ = this.searchForm.get('search').valueChanges.pipe(
+    pageSearch$ = this.searchQuery$.pipe(
       debounceTime(100),
       switchMap((searchQuery) => {
             if (searchQuery === '') {
@@ -71,11 +83,34 @@ export class PickPageContainerComponent implements OnInit {
       )
     );
 
+    private hasSearchResults$ = combineLatest([
+        this.recentlyViewedPages$,
+        this.pageSearch$,
+    ]).pipe(
+      map(([recentlyViewedPages, pageSearchList]) => {
+          return Boolean(recentlyViewedPages.length || pageSearchList.length);
+      })
+    );
+
+    showEmptyText$ = combineLatest([
+        this.hasSearchResults$,
+        this.searchQuery$
+    ]).pipe(
+      map(([hasSearchResults, searchQuery]) => {
+          return searchQuery.length && !hasSearchResults;
+      }),
+      startWith(false)
+    );
+
     keyStream$ = new Subject();
+
+    emptyText$: Observable<string>;
 
     constructor(readonly recentlyViewedPagesService: RecentlyViewedPagesService,
                 private pageSearchService: PageSearchService,
                 private formBuilder: FormBuilder) {
+        const emptyTextList = new RandomReactiveListItem(EMPTY_MESSAGES);
+        this.emptyText$ = emptyTextList.pipe(this.hasSearchResults$);
     }
 
     ngOnInit() {
