@@ -44,18 +44,6 @@ export class Hotkey {
         callback: () => {
           this.storageSyncService.sync();
         }
-      },
-      {
-        keys: ['[', 'ctrl+['],
-        callback: () => {
-          this.recentlyViewedPagesService.goToPreviousPage();
-        }
-      },
-      {
-        keys: [']', 'ctrl+]'],
-        callback: () => {
-          this.recentlyViewedPagesService.goToNextPage();
-        }
       }
     ];
 

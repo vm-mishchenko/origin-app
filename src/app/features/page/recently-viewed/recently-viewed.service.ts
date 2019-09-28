@@ -6,6 +6,45 @@ import {NavigationService} from '../../../modules/navigation';
 import {PageRepositoryService2} from '../repository/page-repository.service2';
 import {PageOpened} from '../view/state/events';
 
+class UniqueList<T extends { id: string }> {
+  private listBehaviour$ = new BehaviorSubject<Array<T>>([]);
+  list$ = this.listBehaviour$.asObservable();
+
+  constructor(private maxListNumber: number = 20) {
+  }
+
+  add(item: T) {
+    const newList: T[] = this.deleteItemIfExist(item);
+
+    if (newList.length < this.maxListNumber) {
+      newList.push(item);
+    }
+
+    this.listBehaviour$.next(newList);
+  }
+
+  private deleteItemIfExist(item: T) {
+    const currentList = this.listBehaviour$.getValue();
+
+    const existingItemIndex = currentList.findIndex((currentItem) => {
+      return currentItem.id === item.id;
+    });
+
+    let newList: T[];
+
+    if (existingItemIndex !== -1) {
+      newList = [
+        ...currentList.slice(0, existingItemIndex),
+        ...currentList.slice(existingItemIndex + 1)
+      ];
+    } else {
+      newList = currentList.slice(0);
+    }
+
+    return newList;
+  }
+}
+
 export interface IRecentlyViewedPage {
   id: string;
   title: string;
@@ -15,73 +54,22 @@ export interface IRecentlyViewedPage {
   providedIn: 'root'
 })
 export class RecentlyViewedPagesService {
-  private recentlyViewedBehaviour$ = new BehaviorSubject<Array<IRecentlyViewedPage>>([]);
-  recentlyViewed$ = this.recentlyViewedBehaviour$.asObservable();
-
-  private cursorPosition = -1;
+  private recentlyViewedPages = new UniqueList<IRecentlyViewedPage>();
+  recentlyViewed$ = this.recentlyViewedPages.list$;
 
   constructor(private eventBus: EventBus,
               private navigationService: NavigationService,
               private pageRepositoryService2: PageRepositoryService2) {
     this.eventBus.events$.pipe(
       filter((event) => event instanceof PageOpened),
-      filter((event) => {
-        return event.pageId && event.pageId !== this.getCurrentPageId();
-      }),
       switchMap((event: PageOpened) => {
         return this.pageRepositoryService2.pageIdentity(event.pageId);
       })
     ).subscribe((pageIdentitySnapshot) => {
-      const sliceIndex = this.cursorPosition === -1 ? 0 : this.cursorPosition + 1;
-
-      let newRecentlyViewed = this.recentlyViewedBehaviour$.getValue().slice(0, sliceIndex);
-
-      newRecentlyViewed = newRecentlyViewed.concat([
-        {
-          id: pageIdentitySnapshot.id,
-          title: pageIdentitySnapshot.data().title
-        }
-      ]);
-
-      console.log(`next`);
-      this.recentlyViewedBehaviour$.next(newRecentlyViewed);
-      this.cursorPosition = newRecentlyViewed.length - 1;
+      this.recentlyViewedPages.add({
+        id: pageIdentitySnapshot.id,
+        title: pageIdentitySnapshot.data().title
+      });
     });
-  }
-
-  goToNextPage() {
-    if (this.isCursorAtTheEnd()) {
-      return false;
-    }
-
-    this.cursorPosition++;
-    const nextPageId = this.recentlyViewedBehaviour$.getValue()[this.cursorPosition].id;
-    this.navigationService.toPage(nextPageId);
-  }
-
-  goToPreviousPage() {
-    if (this.recentlyViewedBehaviour$.getValue().length === 0 || this.isCursorAtTheStart()) {
-      return;
-    }
-
-    this.cursorPosition--;
-    const previousPageId = this.recentlyViewedBehaviour$.getValue()[this.cursorPosition].id;
-    this.navigationService.toPage(previousPageId);
-  }
-
-  private getCurrentPageId() {
-    if (this.cursorPosition === -1) {
-      return undefined;
-    }
-
-    return this.recentlyViewedBehaviour$.getValue()[this.cursorPosition];
-  }
-
-  private isCursorAtTheEnd() {
-    return this.cursorPosition + 1 === this.recentlyViewedBehaviour$.getValue().length;
-  }
-
-  private isCursorAtTheStart() {
-    return this.cursorPosition === 0;
   }
 }

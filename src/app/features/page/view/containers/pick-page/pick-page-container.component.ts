@@ -1,4 +1,4 @@
-import {Component, Directive, ElementRef, EventEmitter, forwardRef, Inject, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, Directive, ElementRef, EventEmitter, forwardRef, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {combineLatest, from, of, Subject} from 'rxjs';
 import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
@@ -32,6 +32,7 @@ export interface ISelectedPage {
 })
 export class PickPageContainerComponent implements OnInit {
     @ViewChild('input') input: ElementRef;
+    @Input() placeholder = 'Find your pages';
     @Output() selectedPage: EventEmitter<ISelectedPage> = new EventEmitter<ISelectedPage>();
 
     searchForm = this.formBuilder.group({

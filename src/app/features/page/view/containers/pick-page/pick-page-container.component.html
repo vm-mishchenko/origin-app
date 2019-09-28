@@ -1,6 +1,7 @@
 <form [formGroup]=searchForm>
     <mat-form-field class="example-full-width">
-        <input #input matInput autocomplete="off" type="text" formControlName="search" (keydown)="onKeydown($event)">
+        <input [placeholder]="placeholder" #input matInput autocomplete="off" type="text" formControlName="search"
+               (keydown)="onKeydown($event)">
     </mat-form-field>
 </form>
 
