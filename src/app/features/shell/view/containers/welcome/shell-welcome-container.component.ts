@@ -17,7 +17,7 @@ export class ShellWelcomeContainerComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.deviceLayoutService.isMobileLayout()) {
+        if (this.deviceLayoutService.isNarrowLayout()) {
             this.shellStore.closeMenu();
         }
     }

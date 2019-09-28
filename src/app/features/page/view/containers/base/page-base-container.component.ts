@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {DialogWrapperService} from '../../services/dialog-wrapper.service';
+import {Dialog} from '../../services/dialog-wrapper.service';
 import {FirstDialog} from './first-dialog';
 
 @Component({
@@ -8,7 +8,7 @@ import {FirstDialog} from './first-dialog';
     styleUrls: ['./page-base-container.component.scss']
 })
 export class PageBaseContainerComponent implements OnInit, OnDestroy {
-    constructor(public dialogWrapperService: DialogWrapperService) {
+    constructor(private dialog: Dialog) {
     }
 
     ngOnInit() {
@@ -18,6 +18,6 @@ export class PageBaseContainerComponent implements OnInit, OnDestroy {
     }
 
     openDialog() {
-        this.dialogWrapperService.open(FirstDialog);
+        this.dialog.openResizable(FirstDialog);
     }
 }

@@ -1,31 +1,44 @@
-import {Injectable} from '@angular/core';
 import {MediaMatcher} from '@angular/cdk/layout';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DeviceLayoutService {
-    mobileLayout$: Observable<Boolean> = new BehaviorSubject(false);
-    private mobileQuery: MediaQueryList;
+    isNarrowLayout$: Observable<Boolean> = new BehaviorSubject(false);
+    isMediumLayout$: Observable<Boolean> = new BehaviorSubject(false);
+    isWideLayout$: Observable<Boolean> = new BehaviorSubject(false);
+
+    private mediumQuery: MediaQueryList;
+    private narrowQuery: MediaQueryList;
+    private wideQuery: MediaQueryList;
 
     constructor(media: MediaMatcher) {
-        this.mobileQuery = media.matchMedia('(max-width: 600px)');
+        this.narrowQuery = media.matchMedia('(max-width: 600px)');
+        this.mediumQuery = media.matchMedia('(min-width: 601px) and (max-width: 920px)');
+        this.wideQuery = media.matchMedia('(min-width: 601px) and (max-width: 920px)');
 
-        this.mobileQuery.addListener(() => {
-            this.updateMobileLayoutValue();
+        this.narrowQuery.addListener(() => {
+            this.update();
         });
 
-        if (this.mobileQuery.matches) {
-            this.updateMobileLayoutValue();
-        }
+        this.mediumQuery.addListener(() => {
+            this.update();
+        });
+
+        this.wideQuery.addListener(() => {
+            this.update();
+        });
     }
 
-    isMobileLayout(): Boolean {
-        return Boolean(this.mobileQuery.matches);
+    isNarrowLayout(): Boolean {
+        return Boolean(this.narrowQuery.matches);
     }
 
-    private updateMobileLayoutValue() {
-        (this.mobileLayout$ as BehaviorSubject<Boolean>).next(this.mobileQuery.matches);
+    private update() {
+        (this.isNarrowLayout$ as BehaviorSubject<Boolean>).next(this.narrowQuery.matches);
+        (this.isMediumLayout$ as BehaviorSubject<Boolean>).next(this.mediumQuery.matches);
+        (this.isWideLayout$ as BehaviorSubject<Boolean>).next(this.wideQuery.matches);
     }
 }

@@ -32,7 +32,7 @@ export class ShellContainerComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.deviceLayoutService.mobileLayout$.subscribe(() => {
+        this.deviceLayoutService.isNarrowLayout$.subscribe(() => {
             this.changeDetectorRef.detectChanges();
         });
 

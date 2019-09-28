@@ -1,5 +1,5 @@
 <mat-sidenav-container>
-    <mat-sidenav #sidenav [mode]="(deviceLayoutService.mobileLayout$ | async) ? 'over' : 'side'">
+    <mat-sidenav #sidenav [mode]="(deviceLayoutService.isNarrowLayout$ | async) ? 'over' : 'side'">
         <mat-nav-list>
             <a [routerLink]="['/']" mat-list-item>Home</a>
             <a [routerLink]="['/settings']" mat-list-item>Settings</a>

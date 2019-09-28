@@ -79,7 +79,7 @@ export class PageEditorContainerComponent implements OnInit, OnDestroy {
             ).subscribe((pageId) => {
                 this.pageViewStore.setSelectedPageId(pageId);
 
-                if (this.deviceLayoutService.isMobileLayout()) {
+                if (this.deviceLayoutService.isNarrowLayout()) {
                     this.shellStore.closeMenu();
                 }
             })

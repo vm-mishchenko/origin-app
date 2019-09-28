@@ -1,5 +1,7 @@
 @import "./core/core";
+@import "../../app/modules/dialog/dialog";
 
 @mixin origin() {
   @include origin-core();
+  @include dialog();
 }

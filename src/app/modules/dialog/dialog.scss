@@ -1,0 +1,11 @@
+@mixin dialog() {
+  .full-screen {
+    width: 100%;
+    max-width: 100% !important;
+    height: 100vh;
+
+    .mat-dialog-container {
+      border-radius: 0;
+    }
+  }
+}

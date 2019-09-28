@@ -47,7 +47,7 @@ import {PageTitleEditorContainerComponent} from './containers/title-editor/page-
 import {PageViewFileUploaderService} from './page-view-file-uploader.service';
 import {PageSearchPageComponent} from './pages/search/page-search-page.component';
 import {BottomSheetWrapperService} from './services/bottom-sheet-wrapper.service';
-import {DialogWrapperService} from './services/dialog-wrapper.service';
+import {Dialog, DialogWrapperService} from './services/dialog-wrapper.service';
 import {PageBreadcrumbStream} from './state/page-breadcrumbs-view.stream';
 import {PageViewQuery} from './state/page-view.query';
 import {PageViewStore} from './state/page-view.store';
@@ -141,6 +141,7 @@ const routes: Routes = [
         PageBreadcrumbStream,
         BottomSheetWrapperService,
         DialogWrapperService,
+        Dialog,
         PageViewStore,
         PageViewQuery,
         {

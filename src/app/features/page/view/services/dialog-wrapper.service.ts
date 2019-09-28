@@ -1,5 +1,8 @@
-import {Injectable} from '@angular/core';
-import {MatDialog} from '@angular/material';
+import {ComponentType} from '@angular/cdk/portal';
+import {Injectable, TemplateRef} from '@angular/core';
+import {MatDialog, MatDialogConfig} from '@angular/material';
+import {DeviceLayoutService} from '../../../../infrastructure/device-layout/device-layout.service';
+import {ResizableDialog} from '../../../../modules/dialog';
 
 /*
 * Dont ask what the heck is that.
@@ -9,4 +12,18 @@ import {MatDialog} from '@angular/material';
 * */
 @Injectable()
 export class DialogWrapperService extends MatDialog {
+}
+
+@Injectable()
+export class Dialog {
+    constructor(private dialogWrapperService: DialogWrapperService, private deviceLayoutService: DeviceLayoutService) {
+        this.deviceLayoutService.isNarrowLayout$.subscribe((isMobilelayout) => {
+            // console.log(isMobilelayout);
+        });
+    }
+
+    openResizable<T, D = any, R = any>(componentOrTemplateRef: ComponentType<T> | TemplateRef<T>, config?: MatDialogConfig<D>): ResizableDialog<T, R> {
+        const matDialogRef = this.dialogWrapperService.open(componentOrTemplateRef, config);
+        return new ResizableDialog(matDialogRef, this.deviceLayoutService);
+    }
 }
