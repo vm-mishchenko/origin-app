@@ -3,9 +3,10 @@ import {Observable} from 'rxjs';
 import {filter, map} from 'rxjs/operators';
 import {PageConfigStorageService} from '../../../config/page-config-storage.service';
 import {PageService} from '../../../repository';
-import {DialogWrapperService} from '../../services/dialog-wrapper.service';
+import {Dialog} from '../../services/dialog-wrapper.service';
 import {PageViewQuery} from '../../state/page-view.query';
-import {PickPageDialogComponent} from '../pick-page-dialog/pick-page-dialog.component';
+import {PickPageDialogComponent2} from '../pick-page-dialog-2/pick-page-dialog.component2';
+import {ISelectedPage} from '../pick-page/components/list/page-pick-list.component';
 
 @Component({
     selector: 'app-page-menu-container',
@@ -19,17 +20,23 @@ export class PageMenuContainerComponent implements OnInit {
     constructor(private pageViewQuery: PageViewQuery,
                 private pageService: PageService,
                 private pageConfigStorageService: PageConfigStorageService,
-                public dialogWrapperService: DialogWrapperService) {
+                private dialog: Dialog) {
     }
 
     ngOnInit() {
     }
 
     moveTo() {
-        this.dialogWrapperService.open(PickPageDialogComponent).afterClosed()
+        this.dialog
+          .openResizable<PickPageDialogComponent2, /*data*/any, /*return type*/ISelectedPage>
+          (PickPageDialogComponent2).dialogRef.afterClosed()
             .pipe(
-                filter((result) => Boolean(result)),
-                map((result) => result.pageId)
+              filter((result) => {
+                  return Boolean(result);
+              }),
+              map((result) => {
+                  return result.id;
+              })
             ).subscribe((pageId) => {
             this.pageService.movePage2(this.pageViewQuery.getSelectedPageId(), pageId);
         });
@@ -49,10 +56,10 @@ export class PageMenuContainerComponent implements OnInit {
             return;
         }
 
-        this.dialogWrapperService.open(PickPageDialogComponent).afterClosed()
+        this.dialog.openResizable(PickPageDialogComponent2).dialogRef.afterClosed()
             .pipe(
                 filter((result) => Boolean(result)),
-                map((result) => result.pageId)
+              map((result) => result.id)
             ).subscribe((pageId) => {
 
             this.pageService.moveBricks2(this.pageViewQuery.getSelectedPageId(),

@@ -33,7 +33,6 @@ import {NavigationModule} from '../../../modules/navigation';
 import {ShellViewModule} from '../../shell/view';
 import {PageUiModule} from '../ui';
 import {PageEditorComponent} from './components/editor/page-editor.component';
-import {FirstDialog} from './containers/base/first-dialog';
 import {PageBaseContainerComponent} from './containers/base/page-base-container.component';
 import {PageBodyEditorContainerComponent} from './containers/body-editor/page-body-editor-container.component';
 import {PageBreadcrumbsContainerComponent} from './containers/breadcrumbs/page-breadcrumbs-container.component';
@@ -42,7 +41,6 @@ import {PageEditorContainerComponent} from './containers/editor/page-editor-cont
 import {PageMenuContainerComponent} from './containers/menu/page-menu-container.component';
 import {PageMiniBreadcrumbsContainerComponent} from './containers/mini-breadcrumbs/page-mini-breadcrumbs-container.component';
 import {PickPageDialogComponent2} from './containers/pick-page-dialog-2/pick-page-dialog.component2';
-import {PickPageDialogComponent} from './containers/pick-page-dialog/pick-page-dialog.component';
 import {PagePickInputComponent} from './containers/pick-page/components/input/page-pick-input.component';
 import {PagePickListComponent, PagePickNavigateDirective} from './containers/pick-page/components/list/page-pick-list.component';
 import {PageTitleEditorContainerComponent} from './containers/title-editor/page-title-editor-container.component';
@@ -81,27 +79,19 @@ const routes: Routes = [
         PageSearchPageComponent,
         PageBreadcrumbsContainerComponent,
         PageMenuContainerComponent,
-        PickPageDialogComponent,
         PickPageDialogComponent2,
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
         PagePickInputComponent,
         PagePickListComponent,
         PagePickNavigateDirective,
-
-        //test
-        FirstDialog
     ],
     entryComponents: [
-        PickPageDialogComponent,
         PickPageDialogComponent2,
         PageMenuContainerComponent,
         PageBreadcrumbsContainerComponent,
         PageMiniBreadcrumbsContainerComponent,
         PageEditorMainMenuComponent,
-
-        //test
-        FirstDialog
     ],
     imports: [
         NgxInputProjectionModule,
