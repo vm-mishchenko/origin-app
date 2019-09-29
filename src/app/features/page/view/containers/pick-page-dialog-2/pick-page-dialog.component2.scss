@@ -1,0 +1,11 @@
+/*Take the approach from there https://codepen.io/stephenbunch/pen/KWBNVo*/
+.pick-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+page-pick-list {
+  flex-grow: 1;
+  overflow: auto;
+}

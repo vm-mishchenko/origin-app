@@ -3,9 +3,11 @@ import {takeUntil} from 'rxjs/operators';
 import {DeviceLayoutService} from '../../infrastructure/device-layout/device-layout.service';
 
 export class ResizableDialog<T, R> {
-    constructor(readonly dialog: MatDialogRef<T, R>, private deviceLayoutService: DeviceLayoutService) {
+    constructor(readonly dialogRef: MatDialogRef<T, R>, private deviceLayoutService: DeviceLayoutService) {
+        this.deviceLayoutService.isNarrowLayout() ? this.switchToFullScreen() : this.switchToDefaultScreen();
+
         this.deviceLayoutService.isNarrowLayout$.pipe(
-          takeUntil(this.dialog.afterClosed())
+          takeUntil(this.dialogRef.afterClosed())
         ).subscribe((isNarrowLayout) => {
             if (isNarrowLayout) {
                 this.switchToFullScreen();
@@ -16,12 +18,12 @@ export class ResizableDialog<T, R> {
     }
 
     switchToFullScreen() {
-        this.dialog.removePanelClass('default-screen');
-        this.dialog.addPanelClass('full-screen');
+        this.dialogRef.removePanelClass('default-screen');
+        this.dialogRef.addPanelClass('full-screen');
     }
 
     switchToDefaultScreen() {
-        this.dialog.removePanelClass('full-screen');
-        this.dialog.addPanelClass('default-screen');
+        this.dialogRef.removePanelClass('full-screen');
+        this.dialogRef.addPanelClass('default-screen');
     }
 }

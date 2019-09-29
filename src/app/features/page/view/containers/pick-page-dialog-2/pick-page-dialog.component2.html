@@ -1,3 +1,11 @@
-<page-pick-input #pagePickInputComponent="pagePickInput"></page-pick-input>
-<page-pick-list [pagePickInput]="pagePickInputComponent" (selectedPage)="selectPage($event)"></page-pick-list>
+<div class="expand-dialog-content-height">
+    <div class="pick-page-wrapper">
+        <page-pick-input #pagePickInputComponent="pagePickInput"></page-pick-input>
+        <page-pick-list [pagePickInput]="pagePickInputComponent" (selectedPage)="selectPage($event)"></page-pick-list>
 
+        <br>
+        <div mat-dialog-actions align="end">
+            <button mat-button (click)="onNoClick()">Cancel</button>
+        </div>
+    </div>
+</div>

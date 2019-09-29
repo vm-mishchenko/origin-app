@@ -11,8 +11,10 @@ export class PickPageDialogComponent2 {
     }
 
     selectPage(selectedPage: ISelectedPage): void {
-        this.dialogRef;
-
         this.dialogRef.close(selectedPage);
+    }
+
+    onNoClick() {
+        this.dialogRef.close();
     }
 }
