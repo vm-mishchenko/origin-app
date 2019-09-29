@@ -1,7 +1,7 @@
 import {Component, Directive, EventEmitter, forwardRef, Inject, Input, OnInit, Output} from '@angular/core';
+import {IInputPanelItem} from 'ngx-input-projection';
 import {combineLatest, from, Observable, of} from 'rxjs';
 import {debounceTime, map, startWith, switchMap} from 'rxjs/operators';
-import {IInputPanelItem} from '../../../../../../../../../../ngx-wall/projects/ngx-input-projection/src/lib/input-projection.component';
 import {RandomReactiveListItem} from '../../../../../../../infrastructure/utils/random-reactive-list-item';
 import {NavigationService} from '../../../../../../../modules/navigation';
 import {RecentlyViewedPagesService} from '../../../../../recently-viewed/recently-viewed.service';
