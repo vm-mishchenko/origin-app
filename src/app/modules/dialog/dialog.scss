@@ -12,7 +12,7 @@ $dialog-sum-top-bottom-padding: 48px;
     display: flex;
 
     @media (max-width: $narrow-max-width) {
-      height: calc(100vh - #{$dialog-sum-top-bottom-padding});
+      height: 100%;
     }
   }
 

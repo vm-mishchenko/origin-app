@@ -1,5 +1,7 @@
 <div class="expand-dialog-content-height">
     <div class="pick-page-wrapper">
+        <h1 mat-dialog-title>Pick page</h1>
+
         <page-pick-input #pagePickInputComponent="pagePickInput"></page-pick-input>
         <page-pick-list [pagePickInput]="pagePickInputComponent" (selectedPage)="selectPage($event)"></page-pick-list>
 

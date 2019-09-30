@@ -1,14 +1,14 @@
 import {MediaMatcher} from '@angular/cdk/layout';
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class DeviceLayoutService {
-    isNarrowLayout$: Observable<Boolean> = new BehaviorSubject(false);
-    isMediumLayout$: Observable<Boolean> = new BehaviorSubject(false);
-    isWideLayout$: Observable<Boolean> = new BehaviorSubject(false);
+    isNarrowLayout$: Observable<Boolean> = new Subject();
+    isMediumLayout$: Observable<Boolean> = new Subject();
+    isWideLayout$: Observable<Boolean> = new Subject();
 
     private mediumQuery: MediaQueryList;
     private narrowQuery: MediaQueryList;
@@ -30,6 +30,8 @@ export class DeviceLayoutService {
         this.wideQuery.addListener(() => {
             this.update();
         });
+
+        this.update();
     }
 
     isNarrowLayout(): Boolean {
